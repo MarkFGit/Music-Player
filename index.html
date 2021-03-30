@@ -19,8 +19,10 @@
 			</div>
 			<div class="centerBox">
 				<p>Click here to listen</p>
-				<img src="media/play.png" id="icon">
-				<img src="media/play.png" id="icon2">
+				<div id = "seekBar">
+					<div id = "fill"></div>
+					<div id = "handlef"></div>
+				</div>
 				<table id="songTable"> </table>
 			</div>
 		</div>
@@ -36,7 +38,7 @@
 		function createTable(){
 			var table = document.getElementById("songTable");
 			table.setAttribute('id','table');
-			for(var songCount = 1; songCount <= 2; songCount++){ /*Songs*/
+			for(var songCount = 1; songCount <= 5; songCount++){ /*Songs*/
 				//var row = table.insertRow(0);
 				//var cell1 = row.insertCell(0);
 				//cell1.innerHTML = "NEW CELL"; 
@@ -45,29 +47,43 @@
 		}
 
 		function addRow(songCount){
-			//var row = table.insertRow(-1);
-			//var cell1 = row.insertCell(0);
-
-			//cell1.innerHTML = '1'; 
-			//cell1.appendChild('text');
-			//var tablz = document.getElementById('songTable');
 			let tr = table.insertRow(-1);
 			let td = tr.insertCell(0);
+			let td2 = tr.insertCell(1);
 
-			//td = tr.insertCell(0);
-			let newText = document.createTextNode('New row');
+			//songTest = addSongObject(songCount);
+
+			let newText = document.createTextNode('media/'+songCount.toString()+'.mp3');
 			let newImg = document.createElement('img');
-			//newImg.setAttribute('type','img');
 
-			let mySong1=document.getElementById("song1");
-			let songFile = document.getElementById("song1");
-			mySong1.setAttribute('src','media/1');
-			songFile.setAttribute('src','media/'+songCount.toString()+'.mp3');
-			let icon1=document.getElementById("icon");
-			newImg.setAttribute('src',songFile);
-			newImg.onclick=function(){
-				if(mySong1.paused){
+			newImg.setAttribute('id','newImg');
+			newImg.setAttribute('type','img');
+
+
+			//let icon1=document.getElementById("icon");
+
+			newImg.setAttribute('src','media/play.png');
+
+			newImg.onclick = function(){
+				let mySong1 = document.getElementById('song1');
+				mySong1.setAttribute('type','audio/mp3');
+				mySong1.setAttribute('src', 'media/'+songCount.toString()+'.mp3');
+				var position = mySong1.currentTime / mySong1.duration;
+				mySong1.addEventListener('timeupdate', function(){
+					position = mySong1.currentTime / mySong1.duration;
+					fill.style.width = position *  100 + '%';
+					handlef.style.marginLeft = 100 *position + '%';
+					newText = document.createTextNode(position);
+					if(position == 1){
+						newImg.src = "media/play.png";
+						position = 0;
+						fill.style.width = 0 + '%';
+						handlef.style.marginLeft = 0 + '%';
+					}
+				});
+				if(newImg.src == "file:///C:/Users/markr/Desktop/Website/media/play.png"){//mySong1.paused){
 					mySong1.play();
+					//mySong1.currentTime = position;// * mySong1.duration;
 					newImg.src = "media/pause.png";
 				}
 				else{
@@ -75,44 +91,66 @@
 					newImg.src = "media/play.png";
 				}
 			}
-			//var text = document.createElement('text');
-			//text.setAttribute('type','text');
-			//text.setAttribute('value', 'hi');
+			
+
+
+			//var newText = document.createElement('text');
+			//newText.setAttribute('type','text');
+			//newText.setAttribute('value', 'hi');
 			//td.appendChild(newText);
 			td.appendChild(newImg);
+			//let newText = document.createElement('text');
+			//newText.setAttribute('value','hi');
+			//td2.appendChild(newText);
+			td2.appendChild(newText);
 
 		}
 
+		function addSongObject(songCount){
 
 
-/*		icon.onclick=function(){
-			if(mySong1.paused){
-				mySong1.play();
-				icon.src = "media/pause.png";
-			}
-			else{
-				mySong1.pause();
-				icon.src = "media/play.png";
-			}
+
 		}
-*/		var mySong2=document.getElementById("song2");
-		var icon2=document.getElementById("icon2");
-		icon2.onclick=function(){
-			if(mySong2.paused){
-				mySong2.play();
-				icon2.src = "media/pause.png";
-			}
-			else{
-				mySong2.pause();
-				icon2.src = "media/play.png";
-			}
-		}
+		//function newSound(songCount){
+			//this.type = ''
+			//this.src = 'media/'+songCount.toString()+'.mp3';
+
+			//return this;
+		//}
+
+
+		//Wants:
+			//multiple pages to select from, ex: home, playlists, artists
+			//volume slider
+			//song slider (select where you want to be in song)
+			//back and forth buttons
+			//need to fix such that only one song is "playing" at once
+
 	</script>
 	<!--h1>Hello World!</h1-->
 	<!--button onclick="revealMessage()">Click me</button-->
 	<!--p id="hiddenMessage" style="display:none">You are going to die</p-->
 </body>
 </html>
+
+<!-- 			//var row = table.insertRow(-1);
+			//var cell1 = row.insertCell(0);
+
+			//cell1.innerHTML = '1'; 
+			//cell1.appendChild('text');
+			//var tablz = document.getElementById('songTable');
+			//song = new newSong(songCount);
+			
+/*			var sound = document.createElement('audio');
+			sound.id = "audio-player";
+			//sound.controls = controls;
+			sound.src = 'media/'+songCount.toString()+'.mp3';
+			sound.type = 'audio/mp3';
+			mySong1 = document.getElementById('song1').appendChild(sound);*/
+
+			//mySong1 = document.getElementById('mySong1').insertAdjacentHTML('','<audio id="audio-player" src="media/Blue Browne.mp3" type="audio/mpeg">'); -->
+
+
 
 <!-- 				//var row = document.createElement('tr');
 				//var image = document.getElementById("icon");
