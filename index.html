@@ -51,63 +51,97 @@
 			let td = tr.insertCell(0);
 			let td2 = tr.insertCell(1);
 
-			//songTest = addSongObject(songCount);
+			songTest = new addSongObject(songCount);
 
-			let newText = document.createTextNode('media/'+songCount.toString()+'.mp3');
-			let newImg = document.createElement('img');
-
-			newImg.setAttribute('id','newImg');
-			newImg.setAttribute('type','img');
-
-
-			//let icon1=document.getElementById("icon");
-
-			newImg.setAttribute('src','media/play.png');
-
-			newImg.onclick = function(){
+			songTest.newImg.addEventListener('click', function foo(){
+			//songTest.newImg.onclick = function(){
 				let mySong1 = document.getElementById('song1');
 				mySong1.setAttribute('type','audio/mp3');
 				mySong1.setAttribute('src', 'media/'+songCount.toString()+'.mp3');
-				var position = mySong1.currentTime / mySong1.duration;
-				mySong1.addEventListener('timeupdate', function(){
-					position = mySong1.currentTime / mySong1.duration;
+				var position = songTest.song.currentTime / songTest.song.duration;
+				songTest.song.addEventListener('timeupdate', function foo2(){
+					position = songTest.song.currentTime / songTest.song.duration;
 					fill.style.width = position *  100 + '%';
-					handlef.style.marginLeft = 100 *position + '%';
-					newText = document.createTextNode(position);
+					handlef.style.marginLeft = 100 * position + '%';
+					//songTest.newText = document.createTextNode(position);
 					if(position == 1){
-						newImg.src = "media/play.png";
+						songTest.newImg.src = "media/play.png";
 						position = 0;
 						fill.style.width = 0 + '%';
 						handlef.style.marginLeft = 0 + '%';
 					}
 				});
-				if(newImg.src == "file:///C:/Users/markr/Desktop/Website/media/play.png"){//mySong1.paused){
-					mySong1.play();
+				if(songTest.newImg.src == "file:///C:/Users/markr/Desktop/Website/media/play.png"){//mySong1.paused){
+					songTest.song.play();
 					//mySong1.currentTime = position;// * mySong1.duration;
-					newImg.src = "media/pause.png";
+					songTest.newImg.src = "media/pause.png";
 				}
 				else{
-					mySong1.pause();
-					newImg.src = "media/play.png";
+					songTest.song.pause();
+					songTest.newImg.src = "media/play.png";
 				}
-			}
+			});
 			
-
-
 			//var newText = document.createElement('text');
 			//newText.setAttribute('type','text');
 			//newText.setAttribute('value', 'hi');
 			//td.appendChild(newText);
-			td.appendChild(newImg);
+			td.appendChild(songTest.newImg);
 			//let newText = document.createElement('text');
 			//newText.setAttribute('value','hi');
 			//td2.appendChild(newText);
-			td2.appendChild(newText);
+			td2.appendChild(songTest.newText);
 
 		}
 
 		function addSongObject(songCount){
+			this.newText = document.createTextNode('media/'+songCount.toString()+'.mp3');
 
+			this.newImg = document.createElement('img');
+			this.newImg.setAttribute('id','newImg');//+songCount.toString());
+			this.newImg.setAttribute('type','img');
+			this.newImg.setAttribute('src','media/play.png');
+
+			this.song = document.createElement('audio');
+			this.song.setAttribute('id','song');
+			this.song.setAttribute('type','audio/mp3');
+			this.song.setAttribute('src', 'media/'+songCount.toString()+'.mp3');
+
+			this.position = this.song.currentTime / this.song.duration;
+			//if(songCount == 1){
+/*			this.newImg.addEventListener('click',function(){
+				//let mySong1 = document.getElementById('song1');
+				//mySong1.setAttribute('type','audio/mp3');
+				//mySong1.setAttribute('src', 'media/'+songCount.toString()+'.mp3');
+				
+				this.song.addEventListener('timeupdate', function(){
+					this.position = this.song.currentTime / this.song.duration;
+					fill.style.width = this.position *  100 + '%';
+					handlef.style.marginLeft = 100 * this.position + '%';
+					//this.newText = '1';
+					//songTest.newText = document.createTextNode(position);
+					if(position == 1){
+						this.newImg.src = "media/play.png";
+						//position = 0;
+						fill.style.width = 0 + '%';
+						handlef.style.marginLeft = 0 + '%';
+					}
+				});
+				if(this.newImg.src == "file:///C:/Users/markr/Desktop/Website/media/play.png"){//mySong1.paused){
+					this.song.play();
+					//mySong1.currentTime = position;// * mySong1.duration;
+					this.newImg.src = "media/pause.png";
+				}
+				else{
+					this.song.pause();
+					this.newImg.src = "media/play.png";
+				}
+			});*/
+
+		}
+
+
+		function playSong(){
 
 
 		}
