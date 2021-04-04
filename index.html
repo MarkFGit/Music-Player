@@ -55,55 +55,30 @@
 
 			var songTest = new addSongObject(songCount);
 
-			/*songTest.newImg.setAttribute('id','newImg');//+songCount.toString());
-			songTest.newImg.setAttribute('type','img');
-			songTest.newImg.setAttribute('src','media/play.png');*/
-
-/*			songTest.song.setAttribute('id','song');
-			songTest.song.setAttribute('type','audio/mp3');
-			songTest.song.setAttribute('src', 'media/'+songCount.toString()+'.mp3');*/
 
 			songTest.newImg.addEventListener('click', function(){
-				
-				//stopOtherSongs(songTest.songNum);
+
 				if(lastSong != null && lastSong != songTest.songNum && table.rows[lastSong-1].cells[0].firstElementChild.src == "file:///C:/Users/markr/Desktop/Website/media/pause.png" && stop == false){
 					//If a song has been played before, and it's a different than the last, and it's currently playing...
 						//then pause it by clicking on it, send a 1 to indicate the song needs to stat from beginning
-					table.rows[lastSong-1].cells[0].firstElementChild.click();
 					stop = true;
+					table.rows[lastSong-1].cells[0].firstElementChild.click();
+					stop = false;
 				}
-				else{ stop = false }
 
-/*				songTest.song.addEventListener('timeupdate', function(){
-					position = songTest.song.currentTime / songTest.song.duration;
-					fill.style.width = position *  100 + '%';
-					handlef.style.marginLeft = 100 * position + '%';
-
-					if(position == 1){
-						songTest.newImg.src = "media/play.png";
-						position = 0;
-						fill.style.width = 0 + '%';
-						handlef.style.marginLeft = 0 + '%';
-					}
-				});*/
 
 				if(songTest.newImg.src == "file:///C:/Users/markr/Desktop/Website/media/play.png"){
 					songTest.song.play();
 					songTest.newImg.src = "media/pause.png";
-					if(stop){ //please figure out in the morning
-						songTest.song.currentTime = 0;
-						stop = false;
-					}
 				}
 				else{
 					songTest.song.pause();
 					songTest.newImg.src = "media/play.png";
-					if(stop){
+					if(stop){  //if told to stop, this effecitvely sets the previously played song back to the beginning of the track
 						songTest.song.currentTime = 0;
-						stop = false;
 					}
 				}
-
+				stop = false;
 				lastSong = songTest.songNum;
 			});
 			songTest.song.addEventListener('timeupdate', function(){
@@ -111,11 +86,14 @@
 				fill.style.width = position *  100 + '%';
 				handlef.style.marginLeft = 100 * position + '%';
 
-				if(position == 1){
+				if(position == 1){ //if the song finishes
 					songTest.newImg.src = "media/play.png";
 					position = 0;
 					fill.style.width = 0 + '%';
 					handlef.style.marginLeft = 0 + '%';
+					//revert the song that just finished back to its origional state
+					//then move to the next song (if there is a next song)
+					table.rows[lastSong].cells[0].firstElementChild.click();
 				}
 			});
 
@@ -137,7 +115,7 @@
 			this.song.setAttribute('type','audio/mp3');
 			this.song.setAttribute('src', 'media/'+songCount.toString()+'.mp3');
 
-			this.position;// = this.song.currentTime / this.song.duration;
+			this.position;
 
 			this.songNum = songCount;
 			//if(songCount == 1){
@@ -172,7 +150,7 @@
 
 		}
 
-		function stopOtherSongs(songNum){
+/*		function stopOtherSongs(songNum){
 
 			for (var i = table.rows.length - 1; i >= 0; i--) {
 				if(i != songNum-1 && table.rows[i].cells[0].firstElementChild.src == "file:///C:/Users/markr/Desktop/Website/media/pause.png"){
@@ -180,27 +158,14 @@
 					table.rows[i].cells[0].firstElementChild.foo(1); //clicks on each play button, which corresponds to a unique song
 				}
 			}
-		}
-
-
-		function playSong(){
-
-
-		}
-		//function newSound(songCount){
-			//this.type = ''
-			//this.src = 'media/'+songCount.toString()+'.mp3';
-
-			//return this;
-		//}
+		}*/
 
 
 		//Wants:
 			//multiple pages to select from, ex: home, playlists, artists
 			//volume slider
-			//song slider (select where you want to be in song)
+			//song slider (select where you want to be in song) (seekbar)
 			//back and forth buttons
-			//need to fix such that only one song is "playing" at once
 
 	</script>
 	<!--h1>Hello World!</h1-->
