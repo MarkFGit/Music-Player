@@ -34,11 +34,13 @@
 		<source src="media/2.mp3" type="audio/mp3">
 	</audio>
 	<script>
-
+		var lastSong = null;
+		var stop = null;
 		function createTable(){
 			var table = document.getElementById("songTable");
 			table.setAttribute('id','table');
-			for(var songCount = 1; songCount <= 5; songCount++){ /*Songs*/
+			var songCount;
+			for(songCount = 1; songCount <= 5; songCount++){ /*Songs*/
 				//var row = table.insertRow(0);
 				//var cell1 = row.insertCell(0);
 				//cell1.innerHTML = "NEW CELL"; 
@@ -51,51 +53,79 @@
 			let td = tr.insertCell(0);
 			let td2 = tr.insertCell(1);
 
-			songTest = new addSongObject(songCount);
+			var songTest = new addSongObject(songCount);
 
-			songTest.newImg.addEventListener('click', function foo(){
-			//songTest.newImg.onclick = function(){
-				let mySong1 = document.getElementById('song1');
-				mySong1.setAttribute('type','audio/mp3');
-				mySong1.setAttribute('src', 'media/'+songCount.toString()+'.mp3');
-				var position = songTest.song.currentTime / songTest.song.duration;
-				songTest.song.addEventListener('timeupdate', function foo2(){
+			/*songTest.newImg.setAttribute('id','newImg');//+songCount.toString());
+			songTest.newImg.setAttribute('type','img');
+			songTest.newImg.setAttribute('src','media/play.png');*/
+
+/*			songTest.song.setAttribute('id','song');
+			songTest.song.setAttribute('type','audio/mp3');
+			songTest.song.setAttribute('src', 'media/'+songCount.toString()+'.mp3');*/
+
+			songTest.newImg.addEventListener('click', function(){
+				
+				//stopOtherSongs(songTest.songNum);
+				if(lastSong != null && lastSong != songTest.songNum && table.rows[lastSong-1].cells[0].firstElementChild.src == "file:///C:/Users/markr/Desktop/Website/media/pause.png" && stop == false){
+					//If a song has been played before, and it's a different than the last, and it's currently playing...
+						//then pause it by clicking on it, send a 1 to indicate the song needs to stat from beginning
+					table.rows[lastSong-1].cells[0].firstElementChild.click();
+					stop = true;
+				}
+				else{ stop = false }
+
+/*				songTest.song.addEventListener('timeupdate', function(){
 					position = songTest.song.currentTime / songTest.song.duration;
 					fill.style.width = position *  100 + '%';
 					handlef.style.marginLeft = 100 * position + '%';
-					//songTest.newText = document.createTextNode(position);
+
 					if(position == 1){
 						songTest.newImg.src = "media/play.png";
 						position = 0;
 						fill.style.width = 0 + '%';
 						handlef.style.marginLeft = 0 + '%';
 					}
-				});
-				if(songTest.newImg.src == "file:///C:/Users/markr/Desktop/Website/media/play.png"){//mySong1.paused){
+				});*/
+
+				if(songTest.newImg.src == "file:///C:/Users/markr/Desktop/Website/media/play.png"){
 					songTest.song.play();
-					//mySong1.currentTime = position;// * mySong1.duration;
 					songTest.newImg.src = "media/pause.png";
+					if(stop){ //please figure out in the morning
+						songTest.song.currentTime = 0;
+						stop = false;
+					}
 				}
 				else{
 					songTest.song.pause();
 					songTest.newImg.src = "media/play.png";
+					if(stop){
+						songTest.song.currentTime = 0;
+						stop = false;
+					}
+				}
+
+				lastSong = songTest.songNum;
+			});
+			songTest.song.addEventListener('timeupdate', function(){
+				position = songTest.song.currentTime / songTest.song.duration;
+				fill.style.width = position *  100 + '%';
+				handlef.style.marginLeft = 100 * position + '%';
+
+				if(position == 1){
+					songTest.newImg.src = "media/play.png";
+					position = 0;
+					fill.style.width = 0 + '%';
+					handlef.style.marginLeft = 0 + '%';
 				}
 			});
-			
-			//var newText = document.createElement('text');
-			//newText.setAttribute('type','text');
-			//newText.setAttribute('value', 'hi');
-			//td.appendChild(newText);
+
 			td.appendChild(songTest.newImg);
-			//let newText = document.createElement('text');
-			//newText.setAttribute('value','hi');
-			//td2.appendChild(newText);
 			td2.appendChild(songTest.newText);
 
 		}
 
 		function addSongObject(songCount){
-			this.newText = document.createTextNode('media/'+songCount.toString()+'.mp3');
+			this.newText = document.createTextNode('media/'+songCount+'.mp3');
 
 			this.newImg = document.createElement('img');
 			this.newImg.setAttribute('id','newImg');//+songCount.toString());
@@ -107,7 +137,9 @@
 			this.song.setAttribute('type','audio/mp3');
 			this.song.setAttribute('src', 'media/'+songCount.toString()+'.mp3');
 
-			this.position = this.song.currentTime / this.song.duration;
+			this.position;// = this.song.currentTime / this.song.duration;
+
+			this.songNum = songCount;
 			//if(songCount == 1){
 /*			this.newImg.addEventListener('click',function(){
 				//let mySong1 = document.getElementById('song1');
@@ -138,6 +170,16 @@
 				}
 			});*/
 
+		}
+
+		function stopOtherSongs(songNum){
+
+			for (var i = table.rows.length - 1; i >= 0; i--) {
+				if(i != songNum-1 && table.rows[i].cells[0].firstElementChild.src == "file:///C:/Users/markr/Desktop/Website/media/pause.png"){
+					//var stop = 1;
+					table.rows[i].cells[0].firstElementChild.foo(1); //clicks on each play button, which corresponds to a unique song
+				}
+			}
 		}
 
 
