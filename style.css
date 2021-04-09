@@ -1,20 +1,51 @@
 *{
-	margin: .5% 2%;
-	padding: 1% 2%;
+	margin: .5% 1%;
+	padding: .5% 1%;
 	font-family: sans-serif;
+	/* font-color: white; */
 }
 body{
-	background-color:grey;
+	background-color:black;
+	/* position:relative; */
 }
+
+#lowerBar{
+	background-color: #111;
+	margin-left: -4%;/*-100px; */
+	margin-bottom: -5px;
+	width:100%;
+	height:12%;
+	position:fixed;
+	bottom:0;
+
+}
+
 .container{
-	height: 100%;
+/* 	height: 100%; */
 	width: 100%;
+	margin: 0% 0%;
+	padding: .001% .001%;
 	margin:auto;
 	/*background-image: url(media/image.png);*/
-	background-color: white;
+	background-color: #333; /*medium grey*/
 	background-size: cover;
-	background-position center;
+	background-position: center;
 	position: relative;
+}
+
+.content{
+/* 	height: 100%;
+ 	width: 100%;
+	margin:auto; */
+	background-color: #002;
+	/* position: relative; */
+}
+
+#navBar{
+	width:92.2%;
+	position:right;
+	color:pink;
+	background-color:grey;
 }
 
 .centerBox{
@@ -34,43 +65,63 @@ body{
 	margin-right:10px;
 }
 
+
 #newImg{
 	width:35px;
 	cursor:pointer;
 }
 
 #seekBar{
-	width: 250px;
+
+	width: 95.8%;
 	height: 5px;
 	background-color:grey;
 	border-radius:50px;
-	margin-left:25px;
+	margin-left:0px;
 	cursor:pointer;       /* makes cursor the hand thing */
+	position: relative;
+	padding: .2% .2%;
 }
 
 #fill{
-	height:0px;
-	background-color:royalblue;
-	width: 0px;
+	margin-top: -1px;
+	margin-left: 0px;
+	max-width: 99.5%;
+	/* width: 0px; */
+	width: 0%;
+	border-radius: 100px;
+	background-color: royalblue;
+	/* border-left-width: 10px; */
+	position: relative;
+	padding: .2% .2%;
 
 }
 
 
 #handlef{
-	width: 5px;
-	height: 12px;
-	background-color:darkblue;
-	border-radius:50%;
-	margin-left: 0px;
-	margin-top: -12px;
+	margin-top: -54px;
+	margin-left: -28px;
+	border: 2px solid #000;
+    padding: 10px 40px;
+    background: white;
+    width: 1px;
+    height: 60px;
+    border-radius: 100px;
+    transform: scale(0.2, 0.2);
+    position: absolute;
 }
 
-#navBar{
-	width:92.2%;
-	position:right;
-	color:pink;
-	background-color:black;
+.spacer{
+	float: right;
+	max-width: 40px;
+	/* padding: .4% .4%; */
+	background-color: orange;
+	/* position: fixed; */
 }
+
+/* #spacer1{
+	position: right;
+} */
 
 ul{
 	list-style-type: none;
