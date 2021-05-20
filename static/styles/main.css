@@ -1,0 +1,168 @@
+*{
+	margin: .5% 1%;
+	padding: .5% 1%;
+	font-family: sans-serif;
+	/* font-color: white; */
+}
+body{
+	background-color: white;
+	margin: -5% -2.1%;
+	padding: 0% 0%;
+	/* position:relative; */
+}
+
+#lowerBar{
+	background-color: #111;
+	margin-left: 0%;/*-100px; */
+	margin-bottom: 0%;
+	width:100%;
+	height:10%;
+	position:fixed;
+	bottom:0;
+
+}
+
+.container{
+/* 	height: 100%; */
+	width: 100%;
+	margin: 5% 1%;
+	padding: 6% 0%;
+	margin:auto;
+	background-color: #333; /*medium grey*/
+	background-size: cover;
+	background-position: center;
+	position: relative;
+}
+
+.content{
+	width: 85%;
+	margin: 0% 6%;
+	/* padding: 4% 1; */
+	background-color: #002; /*dark blue*/
+	/* position: relative; */
+}
+
+#navBar{
+	width:70%;
+	position: center;
+	color:pink;
+	background-color:grey;
+}
+
+#sidePanel{
+	margin-top: -100%;
+	position: absolute;
+	color: purple;
+}
+
+.centerBox{
+	float: center;
+	margin-right: 50%;
+	margin:auto;
+	margin-top: 50px;
+	display:right;
+	align-items:right;
+}
+
+.centerBox p{
+	font-size:20px;
+	color: black;
+	margin:auto;
+	font-weight:400;
+	margin-right:10px;
+}
+
+
+#newImg{
+	width:35px;
+	cursor:pointer;
+}
+
+#seekBar{
+
+	width: 95.8%;
+	height: 5%;
+	background-color:grey;
+	border-radius:50px;
+	margin-left:0px;
+	cursor:pointer;
+	position: relative;
+	padding: .2% .2%;
+}
+
+
+::-webkit-scrollbar{
+	width: 12px;
+}
+
+::-webkit-scrollbar-thumb{
+	border-radius: 50px;
+}
+
+
+#fill{
+	margin-top: -.05%;
+	margin-left: 0px;
+	max-width: 99.5%;
+	/* width: 0px; */
+	width: 0%;
+	border-radius: 100px;
+	background-color: royalblue;
+	/* border-left-width: 10px; */
+	position: relative;
+	padding: .2% .2%;
+
+}
+
+
+#handlef{
+	margin-top: -3%;
+	margin-left: -1.6%;
+	border: 2px solid #000;
+    padding: 10px 40px;
+    background: white;
+    width: 1px;
+    height: 60px;
+    border-radius: 100px;
+    transform: scale(0.2, 0.2);
+    position: absolute;
+}
+
+
+.wrapper {
+    margin: auto;
+    width: 960px;
+}
+
+.column{
+	background-color:orange;
+	cursor:pointer; 
+	float: left;
+	width: 15%;
+	text-align: center;
+}
+
+ul{
+	list-style-type: none;
+}
+
+ul li{
+	display: inline-block;
+}
+
+ul li a{
+	text-decoration: none;
+	color: #fff;
+	padding: 5px 20px;
+	border: 1px solid #fff;
+}
+
+ul li a:hover{
+	background-color: #fff; /*white*/
+	color: #000;
+}
+
+ul li.active a{
+	background-color: #fff;
+	color: #000;
+}
