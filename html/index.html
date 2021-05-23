@@ -3,10 +3,7 @@
 <head>
 <title> Music </title>
 <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/main.css') }}">
-
-<!-- <link rel="stylesheet" href="style.css" /> -->
 </head>
-
 
 
 <body onload="createTable()">
@@ -21,9 +18,7 @@
 				</ul>
 			</div>
 			<div class="centerBox">
-				<!-- <p>Click here to listen</p> -->
 				<table id="songTable"> </table>
-
 			</div>
 		</div>
 	</div>
@@ -42,15 +37,6 @@
 	<div id="sidePanel">sidePanel</div>
 	
 
-	<script id='helper' data='{{ data }}' src="{{ url_for('static',filename='script.js') }}"> </script>
+	<script id='scriptTag' songNames='{{ songNames }}' numSongs='{{ numSongs }}' src="{{ url_for('static',filename='script.js') }}"> </script>
 </body>
-
-
-	<!-- <script>
-				//var myData = '{{ data }}';
-				var table = document.getElementById("songTable");
-				//table.rows[5].cells[0].firstElementChild.parent.newSpan.appendChild(myData);
-				if(table.rows[0] != null){
-				table.rows[0].cells[0].firstElementChild.parent.newSpan.appendChild(document.createTextNode('BYEEEEEEEEEEEEEE'));}
-			</script> -->
 </html>

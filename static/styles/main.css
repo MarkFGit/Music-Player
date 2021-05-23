@@ -97,6 +97,7 @@ body{
 
 ::-webkit-scrollbar-thumb{
 	border-radius: 50px;
+	background: grey;
 }
 
 

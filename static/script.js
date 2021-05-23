@@ -41,7 +41,8 @@ function stopDragElement() {
 function createTable(){
 	//table.setAttribute('id','table');
 	var songCount;
-	for(songCount = 1; songCount <= 50; songCount++){ /*Songs*/
+	var x = document.getElementById('scriptTag').getAttribute('numSongs');
+	for(songCount = 1; songCount <= x; songCount++){ /*Songs*/
 		addRow(songCount);
 	}
 
@@ -137,7 +138,7 @@ function addSongObject(songCount){
 }
 
 function addEntryInfo(){
-	var x = document.getElementById('helper').getAttribute('data');
+	var x = document.getElementById('scriptTag').getAttribute('songNames');
 	var arr = x.split(",");
 
 	arr[0] = arr[0].slice(2,arr[0].length-1); //handle first element with opening bracket
