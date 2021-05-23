@@ -1,0 +1,56 @@
+<DOCTYPE! html>
+<html>
+<head>
+<title> Music </title>
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/main.css') }}">
+
+<!-- <link rel="stylesheet" href="style.css" /> -->
+</head>
+
+
+
+<body onload="createTable()">
+	<div class="container">
+		<div class="content">
+			<div id="navBar">
+				<h3>NavBar!</h3>
+				<ul> <!-- Unordered list -->
+					<li class="active"><a href="#">Home</a></li>
+					<li><a href="Playlists">Playlists</a></li>
+					<li><a href="Artists">Artists</a></li>
+				</ul>
+			</div>
+			<div class="centerBox">
+				<!-- <p>Click here to listen</p> -->
+				<table id="songTable"> </table>
+
+			</div>
+		</div>
+	</div>
+	<div id="lowerBar">
+		<div id="seekBar">
+			<div id = "fill"></div>
+			<div id = "handlef"></div>
+		</div>
+		<div class="wrapper">
+			
+        	<div class="column" id="playPrev">previous</div>
+        	<div class="column" id="playButton">Play</div>
+        	<div class="column" id="playNext">next</div>
+		</div>
+	</div>
+	<div id="sidePanel">sidePanel</div>
+	
+
+	<script id='helper' data='{{ data }}' src="{{ url_for('static',filename='script.js') }}"> </script>
+</body>
+
+
+	<!-- <script>
+				//var myData = '{{ data }}';
+				var table = document.getElementById("songTable");
+				//table.rows[5].cells[0].firstElementChild.parent.newSpan.appendChild(myData);
+				if(table.rows[0] != null){
+				table.rows[0].cells[0].firstElementChild.parent.newSpan.appendChild(document.createTextNode('BYEEEEEEEEEEEEEE'));}
+			</script> -->
+</html>
