@@ -27,7 +27,7 @@ function mouseDown(e) {
 	
 	let seekBarWidth = .958;
 
-	if(e.clientX < window.innerWidth * seekBarWidth && lastSong != null){ //Seekbar is 95.8% of width, so this is why .958 is used. This doesn't allow the handle to go further than the seekbar extends
+	if(e.clientX < window.innerWidth * seekBarWidth && lastSongNum != null){ //Seekbar is 95.8% of width, so this is why .958 is used. This doesn't allow the handle to go further than the seekbar extends
 		handlef.style.marginLeft = (e.clientX / window.innerWidth)*(100 * (2-.96)) - 3.2 + "%";
 		fill.style.width = (e.clientX / window.innerWidth)*(100 * (2-.95))- 1.6  + "%";
 		mainAudio.currentTime = (parseFloat(fill.style.width)/100) * mainAudio.duration;
@@ -42,7 +42,7 @@ function dragElement(e) {
 	e = e || window.event;
 	e.preventDefault();
 
-	if(e.clientX < window.innerWidth * .958 && lastSong != null && e.clientX > 10){
+	if(e.clientX < window.innerWidth * .958 && lastSongNum != null && e.clientX > 10){
 			handlef.style.marginLeft = (e.clientX / window.innerWidth)*(100 * (2-.96))- 3.2  + "%";
 		fill.style.width = (e.clientX / window.innerWidth)*(100 * (2-.95)) - 1.6 + "%";
 		mainAudio.currentTime = (parseFloat(fill.style.width)/100) * mainAudio.duration;
@@ -52,7 +52,7 @@ function dragElement(e) {
 function stopDragElement() {
 	document.onmouseup = null;
 	document.onmousemove = null;
-	if(table.rows[lastSong-1].cells[0].firstElementChild.src == "http://127.0.0.1:5000/static/media/pause.png"){ //if it was playing (paused temporarily due to dragElement), then play
+	if(table.rows[lastSongNum-1].cells[0].firstElementChild.src == "http://127.0.0.1:5000/static/media/pause.png"){ //if it was playing (paused temporarily due to dragElement), then play
 		mainAudio.play();
 	} 
 }
@@ -83,7 +83,7 @@ function addRow(songCount){
 			if(lastSongNum != null){ //If a song has been played before
 				//set corresponding image to the paused icon
 				findImage(lastSongNum-1);//table.rows[lastSong-1].cells[0].firstElementChild.src = 'static/media/play.png';
-				songObject.isPlaying = false; //??????????
+				songObject.isPlaying = false;
 			}
 			mainAudio.src = `static/media/songs/${songObject.newSpan.innerText}.mp3`;
 		}
@@ -183,11 +183,11 @@ function arrayifyFlaskData(getAttribute){
 	return arr;
 }
 
-document.getElementById("playPrev").addEventListener('click', () => table.rows[lastSong-2].cells[0].firstElementChild.click());
+document.getElementById("playPrev").addEventListener('click', () => table.rows[lastSongNum-2].cells[0].firstElementChild.click());
 
-document.getElementById("playButton").addEventListener('click', () => table.rows[lastSong-1].cells[0].firstElementChild.click());
+document.getElementById("playButton").addEventListener('click', () => table.rows[lastSongNum-1].cells[0].firstElementChild.click());
 
-document.getElementById("playNext").addEventListener('click', () => table.rows[lastSong].cells[0].firstElementChild.click());
+document.getElementById("playNext").addEventListener('click', () => table.rows[lastSongNum].cells[0].firstElementChild.click());
 
 
 //Wants:
