@@ -1,5 +1,5 @@
 import os
-from flask import Flask, redirect, url_for, render_template, send_from_directory, send_file
+from flask import Flask, redirect, url_for, render_template, send_from_directory, send_file, request
 from tinytag import TinyTag
 from PIL import Image
 from io import BytesIO
@@ -7,13 +7,18 @@ from base64 import b64encode
 
 app = Flask(__name__, template_folder='html', static_folder='static')
 
-@app.route("/")
+@app.route("/", methods=["POST","GET"])
 def home():
 	path = 'C:/Users/markr/Desktop/Website/static/media/songs/'
 	songNames = sorted(os.listdir(path), key=len)
 	numSongs = len(os.listdir(path))
 
-
+	if(request.method == "POST"):
+		print("information\n\n\n\n\n\n\n\n\n\n\n")
+		print(request.get_json())
+		thing = "hi"
+		return "hi"
+	
 	#start loop
 	for song in songNames:
 		coverImg = TinyTag.get(path+song, image = True)
@@ -21,9 +26,9 @@ def home():
 
 		if (coverImage_data != None): #Modify this ***********
 			coverBytes = Image.open(BytesIO(coverImage_data))
-			print(song)
-			print(song[:-4])
-			print("\n\n\n")
+			# print(song)
+			# print(song[:-4])
+			# print("\n\n\n")
 			coverBytes.save('C:/Users/markr/Desktop/Website/static/media/songCovers/'+song[:-4]+".jpeg")
 
 	#output = BytesIO()
@@ -38,7 +43,6 @@ def home():
 	#end loop
 
 	return render_template('index.html', songNames = songNames, numSongs = numSongs)
-
 
 
 @app.route("/Playlists")
@@ -56,13 +60,13 @@ def checkImages():
 
 
 if __name__ == "__main__":
-	path = 'C:/Users/markr/Desktop/Website/static/media/songs'
-	song = TinyTag.get(path+"/6.mp3")
+	# path = 'C:/Users/markr/Desktop/Website/static/media/songs'
+	# song = TinyTag.get(path+"/6.mp3")
 
-	print("Title: " + str(song.title))
-	print("Duration: " + str(song.artist))
-	print("Duration: " + str(song.duration))
-	print("Duration: " + str(song.duration))
+	# print("Title: " + str(song.title))
+	# print("Duration: " + str(song.artist))
+	# print("Duration: " + str(song.duration))
+	# print("Duration: " + str(song.duration))
 
 
 
