@@ -8,14 +8,14 @@ mainAudio.addEventListener('timeupdate', () => {
 	handlef.style.marginLeft = (position * 100) - 1.8 + '%';
 
 	if(position == 1){ //if the song finishes
-		let lastSongObject = table.rows[lastSong-1].cells[0].firstElementChild.parent;
+		let lastSongObject = table.rows[lastSongNum-1].cells[0].firstElementChild.parent;
 		lastSongObject.newImg.src = 'static/media/play.png';
 		position = 0;
 		fill.style.width = 0 + '%';
 		handlef.style.marginLeft = 0 + '%';
 		//revert the song that just finished back to its original state
 		//then move to the next song (if there is a next song)
-		table.rows[lastSong].cells[0].firstElementChild.click();
+		table.rows[lastSongNum].cells[0].firstElementChild.click();
 	}
 });
 
