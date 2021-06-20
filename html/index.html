@@ -28,16 +28,37 @@
 			<div id = "fill"></div>
 			<div id = "handlef"></div>
 		</div>
-		<div class="wrapper">
-			
-        	<div class="column" id="playPrev">previous</div>
-        	<div class="column" id="playButton">Play</div>
-        	<div class="column" id="playNext">next</div>
+		
+
+		<div class="lowerBarButtonsWrapper">
+			<div class="currentTimeAndTitle">
+				<div id="currentTimeStamp"> -:-- </div>
+				<div id="title"> Playing: </div>
+
+			</div>
+
+			<div class="threeButtonContainer" id="threeButtons">
+	        	<div class="column" id="playPrev">
+	        		<!-- previous -->
+	        		<img id="prevImg" src="{{ url_for('static',filename='media/prev.png') }}">
+	        	</div>
+	        	<div class="column" id="playButton">
+	        		<img id="currImg" src="{{ url_for('static',filename='media/newPlay.png') }}">
+	        	</div>
+	        	<div class="column" id="playNext"><!-- next -->
+	        		<img id="nextImg" src="{{ url_for('static',filename='media/next.png') }}">
+	        	</div>
+	        </div>
+
+        	<div id="timeLength"> -:-- </div>
 		</div>
+
+		
 	</div>
 	<div id="sidePanel">sidePanel</div>
 	
 
-	<script id='scriptTag' songNames='{{ songNames }}' numSongs='{{ numSongs }}' image_data = '{{ image_data }}' src="{{ url_for('static',filename='script.js') }}"> </script>
+	<script id='scriptTag' songNames='{{ songNames }}' numOfSongs='{{ numSongs }}' image_data = '{{ image_data }}' songTitles = '{{ songTitles }}' songArtists = '{{ songArtists }}' 
+	songDurations = '{{ songDurations }}' src="{{ url_for('static',filename='script.js') }}"> </script> <!-- defer? modules? -->
 </body>
 </html>

@@ -9,40 +9,54 @@ app = Flask(__name__, template_folder='html', static_folder='static')
 
 @app.route("/", methods=["POST","GET"])
 def home():
-	path = 'C:/Users/markr/Desktop/Website/static/media/songs/'
-	songNames = sorted(os.listdir(path), key=len)
-	numSongs = len(os.listdir(path))
+	# if(request.method == "POST"):
+	# 	print("information\n\n\n\n\n\n\n\n\n\n\n")
+	# 	print(request.get_json())
+	# 	return
 
-	if(request.method == "POST"):
-		print("information\n\n\n\n\n\n\n\n\n\n\n")
-		print(request.get_json())
-		thing = "hi"
-		return "hi"
-	
+
+	songPath = 'C:/Users/markr/Desktop/Website/static/media/songs/'
+	songFileNames = sorted(os.listdir(songPath), key=len)
+
+	coverPath = 'C:/Users/markr/Desktop/Website/static/media/songCovers/'
+	coverPathNames = os.listdir(coverPath)
+
+	numSongs = len(os.listdir(songPath))
+
+	songTitles = []
+	songArtists = []
+	songDurations = []
+
 	#start loop
-	for song in songNames:
-		coverImg = TinyTag.get(path+song, image = True)
-		coverImage_data = coverImg.get_image()
 
-		if (coverImage_data != None): #Modify this ***********
-			coverBytes = Image.open(BytesIO(coverImage_data))
-			# print(song)
-			# print(song[:-4])
-			# print("\n\n\n")
-			coverBytes.save('C:/Users/markr/Desktop/Website/static/media/songCovers/'+song[:-4]+".jpeg")
+	for song in songFileNames:
+		songData = TinyTag.get(songPath+song)
 
-	#output = BytesIO()
-	#coverBytes.save(output, format='JPEG')
-	#image_data = b64encode(output.getvalue())
+		if(song not in coverPathNames):
+			coverImage_data = songData.get_image()
+			if (coverImage_data != None): #Modify this ***********
+				coverBytes = Image.open(BytesIO(coverImage_data))
+				coverBytes.save('C:/Users/markr/Desktop/Website/static/media/songCovers/'+song[:-4]+".jpeg")
+
+		if(isinstance(songData.title, str)):
+			songTitles.append(str(songData.title))
+		else:
+			songTitles.append("No Song Artist Metadata")
 
 
-	# if (type(image_data) != str):
-	# 	image_data = image_data.decode() #Turns bytes to string
+		if(isinstance(songData.artist, str)):
+			songArtists.append(str(songData.artist))
+		else:
+			songArtists.append("No Song Artist Metadata")
 
-	# data_url = 'data:image/jpeg;base64,' + image_data
-	#end loop
 
-	return render_template('index.html', songNames = songNames, numSongs = numSongs)
+		if(isinstance(songData.duration, float)):
+			songDurations.append(f'{int(songData.duration / 60)}:{"0" + str(int(songData.duration % 60)) if int(songData.duration % 60) < 10 else int(songData.duration % 60)}')
+		else:
+			songDurations.append('')
+
+
+	return render_template('index.html', songNames = songFileNames, numSongs = numSongs, songTitles = songTitles, songArtists = songArtists, songDurations = songDurations)
 
 
 @app.route("/Playlists")
@@ -55,27 +69,5 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
-def checkImages():
-	return foo
-
-
 if __name__ == "__main__":
-	# path = 'C:/Users/markr/Desktop/Website/static/media/songs'
-	# song = TinyTag.get(path+"/6.mp3")
-
-	# print("Title: " + str(song.title))
-	# print("Duration: " + str(song.artist))
-	# print("Duration: " + str(song.duration))
-	# print("Duration: " + str(song.duration))
-
-
-
 	app.run(debug=True)
-	
-
-
-#May Want Class for object that can hold:
-	#Song Title
-	#Song Artist
-	#Song Image Data (if present)
-	#
