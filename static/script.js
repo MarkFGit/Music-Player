@@ -2,33 +2,33 @@ let lastSongNum = null;
 let table = document.getElementById("songTable");
 let mainAudio = document.getElementById("mainAudio");
 
+let draggingSong = false;
+
 mainAudio.addEventListener('timeupdate', () => {
-	position = mainAudio.currentTime / mainAudio.duration;
-	fill.style.width = position *  100 + '%';
-	handlef.style.marginLeft = (position * 100) - 1.8 + '%';
+	let songPosition = mainAudio.currentTime / mainAudio.duration;
+	if(!isNaN(songPosition)){
+		seekBarProgress.style.width = `${songPosition * 100}%`;
+	}
+	
 
-	updateCurrentTime = document.getElementById('currentTimeStamp');
-
-	//seconds = Math.floor(mainAudio.currentTime % 60);
 	let minutes = Math.floor(mainAudio.currentTime / 60);
 	let seconds = Math.floor(mainAudio.currentTime % 60);
+
 	if(seconds < 10){
 		seconds = `0${seconds}`;
 	}
 
-
+	let updateCurrentTime = document.getElementById('currentTimeStamp');
 	updateCurrentTime.innerText = `${minutes}:${seconds}`;
 
-	if(position == 1){ //if the song finishes: revert the song that just finished back to its original state
+	if(songPosition == 1 && !draggingSong){ //if the song finishes: revert the song that just finished back to its original state
 		let lastSongObject = table.rows[lastSongNum-1].cells[0].firstElementChild.parent;
-		lastSongObject.coverImg.src = 'static/media/play.png';
-		position = 0;
-		fill.style.width = 0 + '%';
-		handlef.style.marginLeft = 0 + '%';
+		seekBarProgress.style.width = '0%';
 
-		/*if the last song in the playlist finishes playing... set the main play button to as if it's paused. Otherwise, play the next song*/
+		/*if the last song in the playlist finishes playing... set the player to as if it's paused. Otherwise, play the next song*/
 		if(lastSongObject.songNum == table.rows.length){ 
 			document.getElementById('currImg').src = "static/media/newPlay.png";
+			findImage(lastSongNum-1);
 		}
 		else{
 			table.rows[lastSongNum].cells[0].firstElementChild.click();
@@ -38,56 +38,77 @@ mainAudio.addEventListener('timeupdate', () => {
 
 document.getElementById("seekBar").onmousedown = mouseDown;
 
-function mouseDown(e) {
-
-	if(mainAudio.src == "http://127.0.0.1:5000/"){
-		return; //can't use audio bar if no song has been selected
+function mouseDown(event) {
+	if(mainAudio.src == "http://127.0.0.1:5000/"){ //can't use audio bar if no song is selected
+		console.log("%cError: Cannot use seekbar when no song is selected.", "color: red");
+		return; 
 	}
 
-	e = e || window.event;
-	e.preventDefault();
-	
-	let seekBarWidth = .958;
+	draggingSong = true;
+
+	event = event || window.event;
+	event.preventDefault();
 
 
+	let seekBarWidth = getCSSProperty('seekBar', 'width');
+	seekBarWidth = seekBarWidth.slice(0,seekBarWidth.length-2); /* removes 'px' from the width */
 
-	if(e.clientX < window.innerWidth * seekBarWidth && lastSongNum != null){ //Seekbar is 95.8% of width, so this is why .958 is used. This doesn't allow the handle to go further than the seekbar extends
-		handlef.style.marginLeft = (e.clientX / window.innerWidth)*(100 * (2-.96)) - 3.2 + "%";
-		fill.style.width = (e.clientX / window.innerWidth)*(100 * (2-.95))- 1.6  + "%";
-		mainAudio.currentTime = (parseFloat(fill.style.width)/100) * mainAudio.duration;
-	}
+	let clickedPos = event.clientX;
+	let seekBarLeftOffset = seekBar.getBoundingClientRect().left;
+	let middleOfHandle = handlef.getBoundingClientRect().width / 2;
+
+	seekBarProgress.style.width = `${((clickedPos - seekBarLeftOffset - middleOfHandle) / seekBarWidth) * 100}%`;
+
+
+	let seekProgWidth = getCSSProperty('seekBarProgress', 'width');
+
+	mainAudio.currentTime = (parseFloat(seekBarProgress.style.width)/100) * mainAudio.duration;
 
 	mainAudio.pause();
 	document.onmouseup = stopDragElement;
 	document.onmousemove = dragElement;
 }
 
-function dragElement(e) {
-	e = e || window.event;
-	e.preventDefault();
+function dragElement(event) {
+	event = event || window.event;
+	event.preventDefault();
 
-	if(e.clientX < window.innerWidth * .958 && lastSongNum != null && e.clientX > 10){
-		handlef.style.marginLeft = (e.clientX / window.innerWidth)*(100 * (2-.96))- 3.2  + "%";
-		fill.style.width = (e.clientX / window.innerWidth)*(100 * (2-.95)) - 1.6 + "%";
-		mainAudio.currentTime = (parseFloat(fill.style.width)/100) * mainAudio.duration;
-	}
+
+	let seekBarWidth = getCSSProperty('seekBar', 'width');
+	seekBarWidth = seekBarWidth.slice(0,seekBarWidth.indexOf('px')); /* remove 'px' from given width */
+
+	let clickedPos = event.clientX;
+	let seekBarLeftOffset = seekBar.getBoundingClientRect().left;
+	let middleOfHandle = handlef.getBoundingClientRect().width / 2;
+
+	seekBarProgress.style.width = `${((clickedPos - seekBarLeftOffset - middleOfHandle) / seekBarWidth) * 100}%`;
+
+	mainAudio.currentTime = (parseFloat(seekBarProgress.style.width)/100) * mainAudio.duration;
 }
 //*** Need to clean up dragElement & mouseDown functions. ***
+
 function stopDragElement() {
 	document.onmouseup = null;
 	document.onmousemove = null;
 
-	if(table.rows[lastSongNum-1].cells[0].firstElementChild.src == "http://127.0.0.1:5000/static/media/blackcropped.gif"){ //if it was playing (paused temporarily due to dragElement), then play
+	pausedIconSrc = "http://127.0.0.1:5000/static/media/blackcropped.gif";
+	if(table.rows[lastSongNum-1].cells[0].firstElementChild.src == pausedIconSrc){ //if it was playing (paused temporarily due to dragElement), then play
 		mainAudio.play();
 	} 
+	draggingSong = false;
 }
 
 
+function getCSSProperty(ID, Property){
+	let element = document.getElementById(ID);
+	let elementProperty = window.getComputedStyle(element).getPropertyValue(Property);
+	return elementProperty;
+}
 
 
 function createTable(){
-	let x = document.getElementById('scriptTag').getAttribute('numOfSongs');
-	for(let songCount = 1; songCount <= x; songCount++){ /*Songs*/
+	let totalNumOfSongs = document.getElementById('scriptTag').getAttribute('numOfSongs');
+	for(let songCount = 1; songCount <= totalNumOfSongs; songCount++){ /*Songs*/
 		addRow(songCount);
 	}
 	addEntryInfo();
@@ -104,8 +125,7 @@ function addRow(songCount){
 
 	songObject.coverImg.addEventListener('click', () => {
 		if(lastSongNum != songObject.songNum){ //If the last song is different than the current song
-			if(lastSongNum != null){ //If a song has been played before
-				//set corresponding image to the paused icon
+			if(lastSongNum != null){ //If a song has been played before set corresponding image to the paused icon
 				findImage(lastSongNum-1);
 				songObject.isPlaying = false;
 			}
@@ -133,13 +153,14 @@ function addRow(songCount){
 				playPromise.then(() => {
 					mainAudio.pause();
 					findImage(songObject.songNum-1);
+					songObject.isPlaying = false;
+					document.getElementById('currImg').src = "static/media/newPlay.png";
 				})
 				.catch(error => {
 					console.log(`Error from pausing is: %c${error}`,"color: red;");
 				})
 			}
-			songObject.isPlaying = false;
-			document.getElementById('currImg').src = "static/media/newPlay.png";
+			
 		}
 		
 		lastSongNum = songObject.songNum;
@@ -193,7 +214,7 @@ function addEntryInfo(){
 	for(let count = 0; count < songList.length; count++){ //**make for loop nicer**
 		songObject = table.rows[count].cells[0].firstElementChild.parent;
 
-		wholeSongName = songList[count].slice(0, songList[count].length-4);
+		wholeSongName = songList[count].slice(0, songList[count].indexOf(".mp3")); //removes .mp3 extension
 
 		songObject.wholeSongName = wholeSongName;
 
@@ -209,7 +230,7 @@ function addEntryInfo(){
 
 
 async function findImage(count){
-	let currentSongName = songList[count].slice(0, songList[count].indexOf(".")); //removes .mp3 extension
+	let currentSongName = songList[count].slice(0, songList[count].indexOf(".mp3")); //removes .mp3 extension
 	let coverPath = `static/media/songCovers/${currentSongName}.jpeg`;
 
 	fetch(coverPath)
@@ -235,11 +256,11 @@ function arrayifyFlaskData(getAttribute){
 		arr = arr.split(",");
 	}catch{
 		console.log(`Array ${getAttribute} is: ` + arr);
-		return
+		return;
 	}
 
 	for(let count = 0; count < arr.length; count++){
-		arr[count] = arr[count].slice(2,arr[count].length - 1);
+		arr[count] = arr[count].slice(2, arr[count].length - 1); /* removes ', ' between each entry*/
 	}
 	arr[arr.length-1] = arr[arr.length-1].slice(0, arr[arr.length-1].length-1); //handle last element with closing bracket
 
@@ -248,17 +269,17 @@ function arrayifyFlaskData(getAttribute){
 
 document.getElementById("playPrev").addEventListener('click', () => {
 	try{ table.rows[lastSongNum-2].cells[0].firstElementChild.click(); }
-	catch{ console.log("Cannot play previous song when no song has been selected."); }
+	catch{ console.log("%cError: Cannot play previous song when no song has been selected.", "color: red"); }
 });
 
 document.getElementById("playButton").addEventListener('click', () => {
 	try{ table.rows[lastSongNum-1].cells[0].firstElementChild.click(); }
-	catch{ console.log("Cannot play song when no song has been selected.");}
+	catch{ console.log("%cError: Cannot play song when no song has been selected.", "color: red");}
 });
 
 document.getElementById("playNext").addEventListener('click', () => {
 	try{ table.rows[lastSongNum].cells[0].firstElementChild.click(); }
-	catch{ console.log("Cannot play next song when no song has been selected.");}
+	catch{ console.log("%cError: Cannot play next song when no song has been selected.", "color: red");}
 });
 
 
@@ -275,4 +296,4 @@ document.getElementById("playNext").addEventListener('click', () => {
 
 
 //To Do tomorrow:
-	//Spiffy up the table (flex box?, lines between songs?)
+	//clean up CSS

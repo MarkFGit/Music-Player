@@ -21,22 +21,23 @@ def home():
 	coverPath = 'C:/Users/markr/Desktop/Website/static/media/songCovers/'
 	coverPathNames = os.listdir(coverPath)
 
-	numSongs = len(os.listdir(songPath))
+	numOfSongs = len(songFileNames)
 
 	songTitles = []
 	songArtists = []
 	songDurations = []
 
-	#start loop
+
 
 	for song in songFileNames:
-		songData = TinyTag.get(songPath+song)
+		songData = TinyTag.get(songPath+song, image=True)
+		songCoverName = f'{song[0:len(song)-4]}.jpeg'; #remove .mp3 extension, add .jpeg extension
 
-		if(song not in coverPathNames):
+		if(songCoverName not in coverPathNames):
 			coverImage_data = songData.get_image()
-			if (coverImage_data != None): #Modify this ***********
+			if (coverImage_data != None): #if cover image has not been saved yet AND it has a cover image, save it in the cover image directory
 				coverBytes = Image.open(BytesIO(coverImage_data))
-				coverBytes.save('C:/Users/markr/Desktop/Website/static/media/songCovers/'+song[:-4]+".jpeg")
+				coverBytes.save('C:/Users/markr/Desktop/Website/static/media/songCovers/'+song[:-4]+".jpeg") #convert this to f string
 
 		if(isinstance(songData.title, str)):
 			songTitles.append(str(songData.title))
@@ -51,12 +52,16 @@ def home():
 
 
 		if(isinstance(songData.duration, float)):
-			songDurations.append(f'{int(songData.duration / 60)}:{"0" + str(int(songData.duration % 60)) if int(songData.duration % 60) < 10 else int(songData.duration % 60)}')
+			minutes = int(songData.duration / 60)
+			seconds = int(songData.duration % 60)
+			if(seconds < 10):
+				seconds = "0" + str(int(songData.duration % 60))
+			songDurations.append(f'{minutes}:{seconds}')
 		else:
-			songDurations.append('')
+			songDurations.append('N/A')
 
 
-	return render_template('index.html', songNames = songFileNames, numSongs = numSongs, songTitles = songTitles, songArtists = songArtists, songDurations = songDurations)
+	return render_template('index.html', songNames = songFileNames, numOfSongs = numOfSongs, songTitles = songTitles, songArtists = songArtists, songDurations = songDurations)
 
 
 @app.route("/Playlists")

@@ -25,9 +25,10 @@
 	</div>
 	<div id="lowerBar">
 		<div id="seekBar">
-			<div id = "fill"></div>
+			<div id = "seekBarProgress"></div>
 			<div id = "handlef"></div>
 		</div>
+
 		
 
 		<div class="lowerBarButtonsWrapper">
@@ -58,7 +59,7 @@
 	<div id="sidePanel">sidePanel</div>
 	
 
-	<script id='scriptTag' songNames='{{ songNames }}' numOfSongs='{{ numSongs }}' image_data = '{{ image_data }}' songTitles = '{{ songTitles }}' songArtists = '{{ songArtists }}' 
+	<script id='scriptTag' songNames='{{ songNames }}' numOfSongs='{{ numOfSongs }}' image_data = '{{ image_data }}' songTitles = '{{ songTitles }}' songArtists = '{{ songArtists }}' 
 	songDurations = '{{ songDurations }}' src="{{ url_for('static',filename='script.js') }}"> </script> <!-- defer? modules? -->
 </body>
 </html>
