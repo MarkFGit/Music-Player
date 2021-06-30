@@ -7,12 +7,12 @@
 
 
 <body onload="createTable()">
-	<div class="container">
+	<div class="mainContainer">
 		<div class="content">
-			<div id="navBar">
+			<div class="navBar">
 				<h3>NavBar!</h3>
 				<ul> <!-- Unordered list -->
-					<li class="active"><a href="#">Home</a></li>
+					<li class="links"><a href="#">Home</a></li>
 					<li><a href="Playlists">Playlists</a></li>
 					<li><a href="Artists">Artists</a></li>
 				</ul>
@@ -23,43 +23,46 @@
 			</div>
 		</div>
 	</div>
-	<div id="lowerBar">
-		<div id="seekBar">
-			<div id = "seekBarProgress"></div>
-			<div id = "handlef"></div>
-		</div>
-
-		
+	<div class="lowerBar">
+		<div class="seekBar" id="seekBar">
+			<div class="seekBarProgress" id="seekBarProgress"></div>
+			<div class="seekBarHandle" id="seekBarHandle"></div>
+		</div>	
 
 		<div class="lowerBarButtonsWrapper">
 			<div class="currentTimeAndTitle">
 				<div id="currentTimeStamp"> -:-- </div>
 				<div id="title"> Playing: </div>
-
 			</div>
 
-			<div class="threeButtonContainer" id="threeButtons">
+			<div class="threeButtonContainer" id="playButtons">
 	        	<div class="column" id="playPrev">
-	        		<!-- previous -->
-	        		<img id="prevImg" src="{{ url_for('static',filename='media/prev.png') }}">
+	        		<img class="smallImg" id="prevImg" src="{{ url_for('static',filename='media/icons/prevPixil.png') }}">
 	        	</div>
 	        	<div class="column" id="playButton">
-	        		<img id="currImg" src="{{ url_for('static',filename='media/newPlay.png') }}">
+	        		<img class="mainImg" id="playImg" src="{{ url_for('static',filename='media/icons/playPixil.png') }}">
 	        	</div>
-	        	<div class="column" id="playNext"><!-- next -->
-	        		<img id="nextImg" src="{{ url_for('static',filename='media/next.png') }}">
+	        	<div class="column" id="playNext">
+	        		<img class="smallImg" id="nextImg" src="{{ url_for('static',filename='media/icons/nextPixil.png') }}">
 	        	</div>
 	        </div>
 
-        	<div id="timeLength"> -:-- </div>
+        	<div class="timeLength" id="timeLength"> -:-- </div>
 		</div>
 
 		
 	</div>
-	<div id="sidePanel">sidePanel</div>
+	<div class="sidePanel">sidePanel</div>
 	
 
-	<script id='scriptTag' songNames='{{ songNames }}' numOfSongs='{{ numOfSongs }}' image_data = '{{ image_data }}' songTitles = '{{ songTitles }}' songArtists = '{{ songArtists }}' 
-	songDurations = '{{ songDurations }}' src="{{ url_for('static',filename='script.js') }}"> </script> <!-- defer? modules? -->
+	<script id='scriptTag' 
+			songNames='{{ songNames }}' 
+			numOfSongs='{{ numOfSongs }}' 
+			image_data = '{{ image_data }}' 
+			songTitles = '{{ songTitles }}' 
+			songArtists = '{{ songArtists }}' 
+			songDurations = '{{ songDurations }}' 
+			src="{{ url_for('static',filename='script.js') }}"> 
+	</script> <!-- defer? modules? -->
 </body>
 </html>

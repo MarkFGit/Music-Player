@@ -42,7 +42,7 @@ def home():
 		if(isinstance(songData.title, str)):
 			songTitles.append(str(songData.title))
 		else:
-			songTitles.append("No Song Artist Metadata")
+			songTitles.append("No Song Title Metadata")
 
 
 		if(isinstance(songData.artist, str)):
@@ -71,7 +71,7 @@ def playlists():
 
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'media/icons/favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 if __name__ == "__main__":

@@ -25,10 +25,14 @@ mainAudio.addEventListener('timeupdate', () => {
 		let lastSongObject = table.rows[lastSongNum-1].cells[0].firstElementChild.parent;
 		seekBarProgress.style.width = '0%';
 
-		/*if the last song in the playlist finishes playing... set the player to as if it's paused. Otherwise, play the next song*/
+		/*if the last song in the playlist finishes playing... revert the player. Otherwise, play the next song*/
 		if(lastSongObject.songNum == table.rows.length){ 
-			document.getElementById('currImg').src = "static/media/newPlay.png";
+			document.getElementById('playImg').src = "static/media/icons/playPixil.png";
 			findImage(lastSongNum-1);
+			lastSongNum = null;
+			document.getElementById('currentTimeStamp').innerText = '-.--';
+			document.getElementById('title').innerText = 'Playing:';
+			document.getElementById('timeLength').innerText = '-.--';
 		}
 		else{
 			table.rows[lastSongNum].cells[0].firstElementChild.click();
@@ -55,7 +59,7 @@ function mouseDown(event) {
 
 	let clickedPos = event.clientX;
 	let seekBarLeftOffset = seekBar.getBoundingClientRect().left;
-	let middleOfHandle = handlef.getBoundingClientRect().width / 2;
+	let middleOfHandle = seekBarHandle.getBoundingClientRect().width / 2;
 
 	seekBarProgress.style.width = `${((clickedPos - seekBarLeftOffset - middleOfHandle) / seekBarWidth) * 100}%`;
 
@@ -79,7 +83,7 @@ function dragElement(event) {
 
 	let clickedPos = event.clientX;
 	let seekBarLeftOffset = seekBar.getBoundingClientRect().left;
-	let middleOfHandle = handlef.getBoundingClientRect().width / 2;
+	let middleOfHandle = seekBarHandle.getBoundingClientRect().width / 2;
 
 	seekBarProgress.style.width = `${((clickedPos - seekBarLeftOffset - middleOfHandle) / seekBarWidth) * 100}%`;
 
@@ -91,7 +95,7 @@ function stopDragElement() {
 	document.onmouseup = null;
 	document.onmousemove = null;
 
-	pausedIconSrc = "http://127.0.0.1:5000/static/media/blackcropped.gif";
+	pausedIconSrc = "http://127.0.0.1:5000/static/media/icons/blackcropped.gif";
 	if(table.rows[lastSongNum-1].cells[0].firstElementChild.src == pausedIconSrc){ //if it was playing (paused temporarily due to dragElement), then play
 		mainAudio.play();
 	} 
@@ -141,10 +145,10 @@ function addRow(songCount){
 
 		if(songObject.isPlaying == false){
 			mainAudio.play();
-			songObject.coverImg.src = 'static/media/blackcropped.gif';
+			songObject.coverImg.src = 'static/media/icons/blackcropped.gif';
 
 			songObject.isPlaying = true;
-			document.getElementById('currImg').src = "static/media/newPause.png";
+			document.getElementById('playImg').src = "static/media/icons/pausePixil.png";
 		}
 		else{
 			var playPromise = mainAudio.play();
@@ -154,7 +158,7 @@ function addRow(songCount){
 					mainAudio.pause();
 					findImage(songObject.songNum-1);
 					songObject.isPlaying = false;
-					document.getElementById('currImg').src = "static/media/newPlay.png";
+					document.getElementById('playImg').src = "static/media/icons/playPixil.png";
 				})
 				.catch(error => {
 					console.log(`Error from pausing is: %c${error}`,"color: red;");
@@ -239,7 +243,7 @@ async function findImage(count){
 				table.rows[count].cells[0].firstElementChild.setAttribute('src', coverPath);
 				return;
 			} else if(response.status === 404) {
-				table.rows[count].cells[0].firstElementChild.setAttribute('src', 'static/media/play.png');
+				table.rows[count].cells[0].firstElementChild.setAttribute('src', 'static/media/icons/play.png');
 			    return;
 			} else {
 				console.log(`Find Image Error. Status: %c${response.status}`,"color: red");
@@ -251,7 +255,7 @@ async function findImage(count){
 
 
 function arrayifyFlaskData(getAttribute){
-	var arr = document.getElementById('scriptTag').getAttribute(getAttribute);
+	let arr = document.getElementById('scriptTag').getAttribute(getAttribute);
 	try{
 		arr = arr.split(",");
 	}catch{
@@ -259,10 +263,13 @@ function arrayifyFlaskData(getAttribute){
 		return;
 	}
 
-	for(let count = 0; count < arr.length; count++){
-		arr[count] = arr[count].slice(2, arr[count].length - 1); /* removes ', ' between each entry*/
+	for(let currentIndex = 0; currentIndex < arr.length; currentIndex++){
+		arr[currentIndex] = arr[currentIndex].slice(2, arr[currentIndex].length-1); /* removes ', ' between each entry*/
 	}
-	arr[arr.length-1] = arr[arr.length-1].slice(0, arr[arr.length-1].length-1); //handle last element with closing bracket
+
+	let lastIndex = arr.length-1;
+
+	arr[lastIndex] = arr[lastIndex].slice(0, arr[lastIndex].length-1); //handle last element with closing bracket
 
 	return arr;
 }

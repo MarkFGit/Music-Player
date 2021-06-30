@@ -1,228 +1,264 @@
-*{
-	margin: .5% 1%;
-	padding: .5% 1%;
-	font-family: sans-serif;
-	/* font-color: white; */
-}
-body{
-	background-color: white;
-	margin: -5% -2.1%;
-	padding: 0% 0%;
-	/* position:relative; */
-}
+/* 
+CSS formatting:
+	- positional formatting - ex: display, position
+	- sizing ---------------- ex: width, height, font-sizing
+	- layout ---------------- ex: margin, padding
+	- color, fonts 
+ 
+ with each category alphabetized
+*/
 
+*
+{
+    margin: .5% 1%;
+    padding: .5% 1%;
 
-
-.container{
-/* 	height: 100%; */
-	width: 100%;
-	margin: 5% 1%;
-	padding: 6% 0%;
-	margin:auto;
-	background-color: #333; /*medium grey*/
-	background-size: cover;
-	background-position: center;
-	position: relative;
+    font-family: sans-serif;
 }
 
-	.content{
-		width: 85%;
-		margin: 0% 6%;
-		/* padding: 4% 1; */
-		background-color: #002; /*dark blue*/
-		/* position: relative; */
-	}
+body
+{
+    margin: -5% -2.1%;
+    padding: 0 0;
 
-		#navBar{
-			width:70%;
-			position: center;
-			color:pink;
-			background-color:grey;
-		}
-
-
-
-		.centerBox{
-			margin-right: 50%;
-			margin: auto;
-			margin-top: 50px;
-		}
-
-		.centerBox p{
-			font-size:20px;
-			color: black;
-			margin:auto;
-			font-weight:400;
-			margin-right:10px;
-		}
-
-
-			#coverImg{
-				object-fit: cover; /* property such that images DON'T distort to fit dimensions of parent */
-				width:45px;
-				height: 45px;
-				cursor:pointer;
-			}
-
-
-
-#lowerBar{
-	background-color: #111;
-	/* margin-left: 0%;
-	margin-bottom: 0%; */
-	margin: auto;
-	width:98%;
-	height:10%;
-	position:fixed;
-	bottom:0;
+    background-color: white;
 }
 
 
-	#seekBar{
-		background-color:grey;
-		border-radius: 60px;
-		margin: 6px 0px;
-		padding: .2% .2%;
-		cursor:pointer;
-		display: flex;
-		align-items: center;
-		justify-content: left;
-		height: 10px;
 
-	}
+.mainContainer
+{
+    position: relative;
 
+    width: 100%;
 
-		#seekBarProgress{
-			margin: 0px 0px 0px 0px;
-			width: 0%;
-			border-radius: 100px;
-			background-color: royalblue;
-			/* border-left-width: 10px; */
-			/* position: relative; */
-			padding: 0;
-			height: 7px;
+    margin: auto;
+    padding: 6% 0;
 
-		}
-
-
-		#handlef{
-			/* margin: 0 0 0 0px; */ /* -3% 0px 0px -30px; */
-			margin: 0 -35px 0 -35px;
-			padding: 0px 0px;
-/* 			margin-top: -3%;
-			margin-left: -30px; */
-			border: 2px solid #000;
-		    /* padding: 10px 40px ; */ /* 10px 40px; */
-		    background: white;
-		    width: 80px;
-		    height: 80px;
-		    border-radius: 100px;
-		    transform: scale(0.2, 0.2);
-		    /* position: absolute; */
-		}
-
-	.lowerBarButtonsWrapper {
-	    /* margin: auto; */
-	    /* width: 100%; */
-	    /* overflow: auto; */
-	    display: flex;
-	    justify-content: center;
-	    margin: 0 .5% 0 .5%;
-	}
-
-		.currentTimeAndTitle{
-			color: #cecece; /* very light grey */
-			float: left;
-			flex-grow: 1;
-			margin: 0;
-			padding-top: 0;
-			width: 10%;
-		}
-
-			#currentTimeStamp{
-
-			}
-
-
-		.threeButtonContainer {
-		    display: flex;
-		    justify-content: center;
-		    width: 30%;
-		    flex-grow: 2;
-		}
-
-		#threeButtons{
-			margin: auto;
-
-		}
-			.column{
-				background-color: orange;
-				cursor:pointer; 
-				float: left;
-				width: 20%;
-				text-align: center;
-			}
-
-				#prevImg,#currImg,#nextImg{
-					width: 35px;
-				}
-
-
-		#timeLength{
-			color: #cecece; /* very light grey */
-			float: right;
-			text-align: right;
-			margin-top: 0;
-			margin-bottom: 0;
-			flex-grow: 1;
-			width: 10%;
-		}
-
-/* #playNext{
-	width: 35px;
-} */
-
-ul{
-	list-style-type: none;
+    background-color: #333; /*medium grey*/
+    background-position: center;
 }
 
-ul li{
-	display: inline-block;
+.content
+{
+    width: 85%;
+    margin: 0 6%;
+
+    background-color: #002; /*dark blue*/
 }
 
-ul li a{
-	text-decoration: none;
-	color: #fff;
-	padding: 5px 20px;
-	border: 1px solid #fff;
+.centerBox
+{
+    margin: auto;
+    margin-top: 50px;
+    margin-right: 50%;
 }
 
-ul li a:hover{
-	background-color: #fff; /*white*/
-	color: #000;
+.navBar
+{
+    width: 70%;
+
+    color: pink;
+    background-color: grey;
 }
 
-ul li.active a{
-	background-color: #fff;
-	color: #000;
+#coverImg
+{
+    width: 45px;
+    height: 45px;
+
+    cursor: pointer;
+    object-fit: cover; /* property such that images DON'T distort to fit dimensions of parent */
+}
+
+
+
+.lowerBar
+{
+    position: fixed;
+    bottom: 0;
+
+    width: 98%;
+    height: 10%;
+    margin: auto;
+
+    background-color: #000;/* #191919; */
+}
+
+
+.seekBar
+{
+	align-items: center;
+    display: flex;
+    justify-content: left;
+
+    height: 10px;
+    margin: 6px 0;
+    padding: .2% .2%;
+
+    cursor: pointer;
+    border-radius: 60px;
+    background-color: grey;
+
+
+}
+
+
+.seekBarProgress
+{
+    width: 0;
+    height: 7px;
+
+    margin: 0 0 0 0;
+    padding: 0;
+
+    border-radius: 100px;
+    background-color: royalblue;
+}
+
+
+.seekBarHandle
+{
+    width: 80px;
+    height: 80px;
+
+    margin: 0 -35px 0 -35px;
+    padding: 0 0;
+
+    border: 2px solid #000;
+    border-radius: 100px;
+    background: white;
+    transform: scale(.2, .2);
+}
+
+.lowerBarButtonsWrapper
+{
+    display: flex;
+
+    margin: 0 .5% 0 .5%;
+    padding: 0;
+
+    justify-content: center;
+}
+
+.currentTimeAndTitle
+{
+    float: left;
+
+    flex-grow: 1;
+    width: 10%;
+
+    margin: 0;
+    padding-top: 0;
+
+    color: #cecece; /* very light grey */
+}
+
+.threeButtonContainer
+{
+	align-items: center;
+    display: flex; /* gap? */
+    justify-content: center;
+
+    flex-grow: 2;
+    width: fit-content;
+
+    margin: auto;
+    padding: 0;   
+}
+
+.column
+{
+    float: left;
+    text-align: center;
+
+    width: fit-content;
+
+    margin: 0;
+    padding: 0 .5%;
+    
+    cursor: pointer;
+    background-color: #000;
+}
+
+.mainImg
+{
+	width: 70px;
+}
+
+.smallImg
+{
+	width: 40px;
+}
+
+
+.timeLength
+{
+	flex-grow: 1;
+    float: right;
+    text-align: right;
+
+    width: 10%;
+
+    margin-top: 0;
+    margin-bottom: 0;
+
+    color: #cecece; /* very light grey */  
+}
+
+
+
+ul
+{
+    list-style-type: none;
+}
+
+ul li
+{
+    display: inline-block;
+}
+
+ul li a
+{
+    padding: 5px 20px;
+
+    color: #fff;
+    border: 1px solid #fff;
+}
+
+ul li a:hover
+{
+    color: #000;
+    background-color: #fff; /*white*/
+}
+
+ul li.active a
+{
+    color: #000;
+    background-color: #fff;
 }
 
 
 /* figure out where to place this */
-#sidePanel{
-	margin-top: -100%;
-	position: absolute;
-	color: purple;
+.sidePanel
+{
+    position: absolute;
+
+    margin-top: -100%;
+
+    color: purple;
 }
 
 
-::-webkit-scrollbar{
-	width: 12px;
+::-webkit-scrollbar
+{
+    width: 12px;
 }
 
-::-webkit-scrollbar-thumb{
-	border-radius: 50px;
+::-webkit-scrollbar-thumb
+{
 	background: grey;
+    border-radius: 50px;
 }
 
 
