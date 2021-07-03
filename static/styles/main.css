@@ -29,7 +29,7 @@ body
     margin: 0;
     padding: 0;
 
-    background-color: #333;
+    background-color: #171717;
 }
 
 
@@ -40,10 +40,10 @@ body
 
     width: 100%;
 
-    margin: 0;
+    margin: 0 0 calc(10vh + 10px + 9px) 0; /* bottom margin such that lower bar does not cover last song(s) when scrolled all the way down */
     padding: 0;
 
-    background-color: #333; /*medium grey*/
+    background-color: #171717;
     background-position: center;
 }
 
@@ -52,36 +52,62 @@ body
 	display: flex;
     position: fixed;
 
-    height: 78vh;
+    height: 85vh;
     width: 70px; /* percentage? */
     /* min-width: fit-content; */
 
     flex-direction: column;
     margin: 0;
-    padding: 1vh .5%;
+    padding: 1vh 5px;
 
-    background-color: black;
-    color: purple;
+    background-color: #171717;
+    color: #c33dc3;
 }
+
+
+.panelButton
+{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+
+.sidePanelIcon
+{
+    width: 50px;
+
+    background-color: #3f3f3f;
+    cursor: pointer;
+}
+
+
 
 .content
 {
+    
+    border: 4px;
+    margin: 0 80px;
     width: auto;
-    margin: 0 6%;
 
-    background-color: #002; /*dark blue*/
+    background-color: #070707;
+    border-color: green;
+    border-image: linear-gradient(45deg, rgba(237,229,299,.5), rgba(0,0,0,0)) 1;
+    border-style: solid;
 }
 
 .centerBox
 {
-    margin: auto;
-    margin-top: 50px;
-    margin-right: 50%;
+    margin: 1%;
 }
 
-.navBar
+.playlistHeader
 {
-    width: 70%;
+    height: 10%;
+    width: 0%;
+
+    margin: 10px 0;
+    padding: 1% 50%;
 
     color: pink;
     background-color: grey;
@@ -106,10 +132,13 @@ body
     width: 98%;
     height: 10vh;
 
+    border-width: 9px 0 0 0;
     margin: 0;
     padding: 10px 1%;
 
-    background-color: #000;/* #191919; */
+    background-color: #000;
+    border-image: linear-gradient(to top, rgba(255,0,0,0), rgba(66, 66, 66, .5)) 100;
+    border-style: solid;
 }
 
 
@@ -120,14 +149,13 @@ body
     justify-content: left;
 
     height: 10px;
+
     margin: 6px 0;
     padding: .2% .2%;
 
     cursor: pointer;
     border-radius: 60px;
     background-color: grey;
-
-
 }
 
 
@@ -234,41 +262,8 @@ body
 }
 
 
-
-ul
-{
-    list-style-type: none;
-}
-
-ul li
-{
-    display: inline-block;
-}
-
-ul li a
-{
-    padding: 5px 20px;
-
-    color: #fff;
-    border: 1px solid #fff;
-}
-
-ul li a:hover
-{
-    color: #000;
-    background-color: #fff; /*white*/
-}
-
-ul li.active a
-{
-    color: #000;
-    background-color: #fff;
-}
-
-
 ::-webkit-scrollbar
 {
-    /* height: 90vh; */
     width: 12px;
 }
 

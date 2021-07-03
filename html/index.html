@@ -9,20 +9,19 @@
 <body onload="createTable()">
 	<div class="mainContainer">
 		<div class="sidePanel">
-			<div class="playlistsButton"> Playlists </div>
-			<div class="artistsButton"> Artists </div>
-			<div class="recentsButton"> Recents </div>
+			<div class="panelButton" id="playlistsButton">
+				<img class="sidePanelIcon" id="homeImg" src="{{ url_for('static',filename='media/icons/homePixil.png') }}"> home
+			</div>
+			<div class="panelButton" id="artistsButton"> 
+				<img class="sidePanelIcon" id="artistImg" src="{{ url_for('static',filename='media/icons/artistPixil2.png') }}"> Artists
+			</div>
+			<div class="panelButton" id="recentsButton"> 
+				<img class="sidePanelIcon" id="recentImg" src="{{ url_for('static',filename='media/icons/recentPixil.png') }}"> Recent
+			</div>
 		</div>
 
 		<div class="content">
-			<div class="navBar">
-				<h3>NavBar!</h3>
-				<ul>
-					<li class="links"><a href="#">Home</a></li>
-					<li><a href="Playlists">Playlists</a></li>
-					<li><a href="Artists">Artists</a></li>
-				</ul>
-			</div>
+			<div class="playlistHeader"> </div>
 			<div class="centerBox">
 				<audio id="mainAudio" src=""></audio>
 				<table id="songTable"> </table>
