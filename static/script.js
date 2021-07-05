@@ -5,30 +5,31 @@ let mainAudio = document.getElementById("mainAudio");
 let draggingSong = false;
 
 mainAudio.addEventListener('timeupdate', () => {
-	let songPosition = mainAudio.currentTime / mainAudio.duration;
+	const songPosition = mainAudio.currentTime / mainAudio.duration;
 	if(!isNaN(songPosition)){
 		seekBarProgress.style.width = `${songPosition * 100}%`;
 	}
 	
 
-	let minutes = Math.floor(mainAudio.currentTime / 60);
+	const minutes = Math.floor(mainAudio.currentTime / 60);/* make const? */
 	let seconds = Math.floor(mainAudio.currentTime % 60);
 
 	if(seconds < 10){
 		seconds = `0${seconds}`;
 	}
 
-	let updateCurrentTime = document.getElementById('currentTimeStamp');
+	const updateCurrentTime = document.getElementById('currentTimeStamp');
 	updateCurrentTime.innerText = `${minutes}:${seconds}`;
 
 	if(songPosition == 1 && !draggingSong){ //if the song finishes: revert the song that just finished back to its original state
-		let lastSongObject = table.rows[lastSongNum-1].cells[0].firstElementChild.parent;
+		const lastSongObject = table.rows[lastSongNum-1].cells[0].firstElementChild.parent;
 		seekBarProgress.style.width = '0%';
 
 		/*if the last song in the playlist finishes playing... revert the player. Otherwise, play the next song*/
 		if(lastSongObject.songNum == table.rows.length){ 
 			document.getElementById('playImg').src = "static/media/icons/playPixil.png";
-			findImage(lastSongNum-1);
+			getSongImage(lastSongNum-1);
+			lastSongObject.isPlaying = false;
 			lastSongNum = null;
 			document.getElementById('currentTimeStamp').innerText = '-.--';
 			document.getElementById('title').innerText = 'Playing:';
@@ -43,30 +44,19 @@ mainAudio.addEventListener('timeupdate', () => {
 document.getElementById("seekBar").onmousedown = mouseDown;
 
 function mouseDown(event) {
-	if(mainAudio.src == "http://127.0.0.1:5000/"){ //can't use audio bar if no song is selected
+	const noSelectedAudioSrc = "http://127.0.0.1:5000/";
+
+	if(mainAudio.src == noSelectedAudioSrc){
 		console.log("%cError: Cannot use seekbar when no song is selected.", "color: red");
 		return; 
 	}
 
 	draggingSong = true;
 
-	event = event || window.event;
-	event.preventDefault();
+	const e = event || window.event;
+	e.preventDefault();
 
-
-	let seekBarWidth = getCSSProperty('seekBar', 'width');
-	seekBarWidth = seekBarWidth.slice(0,seekBarWidth.length-2); /* removes 'px' from the width */
-
-	let clickedPos = event.clientX;
-	let seekBarLeftOffset = seekBar.getBoundingClientRect().left;
-	let middleOfHandle = seekBarHandle.getBoundingClientRect().width / 2;
-
-	seekBarProgress.style.width = `${((clickedPos - seekBarLeftOffset - middleOfHandle) / seekBarWidth) * 100}%`;
-
-
-	let seekProgWidth = getCSSProperty('seekBarProgress', 'width');
-
-	mainAudio.currentTime = (parseFloat(seekBarProgress.style.width)/100) * mainAudio.duration;
+	calculateDragTimeAndWidth();
 
 	mainAudio.pause();
 	document.onmouseup = stopDragElement;
@@ -74,28 +64,18 @@ function mouseDown(event) {
 }
 
 function dragElement(event) {
-	event = event || window.event;
-	event.preventDefault();
+	const e = event || window.event;
+	e.preventDefault();
 
-
-	let seekBarWidth = getCSSProperty('seekBar', 'width');
-	seekBarWidth = seekBarWidth.slice(0,seekBarWidth.indexOf('px')); /* remove 'px' from given width */
-
-	let clickedPos = event.clientX;
-	let seekBarLeftOffset = seekBar.getBoundingClientRect().left;
-	let middleOfHandle = seekBarHandle.getBoundingClientRect().width / 2;
-
-	seekBarProgress.style.width = `${((clickedPos - seekBarLeftOffset - middleOfHandle) / seekBarWidth) * 100}%`;
-
-	mainAudio.currentTime = (parseFloat(seekBarProgress.style.width)/100) * mainAudio.duration;
+	calculateDragTimeAndWidth();
 }
-//*** Need to clean up dragElement & mouseDown functions. ***
+
 
 function stopDragElement() {
 	document.onmouseup = null;
 	document.onmousemove = null;
 
-	pausedIconSrc = "http://127.0.0.1:5000/static/media/icons/blackcropped.gif";
+	let pausedIconSrc = "http://127.0.0.1:5000/static/media/icons/blackcropped.gif";
 	if(table.rows[lastSongNum-1].cells[0].firstElementChild.src == pausedIconSrc){ //if it was playing (paused temporarily due to dragElement), then play
 		mainAudio.play();
 	} 
@@ -103,42 +83,94 @@ function stopDragElement() {
 }
 
 
+/* -------helper functions------- */
 function getCSSProperty(ID, Property){
 	let element = document.getElementById(ID);
 	let elementProperty = window.getComputedStyle(element).getPropertyValue(Property);
 	return elementProperty;
 }
 
+function calculateDragTimeAndWidth(){
+	const getSeekBarWidth = getCSSProperty('seekBar', 'width');
+	const seekBarWidth = getSeekBarWidth.slice(0, getSeekBarWidth.indexOf('px')); /* remove 'px' from given width */
 
-function createTable(){
-	let totalNumOfSongs = document.getElementById('scriptTag').getAttribute('numOfSongs');
-	for(let songCount = 1; songCount <= totalNumOfSongs; songCount++){ /*Songs*/
+	const clickedPos = event.clientX;
+	const seekBarLeftOffset = seekBar.getBoundingClientRect().left;
+	const middleOfHandle = seekBarHandle.getBoundingClientRect().width / 2;
+
+	seekBarProgress.style.width = `${((clickedPos - seekBarLeftOffset - middleOfHandle) / seekBarWidth) * 100}%`;
+
+	mainAudio.currentTime = (parseFloat(seekBarProgress.style.width)/100) * mainAudio.duration;
+}
+/* ^^^^^^ ---helper functions--- ^^^^^^ */
+
+
+function createPage(){
+
+	/* creates Table */
+	const numOfPlaylistSongs = document.getElementById('scriptTag').getAttribute('numOfSongs');
+	for(let songCount = 1; songCount <= numOfPlaylistSongs; songCount++){ /*Songs*/
 		addRow(songCount);
 	}
 	addEntryInfo();
+
+
+	fillPlaylistPreviewImages();
 }
 
-function addRow(songCount){
-	let tr = table.insertRow(-1);
-	let td = tr.insertCell(0);
-	let td2 = tr.insertCell(1);
-	let td3 = tr.insertCell(2);
-	let td4 = tr.insertCell(3);
+async function fillPlaylistPreviewImages(){
 
-	var songObject = new addSongObject(songCount);
+	const numOfPlaylistSongs = document.getElementById('scriptTag').getAttribute('numOfSongs');
+	let list = [];
+	let numOfFoundPreviewImages = 0;
+	const maxNumOfPreviews = 4;
+
+	for(let index = 0; index < numOfPlaylistSongs; index++){
+		list.push(getSongImage(index));
+	}
+
+	list = await Promise.all(list);
+
+	for(let index = 0; index < list.length; index++){
+		if(list[index] !== undefined){
+			document.getElementById(`coverPreview${numOfFoundPreviewImages}`).src = list[index][1];
+			numOfFoundPreviewImages++;
+		}
+		if(numOfFoundPreviewImages === maxNumOfPreviews){
+			return;
+		}
+	}
+
+	
+	for(numOfFoundPreviewImages; numOfFoundPreviewImages < maxNumOfPreviews; numOfFoundPreviewImages++){
+		document.getElementById(`coverPreview${numOfFoundPreviewImages}`).src = 'static/media/icons/play.png';
+	}
+
+	return;
+}
+
+
+function addRow(songCount){
+	const tr = table.insertRow(-1);
+	const td = tr.insertCell(0);
+	const td2 = tr.insertCell(1);
+	const td3 = tr.insertCell(2);
+	const td4 = tr.insertCell(3);
+
+	const songObject = new addSongObject(songCount);
 
 	songObject.coverImg.addEventListener('click', () => {
 		if(lastSongNum != songObject.songNum){ //If the last song is different than the current song
 			if(lastSongNum != null){ //If a song has been played before set corresponding image to the paused icon
-				findImage(lastSongNum-1);
+				getSongImage(lastSongNum-1);
 				songObject.isPlaying = false;
 			}
 			mainAudio.src = `static/media/songs/${songObject.wholeSongName}.mp3`;
 
-			titleDiv = document.getElementById('title');
+			const titleDiv = document.getElementById('title');
 			titleDiv.innerText = `Playing: ${songObject.wholeSongName}`;
 
-			timeLengthDiv = document.getElementById('timeLength');
+			const timeLengthDiv = document.getElementById('timeLength');
 			timeLengthDiv.innerText = songObject.songDuration.innerText;
 		}
 
@@ -151,12 +183,12 @@ function addRow(songCount){
 			document.getElementById('playImg').src = "static/media/icons/pausePixil.png";
 		}
 		else{
-			var playPromise = mainAudio.play();
+			const playPromise = mainAudio.play();
 
 			if(playPromise !== undefined){
 				playPromise.then(() => {
 					mainAudio.pause();
-					findImage(songObject.songNum-1);
+					getSongImage(songObject.songNum-1);
 					songObject.isPlaying = false;
 					document.getElementById('playImg').src = "static/media/icons/playPixil.png";
 				})
@@ -202,48 +234,50 @@ function addSongObject(songCount){
 
 	this.isPlaying = false;
 
-
+	function getSongObject(){
+		return this;
+	}
 }
 
 function addEntryInfo(){
-	songList = arrayifyFlaskData('songNames');
-	titleList = arrayifyFlaskData('songTitles');
-	artistList = arrayifyFlaskData('songArtists');
-	durationsList = arrayifyFlaskData('songDurations')
+	const songNamesList = arrayifyFlaskData('songNames');
+	const titleList = arrayifyFlaskData('songTitles');
+	const artistList = arrayifyFlaskData('songArtists');
+	const durationsList = arrayifyFlaskData('songDurations')
 	
 	let songObject = table.rows[0].cells[0].firstElementChild.parent;
 
 	
+	const songListLength = songNamesList.length;
+	for(let index = 0; index < songListLength; index++){ //**make for loop nicer**
+		songObject = table.rows[index].cells[0].firstElementChild.parent;
 
-	for(let count = 0; count < songList.length; count++){ //**make for loop nicer**
-		songObject = table.rows[count].cells[0].firstElementChild.parent;
-
-		wholeSongName = songList[count].slice(0, songList[count].indexOf(".mp3")); //removes .mp3 extension
+		wholeSongName = songNamesList[index].slice(0, songNamesList[index].indexOf(".mp3")); //removes .mp3 extension
 
 		songObject.wholeSongName = wholeSongName;
+		songObject.songTitle.innerText = titleList[index];
+		songObject.songArtist.innerText = artistList[index];
+		songObject.songDuration.innerText = durationsList[index];
 
 
-		songObject.songTitle.innerText = titleList[count];
-		songObject.songArtist.innerText = artistList[count];
-		songObject.songDuration.innerText = durationsList[count];
-
-
-		findImage(count);
+		getSongImage(index);
 	}
 }
 
 
-async function findImage(count){
-	let currentSongName = songList[count].slice(0, songList[count].indexOf(".mp3")); //removes .mp3 extension
-	let coverPath = `static/media/songCovers/${currentSongName}.jpeg`;
+async function getSongImage(index){
+	const songNamesList = arrayifyFlaskData('songNames');
 
-	fetch(coverPath)
+	const currentSongName = songNamesList[index].slice(0, songNamesList[index].indexOf(".mp3")); //removes .mp3 extension
+	const coverPath = `static/media/songCovers/${currentSongName}.jpeg`;
+
+	return await fetch(coverPath)
 		.then(response => {
 			if (response.ok) {
-				table.rows[count].cells[0].firstElementChild.setAttribute('src', coverPath);
-				return;
+				table.rows[index].cells[0].firstElementChild.setAttribute('src', coverPath);
+				return [true, coverPath];
 			} else if(response.status === 404) {
-				table.rows[count].cells[0].firstElementChild.setAttribute('src', 'static/media/icons/play.png');
+				table.rows[index].cells[0].firstElementChild.setAttribute('src', 'static/media/icons/play.png');
 			    return;
 			} else {
 				console.log(`Find Image Error. Status: %c${response.status}`,"color: red");
@@ -263,11 +297,11 @@ function arrayifyFlaskData(getAttribute){
 		return;
 	}
 
-	for(let currentIndex = 0; currentIndex < arr.length; currentIndex++){
-		arr[currentIndex] = arr[currentIndex].slice(2, arr[currentIndex].length-1); /* removes ', ' between each entry*/
+	for(let index = 0; index < arr.length; index++){
+		arr[index] = arr[index].slice(2, arr[index].length-1); /* removes ', ' between each entry*/
 	}
 
-	let lastIndex = arr.length-1;
+	const lastIndex = arr.length-1;
 
 	arr[lastIndex] = arr[lastIndex].slice(0, arr[lastIndex].length-1); //handle last element with closing bracket
 
@@ -301,6 +335,5 @@ document.getElementById("playNext").addEventListener('click', () => {
 
 //Add windows volume slider thumbnail?
 
-
-//To Do tomorrow:
-	//clean up CSS
+//To Do Now:
+	//border on content section

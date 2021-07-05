@@ -8,19 +8,6 @@ CSS formatting:
  with each category alphabetized
 */
 
-*
-{
-    margin: .5% 1%;
-    padding: .5% 1%;
-
-    font-family: sans-serif;
-}
-
-
-html{
-	margin: 0;
-	padding: 0;
-}
 
 body
 {
@@ -33,6 +20,29 @@ body
 }
 
 
+.bodyClass *
+{
+    margin: .5% 1%;
+    padding: .5% 1%;
+
+    font-family: sans-serif;
+}
+
+.topBar
+{
+    height: 60px; /* make percentage? */
+    width: 100%;
+
+    border-width: 0 0 5px 0;
+    margin: 0;
+    padding: 0;
+
+    background-color: #000000;
+    border-image: linear-gradient(to bottom, rgba(255,0,0,0), rgba(66, 66, 66, .5)) 100;
+    border-style: solid;
+
+}
+
 
 .mainContainer
 {
@@ -40,7 +50,14 @@ body
 
     width: 100%;
 
-    margin: 0 0 calc(10vh + 10px + 9px) 0; /* bottom margin such that lower bar does not cover last song(s) when scrolled all the way down */
+    /* temp! */
+    height: 80vh;
+    width: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+
+    margin: 0; /* margin: 0 0 calc(10vh + 10px + 9px) 0; */ /* bottom margin such that lower bar does not cover last song(s) when scrolled all the way down */
     padding: 0;
 
     background-color: #171717;
@@ -82,6 +99,65 @@ body
 }
 
 
+.contentContainer
+{
+    width: 100%;
+
+    margin: 0 0 10vh 0;
+    padding: 0;
+}
+
+.contentContainerLowerPadding
+{
+    height: 10px;
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    background-color: pink;
+}
+
+
+.playlistHeader
+{
+    align-items: center;
+    display: flex;
+    justify-content: left;
+
+    height: 180px;
+    width: auto;
+
+    margin: 40px 80px;
+
+    color: pink;
+    background-color: grey;
+}
+
+
+.playlistPreviewImages
+{
+    display: flex;
+    flex-wrap: wrap;
+
+    height: 160px;
+    width: 160px;
+
+    padding: 0;
+}
+
+.coverPreviewImg
+{
+    height: 80px;
+    width: 80px;
+
+    margin: 0;
+    padding: 0;
+
+    object-fit: cover;
+
+}
+
 
 .content
 {
@@ -96,22 +172,17 @@ body
     border-style: solid;
 }
 
+
 .centerBox
 {
     margin: 1%;
 }
 
-.playlistHeader
+.songTableHeader
 {
-    height: 10%;
-    width: 0%;
-
-    margin: 10px 0;
-    padding: 1% 50%;
-
     color: pink;
-    background-color: grey;
 }
+
 
 #coverImg
 {
@@ -262,17 +333,21 @@ body
 }
 
 
-::-webkit-scrollbar
+.mainContainer::-webkit-scrollbar
 {
     width: 12px;
 }
 
-::-webkit-scrollbar-thumb
+.mainContainer::-webkit-scrollbar-thumb
 {
-	background: grey;
+    background: grey;
     border-radius: 50px;
 }
 
+.mainContainer::-webkit-scrollbar-track
+{
+    background-color: white;
+}
 
 /* margin: x,y; vertical | horizontal */
 /* margin: w,y,x,z; TRBL */

@@ -9,16 +9,12 @@ app = Flask(__name__, template_folder='html', static_folder='static')
 
 @app.route("/", methods=["POST","GET"])
 def home():
-	# if(request.method == "POST"):
-	# 	print("information\n\n\n\n\n\n\n\n\n\n\n")
-	# 	print(request.get_json())
-	# 	return
+	mediaPath = 'C:/Users/markr/Desktop/Website/static/media/'
 
-
-	songPath = 'C:/Users/markr/Desktop/Website/static/media/songs/'
+	songPath = f'{mediaPath}songs/'
 	songFileNames = sorted(os.listdir(songPath), key=len)
 
-	coverPath = 'C:/Users/markr/Desktop/Website/static/media/songCovers/'
+	coverPath = f'{mediaPath}songCovers/'
 	coverPathNames = os.listdir(coverPath)
 
 	numOfSongs = len(songFileNames)
@@ -31,13 +27,14 @@ def home():
 
 	for song in songFileNames:
 		songData = TinyTag.get(songPath+song, image=True)
-		songCoverName = f'{song[0:len(song)-4]}.jpeg'; #remove .mp3 extension, add .jpeg extension
+		songCoverName = f'{song[:-4]}.jpeg'; #remove .mp3 extension, add .jpeg extension
 
 		if(songCoverName not in coverPathNames):
 			coverImage_data = songData.get_image()
+
 			if (coverImage_data != None): #if cover image has not been saved yet AND it has a cover image, save it in the cover image directory
 				coverBytes = Image.open(BytesIO(coverImage_data))
-				coverBytes.save('C:/Users/markr/Desktop/Website/static/media/songCovers/'+song[:-4]+".jpeg") #convert this to f string
+				coverBytes.save(f'{mediaPath}songCovers/{song[:-4]}.jpeg')
 
 		if(isinstance(songData.title, str)):
 			songTitles.append(str(songData.title))
@@ -55,7 +52,7 @@ def home():
 			minutes = int(songData.duration / 60)
 			seconds = int(songData.duration % 60)
 			if(seconds < 10):
-				seconds = "0" + str(int(songData.duration % 60))
+				seconds = f'0{str(int(songData.duration % 60))}'
 			songDurations.append(f'{minutes}:{seconds}')
 		else:
 			songDurations.append('N/A')

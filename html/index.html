@@ -1,4 +1,4 @@
-<DOCTYPE! html>
+<!DOCTYPE html>
 <html>
 <head>
 <title> Music </title>
@@ -6,7 +6,8 @@
 </head>
 
 
-<body onload="createTable()">
+<body class="bodyClass" onload="createPage()">
+	<div class="topBar"></div>
 	<div class="mainContainer">
 		<div class="sidePanel">
 			<div class="panelButton" id="playlistsButton">
@@ -19,14 +20,24 @@
 				<img class="sidePanelIcon" id="recentImg" src="{{ url_for('static',filename='media/icons/recentPixil.png') }}"> Recent
 			</div>
 		</div>
-
-		<div class="content">
-			<div class="playlistHeader"> </div>
-			<div class="centerBox">
-				<audio id="mainAudio" src=""></audio>
-				<table id="songTable"> </table>
+		<div class="contentContainer">
+			<div class="playlistHeader">
+				<div class="playlistPreviewImages"> 
+					<img class="coverPreviewImg" id="coverPreview0"></img>
+					<img class="coverPreviewImg" id="coverPreview1"></img>
+					<img class="coverPreviewImg" id="coverPreview2"></img>
+					<img class="coverPreviewImg" id="coverPreview3"></img>
+				</div>
+			</div>
+			<div class="content">
+				<div class="centerBox">
+					<audio id="mainAudio" src=""></audio>
+					<div class="songTableHeader"> Name </div>
+					<table id="songTable"> </table>
+				</div>
 			</div>
 		</div>
+		<div class="contentContainerBottomMargin"></div>
 	</div>
 	<div class="lowerBar">
 		<div class="seekBar" id="seekBar">
