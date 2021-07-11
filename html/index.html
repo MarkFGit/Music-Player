@@ -11,7 +11,7 @@
 	<div class="mainContainer">
 		<div class="sidePanel">
 			<div class="panelButton" id="playlistsButton">
-				<img class="sidePanelIcon" id="homeImg" src="{{ url_for('static',filename='media/icons/homePixil.png') }}"> home
+				<img class="sidePanelIcon" id="homeImg" src="{{ url_for('static',filename='media/icons/homePixil.png') }}"> Home
 			</div>
 			<div class="panelButton" id="artistsButton"> 
 				<img class="sidePanelIcon" id="artistImg" src="{{ url_for('static',filename='media/icons/artistPixil2.png') }}"> Artists
@@ -28,16 +28,29 @@
 					<img class="coverPreviewImg" id="coverPreview2"></img>
 					<img class="coverPreviewImg" id="coverPreview3"></img>
 				</div>
-			</div>
-			<div class="content">
-				<div class="centerBox">
-					<audio id="mainAudio" src=""></audio>
-					<div class="songTableHeader"> Name </div>
-					<table id="songTable"> </table>
+				<div class="headerTitleAndButtons">
+					<div class=headerTitleAndPlay>
+						<div class="playlistTitle"> Home Playlist </div>
+						<img class="headerPlayIcon" id="headerPlayIconID" src="{{ url_for('static',filename='media/icons/playPixil.png') }}"> </img>
+					</div>
+					<div class="buttonTextCombo">
+						<img class="headerSmallButton" id="headerShuffleIconID" src="static/media/icons/shufflePixil.png"></img>
+						<span class="headerSmallButtonText"> Shuffle </span>
+					</div>
+					<img class="headerEditIcon"></img>
+					<!-- some Images / buttons here -->
 				</div>
 			</div>
+			<div class="content">
+				<audio id="mainAudio" src=""></audio>
+				<div class="songTableHeader">
+					<span style="width: 100%;"> Name </span>
+					<img class="durationImg" src="{{ url_for('static',filename='media/icons/recentPixil.png') }}">
+					<span style="width: 100%;"> Artist </span>
+				</div>
+				<table class="songTableClass" id="songTable"> </table>
+			</div>
 		</div>
-		<div class="contentContainerBottomMargin"></div>
 	</div>
 	<div class="lowerBar">
 		<div class="seekBar" id="seekBar">
@@ -47,23 +60,17 @@
 
 		<div class="lowerBarButtonsWrapper">
 			<div class="currentTimeAndTitle">
-				<div id="currentTimeStamp"> -:-- </div>
-				<div id="title"> Playing: </div>
+				<div class="lowerBarSmallText" id="currentTimeStamp"> -:-- </div>
+				<div class="playingTitle" id="playingTitleID"> Playing: </div>
 			</div>
 
 			<div class="threeButtonContainer" id="playButtons">
-	        	<div class="column" id="playPrev">
-	        		<img class="smallImg" id="prevImg" src="{{ url_for('static',filename='media/icons/prevPixil.png') }}">
-	        	</div>
-	        	<div class="column" id="playButton">
-	        		<img class="mainImg" id="playImg" src="{{ url_for('static',filename='media/icons/playPixil.png') }}">
-	        	</div>
-	        	<div class="column" id="playNext">
-	        		<img class="smallImg" id="nextImg" src="{{ url_for('static',filename='media/icons/nextPixil.png') }}">
-	        	</div>
+        		<img class="smallImg" id="prevImg" src="{{ url_for('static',filename='media/icons/prevPixil.png') }}">
+        		<img class="mainImg" id="footerPlayImg" src="{{ url_for('static',filename='media/icons/playPixil.png') }}">
+        		<img class="smallImg" id="nextImg" src="{{ url_for('static',filename='media/icons/nextPixil.png') }}">
 	        </div>
 
-        	<div class="timeLength" id="timeLength"> -:-- </div>
+        	<div class="timeLength lowerBarSmallText" id="timeLength"> -:-- </div>
 		</div>
 
 		

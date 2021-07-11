@@ -9,12 +9,12 @@ app = Flask(__name__, template_folder='html', static_folder='static')
 
 @app.route("/", methods=["POST","GET"])
 def home():
-	mediaPath = 'C:/Users/markr/Desktop/Website/static/media/'
+	mediaPath = 'C:/Users/markr/Desktop/Website/static/media'
 
-	songPath = f'{mediaPath}songs/'
+	songPath = f'{mediaPath}/songs/'
 	songFileNames = sorted(os.listdir(songPath), key=len)
 
-	coverPath = f'{mediaPath}songCovers/'
+	coverPath = f'{mediaPath}/songCovers/'
 	coverPathNames = os.listdir(coverPath)
 
 	numOfSongs = len(songFileNames)
@@ -34,7 +34,7 @@ def home():
 
 			if (coverImage_data != None): #if cover image has not been saved yet AND it has a cover image, save it in the cover image directory
 				coverBytes = Image.open(BytesIO(coverImage_data))
-				coverBytes.save(f'{mediaPath}songCovers/{song[:-4]}.jpeg')
+				coverBytes.save(f'{mediaPath}/songCovers/{song[:-4]}.jpeg')
 
 		if(isinstance(songData.title, str)):
 			songTitles.append(str(songData.title))
@@ -58,7 +58,9 @@ def home():
 			songDurations.append('N/A')
 
 
-	return render_template('index.html', songNames = songFileNames, numOfSongs = numOfSongs, songTitles = songTitles, songArtists = songArtists, songDurations = songDurations)
+	return render_template('index.html', songNames = songFileNames, numOfSongs = numOfSongs, 
+										 songTitles = songTitles, songArtists = songArtists, 
+										 songDurations = songDurations)
 
 
 @app.route("/Playlists")

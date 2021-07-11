@@ -1,42 +1,43 @@
 let lastSongNum = null;
-let table = document.getElementById("songTable");
-let mainAudio = document.getElementById("mainAudio");
+const table = document.getElementById("songTable");
+const mainAudio = document.getElementById("mainAudio");
 
 let draggingSong = false;
 
 mainAudio.addEventListener('timeupdate', () => {
 	const songPosition = mainAudio.currentTime / mainAudio.duration;
-	if(!isNaN(songPosition)){
-		seekBarProgress.style.width = `${songPosition * 100}%`;
+	if(isNaN(songPosition)){
+		return;
 	}
-	
+	seekBarProgress.style.width = `${songPosition * 100}%`;
 
-	const minutes = Math.floor(mainAudio.currentTime / 60);/* make const? */
+	const minutes = Math.floor(mainAudio.currentTime / 60);
 	let seconds = Math.floor(mainAudio.currentTime % 60);
 
 	if(seconds < 10){
 		seconds = `0${seconds}`;
 	}
 
+
 	const updateCurrentTime = document.getElementById('currentTimeStamp');
 	updateCurrentTime.innerText = `${minutes}:${seconds}`;
 
 	if(songPosition == 1 && !draggingSong){ //if the song finishes: revert the song that just finished back to its original state
-		const lastSongObject = table.rows[lastSongNum-1].cells[0].firstElementChild.parent;
+		const lastSongObject = table.rows[lastSongNum-1].firstElementChild.firstElementChild.getSongObject;
 		seekBarProgress.style.width = '0%';
 
 		/*if the last song in the playlist finishes playing... revert the player. Otherwise, play the next song*/
-		if(lastSongObject.songNum == table.rows.length){ 
-			document.getElementById('playImg').src = "static/media/icons/playPixil.png";
+		if(lastSongObject.songNum === table.rows.length){ 
+			document.getElementById('footerPlayImg').src = "static/media/icons/playPixil.png";
 			getSongImage(lastSongNum-1);
 			lastSongObject.isPlaying = false;
 			lastSongNum = null;
 			document.getElementById('currentTimeStamp').innerText = '-.--';
-			document.getElementById('title').innerText = 'Playing:';
+			document.getElementById('playingTitleID').innerText = 'Playing:';
 			document.getElementById('timeLength').innerText = '-.--';
 		}
 		else{
-			table.rows[lastSongNum].cells[0].firstElementChild.click();
+			table.rows[lastSongNum].firstElementChild.firstElementChild.click();
 		}
 	}
 });
@@ -45,20 +46,19 @@ document.getElementById("seekBar").onmousedown = mouseDown;
 
 function mouseDown(event) {
 	const noSelectedAudioSrc = "http://127.0.0.1:5000/";
-
-	if(mainAudio.src == noSelectedAudioSrc){
+	if(mainAudio.src === noSelectedAudioSrc){
 		console.log("%cError: Cannot use seekbar when no song is selected.", "color: red");
 		return; 
 	}
 
 	draggingSong = true;
+	mainAudio.pause();
 
 	const e = event || window.event;
 	e.preventDefault();
 
-	calculateDragTimeAndWidth();
+	calculateDragWidthAndTime();
 
-	mainAudio.pause();
 	document.onmouseup = stopDragElement;
 	document.onmousemove = dragElement;
 }
@@ -67,19 +67,21 @@ function dragElement(event) {
 	const e = event || window.event;
 	e.preventDefault();
 
-	calculateDragTimeAndWidth();
+	calculateDragWidthAndTime();
 }
 
 
 function stopDragElement() {
 	document.onmouseup = null;
 	document.onmousemove = null;
+	
+	draggingSong = false;
 
-	let pausedIconSrc = "http://127.0.0.1:5000/static/media/icons/blackcropped.gif";
-	if(table.rows[lastSongNum-1].cells[0].firstElementChild.src == pausedIconSrc){ //if it was playing (paused temporarily due to dragElement), then play
+	const playingGifSrc = "http://127.0.0.1:5000/static/media/icons/blackcropped.gif";
+	const currentSongSrc = table.rows[lastSongNum-1].firstElementChild.firstElementChild.src;
+	if(currentSongSrc === playingGifSrc){ //if it was playing (paused temporarily due to dragElement), then resume play
 		mainAudio.play();
 	} 
-	draggingSong = false;
 }
 
 
@@ -90,7 +92,7 @@ function getCSSProperty(ID, Property){
 	return elementProperty;
 }
 
-function calculateDragTimeAndWidth(){
+function calculateDragWidthAndTime(){
 	const getSeekBarWidth = getCSSProperty('seekBar', 'width');
 	const seekBarWidth = getSeekBarWidth.slice(0, getSeekBarWidth.indexOf('px')); /* remove 'px' from given width */
 
@@ -100,7 +102,7 @@ function calculateDragTimeAndWidth(){
 
 	seekBarProgress.style.width = `${((clickedPos - seekBarLeftOffset - middleOfHandle) / seekBarWidth) * 100}%`;
 
-	mainAudio.currentTime = (parseFloat(seekBarProgress.style.width)/100) * mainAudio.duration;
+	mainAudio.currentTime = (parseFloat(seekBarProgress.style.width) / 100) * mainAudio.duration;
 }
 /* ^^^^^^ ---helper functions--- ^^^^^^ */
 
@@ -114,8 +116,33 @@ function createPage(){
 	}
 	addEntryInfo();
 
+	preparePlaylistHeader();
 
+	preparePlaylistFooter();
+}
+
+function preparePlaylistHeader(){
 	fillPlaylistPreviewImages();
+
+	const headerPlayIcon = document.getElementById('headerPlayIconID');
+
+	headerPlayIcon.addEventListener('click', () => {
+		if(lastSongNum === null){
+			table.rows[0].firstElementChild.firstElementChild.click();
+		}
+	});
+
+	headerPlayIcon.addEventListener('mouseover', () => {
+		if(lastSongNum === null){
+			headerPlayIcon.src = 'static/media/icons/playPixilHover.png';
+			headerPlayIcon.style.cursor = 'pointer';
+		}
+	});
+
+	headerPlayIcon.addEventListener('mouseout', () => {
+		headerPlayIcon.src = 'static/media/icons/playPixil.png';
+		headerPlayIcon.style.cursor = 'default';
+	});
 }
 
 async function fillPlaylistPreviewImages(){
@@ -145,19 +172,70 @@ async function fillPlaylistPreviewImages(){
 	for(numOfFoundPreviewImages; numOfFoundPreviewImages < maxNumOfPreviews; numOfFoundPreviewImages++){
 		document.getElementById(`coverPreview${numOfFoundPreviewImages}`).src = 'static/media/icons/play.png';
 	}
+}
 
-	return;
+
+function preparePlaylistFooter(){
+
+	const footerImgIDs = ['nextImg', 'footerPlayImg', 'prevImg'];
+	const imgFileNames = ['nextPixil', 'playPixil', 'prevPixil'];
+
+	const iconFolderPath = 'http://127.0.0.1:5000/static/media/icons';
+
+	footerImgIDs.forEach((currentElementID, index) => {
+		const currentElement = document.getElementById(currentElementID);
+
+		const normalImgSrc = `${iconFolderPath}/${imgFileNames[index]}`;
+		const nonHoverSrc = `${normalImgSrc}.png`;
+		const hoverSrc = `${normalImgSrc}Hover.png`
+		const nonHoverPauseSrc = `${iconFolderPath}/pausePixil.png`;
+		const hoverPauseSrc = `${iconFolderPath}/pausePixilHover.png`
+
+		currentElement.addEventListener('mouseover', () => {
+			if(lastSongNum === null){
+				return;
+			}
+
+			if(currentElement.src === nonHoverSrc){
+				currentElement.src = hoverSrc;
+			}
+			if(currentElement.src === nonHoverPauseSrc){
+				currentElement.src = hoverPauseSrc;
+			}
+		});
+
+		currentElement.addEventListener('mouseout', () => {
+			if(currentElement.src === hoverSrc){
+				currentElement.src = nonHoverSrc;
+			}
+			if(currentElement.src === hoverPauseSrc){
+				currentElement.src = nonHoverPauseSrc;
+			}
+		});
+	});
 }
 
 
 function addRow(songCount){
-	const tr = table.insertRow(-1);
-	const td = tr.insertCell(0);
-	const td2 = tr.insertCell(1);
-	const td3 = tr.insertCell(2);
-	const td4 = tr.insertCell(3);
-
 	const songObject = new addSongObject(songCount);
+
+	const tr = table.insertRow(-1);
+	tr.className = "songRowClass";
+
+	const songContainer = document.createElement('div');
+	songContainer.className = "songContainer";
+	tr.appendChild(songContainer);
+
+	const songInfoDiv = tr.childNodes[0];
+	
+	songInfoDiv.appendChild(songObject.coverImg);
+	songInfoDiv.appendChild(songObject.songTitle);
+	songInfoDiv.appendChild(songObject.songDuration);
+	songInfoDiv.appendChild(songObject.songArtist);
+
+	const songDivider = document.createElement('div');
+	songDivider.className = "songDivider";
+	tr.appendChild(songDivider);
 
 	songObject.coverImg.addEventListener('click', () => {
 		if(lastSongNum != songObject.songNum){ //If the last song is different than the current song
@@ -167,22 +245,16 @@ function addRow(songCount){
 			}
 			mainAudio.src = `static/media/songs/${songObject.wholeSongName}.mp3`;
 
-			const titleDiv = document.getElementById('title');
+			const titleDiv = document.getElementById('playingTitleID');
 			titleDiv.innerText = `Playing: ${songObject.wholeSongName}`;
 
 			const timeLengthDiv = document.getElementById('timeLength');
 			timeLengthDiv.innerText = songObject.songDuration.innerText;
 		}
 
+		lastSongNum = songObject.songNum;
 
-		if(songObject.isPlaying == false){
-			mainAudio.play();
-			songObject.coverImg.src = 'static/media/icons/blackcropped.gif';
-
-			songObject.isPlaying = true;
-			document.getElementById('playImg').src = "static/media/icons/pausePixil.png";
-		}
-		else{
+		if(songObject.isPlaying){
 			const playPromise = mainAudio.play();
 
 			if(playPromise !== undefined){
@@ -190,41 +262,35 @@ function addRow(songCount){
 					mainAudio.pause();
 					getSongImage(songObject.songNum-1);
 					songObject.isPlaying = false;
-					document.getElementById('playImg').src = "static/media/icons/playPixil.png";
+					document.getElementById('footerPlayImg').src = "static/media/icons/playPixil.png";
 				})
 				.catch(error => {
 					console.log(`Error from pausing is: %c${error}`,"color: red;");
 				})
 			}
-			
-		}
-		
-		lastSongNum = songObject.songNum;
-	});
 
-	td.appendChild(songObject.coverImg);
-	td2.appendChild(songObject.songTitle);
-	td3.appendChild(songObject.songArtist);
-	td4.appendChild(songObject.songDuration);
+			return;
+		}
+
+		mainAudio.play();
+		songObject.isPlaying = true;
+		songObject.coverImg.src = 'static/media/icons/blackcropped.gif';
+		document.getElementById('footerPlayImg').src = "static/media/icons/pausePixil.png";
+	});
 }
 
 function addSongObject(songCount){
 	this.songTitle = document.createElement('span');
-	this.songTitle.style.color = "grey";
-
+	this.songTitle.setAttribute('class', 'songTitleOrArtist');
 	this.songArtist = document.createElement('span');
-	this.songArtist.style.color = "grey";
-
+	this.songArtist.setAttribute('class', 'songTitleOrArtist');
 	this.songDuration = document.createElement('span');
-	this.songDuration.style.color = "grey";
+	this.songDuration.setAttribute('class', 'songDurationClass');
 	
 	this.coverImg = document.createElement('img');
-	this.coverImg.setAttribute('id','coverImg');
-	this.coverImg.setAttribute('type','img');
+	this.coverImg.setAttribute('class', 'coverImg');
 
-	this.coverImg.parent = this; //way to reference the object itself in other functions. Probably a cleaner solution to this
-
-	//this.song.volume = 1;
+	this.coverImg.getSongObject = this; //way to reference the object itself in other functions. Probably a cleaner solution to this
 	
 	this.wholeSongName = '';
 
@@ -233,11 +299,9 @@ function addSongObject(songCount){
 	this.songNum = songCount;
 
 	this.isPlaying = false;
-
-	function getSongObject(){
-		return this;
-	}
 }
+
+
 
 function addEntryInfo(){
 	const songNamesList = arrayifyFlaskData('songNames');
@@ -245,14 +309,12 @@ function addEntryInfo(){
 	const artistList = arrayifyFlaskData('songArtists');
 	const durationsList = arrayifyFlaskData('songDurations')
 	
-	let songObject = table.rows[0].cells[0].firstElementChild.parent;
-
+	let songObjecet = table.rows[0].firstElementChild.firstElementChild.getSongObject;
 	
-	const songListLength = songNamesList.length;
-	for(let index = 0; index < songListLength; index++){ //**make for loop nicer**
-		songObject = table.rows[index].cells[0].firstElementChild.parent;
+	songNamesList.forEach((songName, index) => {
+		songObject = table.rows[index].firstElementChild.firstElementChild.getSongObject;
 
-		wholeSongName = songNamesList[index].slice(0, songNamesList[index].indexOf(".mp3")); //removes .mp3 extension
+		wholeSongName = songName.slice(0, songName.indexOf(".mp3"));
 
 		songObject.wholeSongName = wholeSongName;
 		songObject.songTitle.innerText = titleList[index];
@@ -261,7 +323,7 @@ function addEntryInfo(){
 
 
 		getSongImage(index);
-	}
+	});
 }
 
 
@@ -274,10 +336,10 @@ async function getSongImage(index){
 	return await fetch(coverPath)
 		.then(response => {
 			if (response.ok) {
-				table.rows[index].cells[0].firstElementChild.setAttribute('src', coverPath);
+				table.rows[index].firstElementChild.firstElementChild.setAttribute('src', coverPath);
 				return [true, coverPath];
 			} else if(response.status === 404) {
-				table.rows[index].cells[0].firstElementChild.setAttribute('src', 'static/media/icons/play.png');
+				table.rows[index].firstElementChild.firstElementChild.setAttribute('src', 'static/media/icons/play.png');
 			    return;
 			} else {
 				console.log(`Find Image Error. Status: %c${response.status}`,"color: red");
@@ -289,37 +351,40 @@ async function getSongImage(index){
 
 
 function arrayifyFlaskData(getAttribute){
-	let arr = document.getElementById('scriptTag').getAttribute(getAttribute);
-	try{
-		arr = arr.split(",");
-	}catch{
-		console.log(`Array ${getAttribute} is: ` + arr);
-		return;
+	const arr = document.getElementById('scriptTag').getAttribute(getAttribute).split(",");
+
+	const arrLength = arr.length;
+	const lastIndex = arrLength - 1;
+	for(let index = 0; index < arrLength; index++){
+		arr[index] = arr[index].slice(2, arr[index].length-1); // removes ', ' between each entry
+		if(index === lastIndex){
+			arr[index] = arr[index].slice(0, arr[index].length-1); //handle last element with closing bracket
+		}
 	}
-
-	for(let index = 0; index < arr.length; index++){
-		arr[index] = arr[index].slice(2, arr[index].length-1); /* removes ', ' between each entry*/
-	}
-
-	const lastIndex = arr.length-1;
-
-	arr[lastIndex] = arr[lastIndex].slice(0, arr[lastIndex].length-1); //handle last element with closing bracket
 
 	return arr;
 }
 
-document.getElementById("playPrev").addEventListener('click', () => {
-	try{ table.rows[lastSongNum-2].cells[0].firstElementChild.click(); }
+document.getElementById("prevImg").addEventListener('click', () => {
+	try{ 
+		if(lastSongNum-2 >= 0){
+			table.rows[lastSongNum-2].firstElementChild.firstElementChild.click();
+		}
+	}
 	catch{ console.log("%cError: Cannot play previous song when no song has been selected.", "color: red"); }
 });
 
-document.getElementById("playButton").addEventListener('click', () => {
-	try{ table.rows[lastSongNum-1].cells[0].firstElementChild.click(); }
+document.getElementById("footerPlayImg").addEventListener('click', () => {
+	try{ table.rows[lastSongNum-1].firstElementChild.firstElementChild.click(); }
 	catch{ console.log("%cError: Cannot play song when no song has been selected.", "color: red");}
 });
 
-document.getElementById("playNext").addEventListener('click', () => {
-	try{ table.rows[lastSongNum].cells[0].firstElementChild.click(); }
+document.getElementById("nextImg").addEventListener('click', () => {
+	try{
+		if(lastSongNum < table.rows.length){
+			table.rows[lastSongNum].firstElementChild.firstElementChild.click();
+		}
+	}
 	catch{ console.log("%cError: Cannot play next song when no song has been selected.", "color: red");}
 });
 
@@ -336,4 +401,6 @@ document.getElementById("playNext").addEventListener('click', () => {
 //Add windows volume slider thumbnail?
 
 //To Do Now:
-	//border on content section
+	//Make shuffle text into icon
+	//create prepare footer function?
+	//volume slider
