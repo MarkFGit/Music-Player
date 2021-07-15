@@ -1,8 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title> Music </title>
-<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/main.css') }}">
+	<title> Music </title>
+	<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/main.css') }}">
+	<script type="module" defer id='scriptTag' 
+			songNames='{{ songNames }}' 
+			numOfSongs='{{ numOfSongs }}' 
+			image_data = '{{ image_data }}' 
+			songTitles = '{{ songTitles }}' 
+			songArtists = '{{ songArtists }}' 
+			songDurations = '{{ songDurations }}' 
+			src="{{ url_for('static',filename='script.js') }}"
+			> 
+	</script>
+	<script id='moduleScript' defer type="module" src="{{ url_for('static',filename='eventScript.js') }}"> </script> 
 </head>
 
 
@@ -70,21 +81,12 @@
         		<img class="smallImg" id="nextImg" src="{{ url_for('static',filename='media/icons/nextPixil.png') }}">
 	        </div>
 
-        	<div class="timeLength lowerBarSmallText" id="timeLength"> -:-- </div>
+        	<div class="playingTimeLength lowerBarSmallText" id="playingTimeLength"> -:-- </div>
 		</div>
-
-		
 	</div>
 	
 
-	<script id='scriptTag' 
-			songNames='{{ songNames }}' 
-			numOfSongs='{{ numOfSongs }}' 
-			image_data = '{{ image_data }}' 
-			songTitles = '{{ songTitles }}' 
-			songArtists = '{{ songArtists }}' 
-			songDurations = '{{ songDurations }}' 
-			src="{{ url_for('static',filename='script.js') }}"> 
-	</script> <!-- defer? modules? -->
+<!-- defer? modules? -->
+	
 </body>
 </html>

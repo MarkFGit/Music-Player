@@ -3,7 +3,7 @@ from flask import Flask, redirect, url_for, render_template, send_from_directory
 from tinytag import TinyTag
 from PIL import Image
 from io import BytesIO
-from base64 import b64encode
+
 
 app = Flask(__name__, template_folder='html', static_folder='static')
 
@@ -21,9 +21,12 @@ def home():
 
 	songTitles = []
 	songArtists = []
+	songAlbums = []
 	songDurations = []
 
+	increment = 0;
 
+	arrayStupid = []
 
 	for song in songFileNames:
 		songData = TinyTag.get(songPath+song, image=True)
@@ -46,6 +49,14 @@ def home():
 			songArtists.append(str(songData.artist))
 		else:
 			songArtists.append("No Song Artist Metadata")
+
+
+
+		if(isinstance(songData.album, str)):
+			songAlbums.append(str(songData.album))
+		else:
+			songAlbums.append('')
+
 
 
 		if(isinstance(songData.duration, float)):

@@ -1,8 +1,29 @@
-let lastSongNum = null;
+const iconFolderPath = 'http://127.0.0.1:5000/static/media/icons/';
+
+const pausePixilSrc = `${iconFolderPath}pausePixil.png`;
+const pausePixilHoverSrc = `${iconFolderPath}pausePixilHover.png`;
+const playPixilSrc = `${iconFolderPath}playPixil.png`;
+const playPixilHoverSrc = `${iconFolderPath}playPixilHover.png`;
+
+const blankPlayImgSrc = `${iconFolderPath}play.png`;
+const globalPauseImgSrc = `${iconFolderPath}pausePixil.png`;
+const globalPlayImgSrc = `${iconFolderPath}playPixil.png`;
+const globalPlayingGifSrc = `${iconFolderPath}blackcropped.gif`;
+
+
 const table = document.getElementById("songTable");
 const mainAudio = document.getElementById("mainAudio");
+document.getElementById("seekBar").onmousedown = mouseDown;
 
+window.createPage = createPage; /* allows for body onload of createPage() */
+
+
+let lastSongNum = null;
 let draggingSong = false;
+
+
+import setEventSongNum, {prepareHeaderButtonListeners, prepareFooterButtonListeners} from '/static/eventScript.js'
+
 
 mainAudio.addEventListener('timeupdate', () => {
 	const songPosition = mainAudio.currentTime / mainAudio.duration;
@@ -22,27 +43,30 @@ mainAudio.addEventListener('timeupdate', () => {
 	const updateCurrentTime = document.getElementById('currentTimeStamp');
 	updateCurrentTime.innerText = `${minutes}:${seconds}`;
 
-	if(songPosition == 1 && !draggingSong){ //if the song finishes: revert the song that just finished back to its original state
+	if(songPosition == 1 && !draggingSong){ //if the song finishes naturally: revert the song that just finished back to its original state
 		const lastSongObject = table.rows[lastSongNum-1].firstElementChild.firstElementChild.getSongObject;
 		seekBarProgress.style.width = '0%';
 
 		/*if the last song in the playlist finishes playing... revert the player. Otherwise, play the next song*/
 		if(lastSongObject.songNum === table.rows.length){ 
-			document.getElementById('footerPlayImg').src = "static/media/icons/playPixil.png";
+			document.getElementById('footerPlayImg').src = determinePlayImgSrc();
 			getSongImage(lastSongNum-1);
-			lastSongObject.isPlaying = false;
-			lastSongNum = null;
 			document.getElementById('currentTimeStamp').innerText = '-.--';
 			document.getElementById('playingTitleID').innerText = 'Playing:';
 			document.getElementById('timeLength').innerText = '-.--';
+			lastSongObject.isPlaying = false;
+
+			lastSongNum = null;
+			setEventSongNum(lastSongNum);	
 		}
 		else{
-			table.rows[lastSongNum].firstElementChild.firstElementChild.click();
+			const nextSongNum = lastSongNum;
+			table.rows[nextSongNum].firstElementChild.firstElementChild.click();
 		}
 	}
 });
 
-document.getElementById("seekBar").onmousedown = mouseDown;
+
 
 function mouseDown(event) {
 	const noSelectedAudioSrc = "http://127.0.0.1:5000/";
@@ -77,9 +101,8 @@ function stopDragElement() {
 	
 	draggingSong = false;
 
-	const playingGifSrc = "http://127.0.0.1:5000/static/media/icons/blackcropped.gif";
 	const currentSongSrc = table.rows[lastSongNum-1].firstElementChild.firstElementChild.src;
-	if(currentSongSrc === playingGifSrc){ //if it was playing (paused temporarily due to dragElement), then resume play
+	if(currentSongSrc === globalPlayingGifSrc){ //if it was playing (paused temporarily due to dragElement), then resume play
 		mainAudio.play();
 	} 
 }
@@ -100,7 +123,8 @@ function calculateDragWidthAndTime(){
 	const seekBarLeftOffset = seekBar.getBoundingClientRect().left;
 	const middleOfHandle = seekBarHandle.getBoundingClientRect().width / 2;
 
-	seekBarProgress.style.width = `${((clickedPos - seekBarLeftOffset - middleOfHandle) / seekBarWidth) * 100}%`;
+	const clickedWidth = clickedPos - seekBarLeftOffset - middleOfHandle;
+	seekBarProgress.style.width = `${(clickedWidth / seekBarWidth) * 100}%`;
 
 	mainAudio.currentTime = (parseFloat(seekBarProgress.style.width) / 100) * mainAudio.duration;
 }
@@ -116,118 +140,48 @@ function createPage(){
 	}
 	addEntryInfo();
 
-	preparePlaylistHeader();
-
-	preparePlaylistFooter();
-}
-
-function preparePlaylistHeader(){
 	fillPlaylistPreviewImages();
+	prepareHeaderButtonListeners();
 
-	const headerPlayIcon = document.getElementById('headerPlayIconID');
-
-	headerPlayIcon.addEventListener('click', () => {
-		if(lastSongNum === null){
-			table.rows[0].firstElementChild.firstElementChild.click();
-		}
-	});
-
-	headerPlayIcon.addEventListener('mouseover', () => {
-		if(lastSongNum === null){
-			headerPlayIcon.src = 'static/media/icons/playPixilHover.png';
-			headerPlayIcon.style.cursor = 'pointer';
-		}
-	});
-
-	headerPlayIcon.addEventListener('mouseout', () => {
-		headerPlayIcon.src = 'static/media/icons/playPixil.png';
-		headerPlayIcon.style.cursor = 'default';
-	});
+	prepareFooterButtonListeners();
 }
 
 async function fillPlaylistPreviewImages(){
 
 	const numOfPlaylistSongs = document.getElementById('scriptTag').getAttribute('numOfSongs');
-	let list = [];
 	let numOfFoundPreviewImages = 0;
 	const maxNumOfPreviews = 4;
 
 	for(let index = 0; index < numOfPlaylistSongs; index++){
-		list.push(getSongImage(index));
-	}
-
-	list = await Promise.all(list);
-
-	for(let index = 0; index < list.length; index++){
-		if(list[index] !== undefined){
-			document.getElementById(`coverPreview${numOfFoundPreviewImages}`).src = list[index][1];
+		let currentCoverSrc = await getSongImage(index);
+		if(currentCoverSrc !== undefined){
+			document.getElementById(`coverPreview${numOfFoundPreviewImages}`).src = currentCoverSrc;
 			numOfFoundPreviewImages++;
 		}
 		if(numOfFoundPreviewImages === maxNumOfPreviews){
 			return;
 		}
 	}
-
 	
-	for(numOfFoundPreviewImages; numOfFoundPreviewImages < maxNumOfPreviews; numOfFoundPreviewImages++){
-		document.getElementById(`coverPreview${numOfFoundPreviewImages}`).src = 'static/media/icons/play.png';
+	while(numOfFoundPreviewImages < maxNumOfPreviews){
+		document.getElementById(`coverPreview${numOfFoundPreviewImages}`).src = blankPlayImgSrc;
+		numOfFoundPreviewImages++;
 	}
 }
 
-
-function preparePlaylistFooter(){
-
-	const footerImgIDs = ['nextImg', 'footerPlayImg', 'prevImg'];
-	const imgFileNames = ['nextPixil', 'playPixil', 'prevPixil'];
-
-	const iconFolderPath = 'http://127.0.0.1:5000/static/media/icons';
-
-	footerImgIDs.forEach((currentElementID, index) => {
-		const currentElement = document.getElementById(currentElementID);
-
-		const normalImgSrc = `${iconFolderPath}/${imgFileNames[index]}`;
-		const nonHoverSrc = `${normalImgSrc}.png`;
-		const hoverSrc = `${normalImgSrc}Hover.png`
-		const nonHoverPauseSrc = `${iconFolderPath}/pausePixil.png`;
-		const hoverPauseSrc = `${iconFolderPath}/pausePixilHover.png`
-
-		currentElement.addEventListener('mouseover', () => {
-			if(lastSongNum === null){
-				return;
-			}
-
-			if(currentElement.src === nonHoverSrc){
-				currentElement.src = hoverSrc;
-			}
-			if(currentElement.src === nonHoverPauseSrc){
-				currentElement.src = hoverPauseSrc;
-			}
-		});
-
-		currentElement.addEventListener('mouseout', () => {
-			if(currentElement.src === hoverSrc){
-				currentElement.src = nonHoverSrc;
-			}
-			if(currentElement.src === hoverPauseSrc){
-				currentElement.src = nonHoverPauseSrc;
-			}
-		});
-	});
-}
 
 
 function addRow(songCount){
 	const songObject = new addSongObject(songCount);
 
 	const tr = table.insertRow(-1);
-	tr.className = "songRowClass";
+	tr.setAttribute('class','songRowClass');
 
 	const songContainer = document.createElement('div');
-	songContainer.className = "songContainer";
+	songContainer.setAttribute('class','songContainer');
 	tr.appendChild(songContainer);
 
 	const songInfoDiv = tr.childNodes[0];
-	
 	songInfoDiv.appendChild(songObject.coverImg);
 	songInfoDiv.appendChild(songObject.songTitle);
 	songInfoDiv.appendChild(songObject.songDuration);
@@ -238,21 +192,23 @@ function addRow(songCount){
 	tr.appendChild(songDivider);
 
 	songObject.coverImg.addEventListener('click', () => {
-		if(lastSongNum != songObject.songNum){ //If the last song is different than the current song
-			if(lastSongNum != null){ //If a song has been played before set corresponding image to the paused icon
+
+		const currentSongNum = songObject.songNum;
+		if(lastSongNum !== currentSongNum){ //If the last song is different than the current song
+			if(lastSongNum !== null){ //If a song has been played before set corresponding image to the paused icon
 				getSongImage(lastSongNum-1);
 				songObject.isPlaying = false;
 			}
 			mainAudio.src = `static/media/songs/${songObject.wholeSongName}.mp3`;
 
-			const titleDiv = document.getElementById('playingTitleID');
-			titleDiv.innerText = `Playing: ${songObject.wholeSongName}`;
+			const playingTitleDiv = document.getElementById('playingTitleID');
+			playingTitleDiv.innerText = `Playing: ${songObject.wholeSongName}`;
 
-			const timeLengthDiv = document.getElementById('timeLength');
-			timeLengthDiv.innerText = songObject.songDuration.innerText;
+			const playingTimeLengthDiv = document.getElementById('playingTimeLength');
+			playingTimeLengthDiv.innerText = songObject.songDuration.innerText;
 		}
 
-		lastSongNum = songObject.songNum;
+		
 
 		if(songObject.isPlaying){
 			const playPromise = mainAudio.play();
@@ -260,41 +216,67 @@ function addRow(songCount){
 			if(playPromise !== undefined){
 				playPromise.then(() => {
 					mainAudio.pause();
-					getSongImage(songObject.songNum-1);
 					songObject.isPlaying = false;
-					document.getElementById('footerPlayImg').src = "static/media/icons/playPixil.png";
+					getSongImage(songObject.songNum-1);
+					document.getElementById('footerPlayImg').src = determinePlayImgSrc();
 				})
 				.catch(error => {
 					console.log(`Error from pausing is: %c${error}`,"color: red;");
-				})
+				});
 			}
 
 			return;
 		}
 
+		lastSongNum = currentSongNum;
+		setEventSongNum(lastSongNum);
+
 		mainAudio.play();
 		songObject.isPlaying = true;
-		songObject.coverImg.src = 'static/media/icons/blackcropped.gif';
-		document.getElementById('footerPlayImg').src = "static/media/icons/pausePixil.png";
+		songObject.coverImg.src = globalPlayingGifSrc;
+		document.getElementById('footerPlayImg').src = determinePauseImgSrc();
 	});
 }
+
+function determinePlayImgSrc(){
+	const footerImgElement = document.getElementById('footerPlayImg');
+
+	if(footerImgElement.src === pausePixilHoverSrc){
+		return footerImgElement.src = playPixilHoverSrc;
+	}
+	
+	return footerImgElement.src = playPixilSrc;
+}
+
+
+function determinePauseImgSrc(){
+	const footerImgElement = document.getElementById('footerPlayImg');
+
+	if(footerImgElement.src === playPixilHoverSrc){
+		return footerImgElement.src = pausePixilHoverSrc;
+	}
+
+	return footerImgElement.src = pausePixilSrc;
+}
+
+
 
 function addSongObject(songCount){
 	this.songTitle = document.createElement('span');
 	this.songTitle.setAttribute('class', 'songTitleOrArtist');
+
 	this.songArtist = document.createElement('span');
 	this.songArtist.setAttribute('class', 'songTitleOrArtist');
+
 	this.songDuration = document.createElement('span');
 	this.songDuration.setAttribute('class', 'songDurationClass');
-	
+
 	this.coverImg = document.createElement('img');
 	this.coverImg.setAttribute('class', 'coverImg');
 
 	this.coverImg.getSongObject = this; //way to reference the object itself in other functions. Probably a cleaner solution to this
 	
 	this.wholeSongName = '';
-
-	this.position;
 
 	this.songNum = songCount;
 
@@ -309,12 +291,12 @@ function addEntryInfo(){
 	const artistList = arrayifyFlaskData('songArtists');
 	const durationsList = arrayifyFlaskData('songDurations')
 	
-	let songObjecet = table.rows[0].firstElementChild.firstElementChild.getSongObject;
-	
+	let songObject = table.rows[0].firstElementChild.firstElementChild.getSongObject;
+
 	songNamesList.forEach((songName, index) => {
 		songObject = table.rows[index].firstElementChild.firstElementChild.getSongObject;
 
-		wholeSongName = songName.slice(0, songName.indexOf(".mp3"));
+		let wholeSongName = songName.slice(0, songName.indexOf(".mp3"));
 
 		songObject.wholeSongName = wholeSongName;
 		songObject.songTitle.innerText = titleList[index];
@@ -331,20 +313,21 @@ async function getSongImage(index){
 	const songNamesList = arrayifyFlaskData('songNames');
 
 	const currentSongName = songNamesList[index].slice(0, songNamesList[index].indexOf(".mp3")); //removes .mp3 extension
-	const coverPath = `static/media/songCovers/${currentSongName}.jpeg`;
+	const songCoverPath = `static/media/songCovers/${currentSongName}.jpeg`;
 
-	return await fetch(coverPath)
+	return await fetch(songCoverPath)
 		.then(response => {
+			const currentSongImg = table.rows[index].firstElementChild.firstElementChild;
 			if (response.ok) {
-				table.rows[index].firstElementChild.firstElementChild.setAttribute('src', coverPath);
-				return [true, coverPath];
-			} else if(response.status === 404) {
-				table.rows[index].firstElementChild.firstElementChild.setAttribute('src', 'static/media/icons/play.png');
-			    return;
-			} else {
-				console.log(`Find Image Error. Status: %c${response.status}`,"color: red");
-				return;
+				currentSongImg.setAttribute('src', songCoverPath);
+				return songCoverPath;
 			}
+			if(response.status === 404) {
+				currentSongImg.setAttribute('src', blankPlayImgSrc);
+			    return;
+			}
+			console.log(`Find Image Error. Status of Error: %c${response.status}`,"color: red");
+			return;
 		})
 	  	.catch(error => console.log('error is', error));
 }
@@ -364,43 +347,3 @@ function arrayifyFlaskData(getAttribute){
 
 	return arr;
 }
-
-document.getElementById("prevImg").addEventListener('click', () => {
-	try{ 
-		if(lastSongNum-2 >= 0){
-			table.rows[lastSongNum-2].firstElementChild.firstElementChild.click();
-		}
-	}
-	catch{ console.log("%cError: Cannot play previous song when no song has been selected.", "color: red"); }
-});
-
-document.getElementById("footerPlayImg").addEventListener('click', () => {
-	try{ table.rows[lastSongNum-1].firstElementChild.firstElementChild.click(); }
-	catch{ console.log("%cError: Cannot play song when no song has been selected.", "color: red");}
-});
-
-document.getElementById("nextImg").addEventListener('click', () => {
-	try{
-		if(lastSongNum < table.rows.length){
-			table.rows[lastSongNum].firstElementChild.firstElementChild.click();
-		}
-	}
-	catch{ console.log("%cError: Cannot play next song when no song has been selected.", "color: red");}
-});
-
-
-//Wants:
-	//multiple pages to select from, ex: home, playlists, artists
-	//volume slider
-	//drag songs to reorder playlist (able to order playlists)
-	//drop files onto website in order to "upload" new songs to the site
-	//infinite scrolling
-	//side panel
-
-
-//Add windows volume slider thumbnail?
-
-//To Do Now:
-	//Make shuffle text into icon
-	//create prepare footer function?
-	//volume slider
