@@ -22,7 +22,10 @@ let lastSongNum = null;
 let draggingSong = false;
 
 
-import setEventSongNum, {prepareHeaderButtonListeners, prepareFooterButtonListeners} from '/static/eventScript.js'
+import setEventSongNum, {prepareHeaderButtonListeners, prepareFooterButtonListeners, fileDropHandler, dragOverHandler} from '/static/eventScript.js'
+window.dragOverHandler = dragOverHandler;
+window.fileDropHandler = fileDropHandler;
+
 
 
 mainAudio.addEventListener('timeupdate', () => {
@@ -136,9 +139,12 @@ function createPage(){
 	/* creates Table */
 	const numOfPlaylistSongs = document.getElementById('scriptTag').getAttribute('numOfSongs');
 	for(let songCount = 1; songCount <= numOfPlaylistSongs; songCount++){ /*Songs*/
-		addRow(songCount);
+		addRow(songCount, numOfPlaylistSongs);
 	}
-	addEntryInfo();
+
+	if(numOfPlaylistSongs > 0){
+		addEntryInfo();
+	}
 
 	fillPlaylistPreviewImages();
 	prepareHeaderButtonListeners();
@@ -171,7 +177,7 @@ async function fillPlaylistPreviewImages(){
 
 
 
-function addRow(songCount){
+export function addRow(songCount, numOfPlaylistSongs){
 	const songObject = new addSongObject(songCount);
 
 	const tr = table.insertRow(-1);
@@ -187,9 +193,11 @@ function addRow(songCount){
 	songInfoDiv.appendChild(songObject.songDuration);
 	songInfoDiv.appendChild(songObject.songArtist);
 
-	const songDivider = document.createElement('div');
-	songDivider.className = "songDivider";
-	tr.appendChild(songDivider);
+	if(songCount < numOfPlaylistSongs){
+		const songDivider = document.createElement('div');
+		songDivider.className = "songDivider";
+		tr.appendChild(songDivider);
+	}
 
 	songObject.coverImg.addEventListener('click', () => {
 
@@ -290,7 +298,7 @@ function addEntryInfo(){
 	const titleList = arrayifyFlaskData('songTitles');
 	const artistList = arrayifyFlaskData('songArtists');
 	const durationsList = arrayifyFlaskData('songDurations')
-	
+
 	let songObject = table.rows[0].firstElementChild.firstElementChild.getSongObject;
 
 	songNamesList.forEach((songName, index) => {

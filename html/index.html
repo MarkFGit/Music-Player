@@ -30,6 +30,7 @@
 			<div class="panelButton" id="recentsButton"> 
 				<img class="sidePanelIcon" id="recentImg" src="{{ url_for('static',filename='media/icons/recentPixil.png') }}"> Recent
 			</div>
+			<div class="dropZone" ondrop="fileDropHandler(event)" ondragover="dragOverHandler(event)"> Drop Files Onto Me! </div>
 		</div>
 		<div class="contentContainer">
 			<div class="playlistHeader">
@@ -41,7 +42,7 @@
 				</div>
 				<div class="headerTitleAndButtons">
 					<div class=headerTitleAndPlay>
-						<div class="playlistTitle"> Home Playlist </div>
+						<div class="playlistTitle"> Last Added </div>
 						<img class="headerPlayIcon" id="headerPlayIconID" src="{{ url_for('static',filename='media/icons/playPixil.png') }}"> </img>
 					</div>
 					<div class="buttonTextCombo">
@@ -49,7 +50,6 @@
 						<span class="headerSmallButtonText"> Shuffle </span>
 					</div>
 					<img class="headerEditIcon"></img>
-					<!-- some Images / buttons here -->
 				</div>
 			</div>
 			<div class="content">
@@ -84,9 +84,5 @@
         	<div class="playingTimeLength lowerBarSmallText" id="playingTimeLength"> -:-- </div>
 		</div>
 	</div>
-	
-
-<!-- defer? modules? -->
-	
 </body>
 </html>
