@@ -4,12 +4,12 @@
 	<title> Music </title>
 	<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/main.css') }}">
 	<script type="module" defer id='scriptTag' 
-			songNames='{{ songNames }}' 
+			songNames='{{ songNames|tojson }}' 
 			numOfSongs='{{ numOfSongs }}' 
 			image_data = '{{ image_data }}' 
-			songTitles = '{{ songTitles }}' 
-			songArtists = '{{ songArtists }}' 
-			songDurations = '{{ songDurations }}' 
+			songTitles = '{{ songTitles|tojson }}' 
+			songArtists = '{{ songArtists|tojson }}' 
+			songDurations = '{{ songDurations|tojson }}'
 			src="{{ url_for('static',filename='script.js') }}"
 			> 
 	</script>
@@ -22,6 +22,7 @@
 	<div class="mainContainer">
 		<div class="sidePanel">
 			<div class="panelButton" id="playlistsButton">
+				<a href="playlists"> </a>
 				<img class="sidePanelIcon" id="homeImg" src="{{ url_for('static',filename='media/icons/homePixil.png') }}"> Home
 			</div>
 			<div class="panelButton" id="artistsButton"> 
@@ -64,7 +65,7 @@
 		</div>
 	</div>
 	<div class="lowerBar">
-		<div class="seekBar" id="seekBar">
+		<div class="seekBar" id="seekBar" onmousedown="mouseDown()">
 			<div class="seekBarProgress" id="seekBarProgress"></div>
 			<div class="seekBarHandle" id="seekBarHandle"></div>
 		</div>	
@@ -76,9 +77,9 @@
 			</div>
 
 			<div class="threeButtonContainer" id="playButtons">
-        		<img class="smallImg" id="prevImg" src="{{ url_for('static',filename='media/icons/prevPixil.png') }}">
+        		<img class="smallImg" id="footerPrevImg" src="{{ url_for('static',filename='media/icons/prevPixil.png') }}">
         		<img class="mainImg" id="footerPlayImg" src="{{ url_for('static',filename='media/icons/playPixil.png') }}">
-        		<img class="smallImg" id="nextImg" src="{{ url_for('static',filename='media/icons/nextPixil.png') }}">
+        		<img class="smallImg" id="footerNextImg" src="{{ url_for('static',filename='media/icons/nextPixil.png') }}">
 	        </div>
 
         	<div class="playingTimeLength lowerBarSmallText" id="playingTimeLength"> -:-- </div>

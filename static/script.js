@@ -1,31 +1,36 @@
 const iconFolderPath = 'http://127.0.0.1:5000/static/media/icons/';
-
-const pausePixilSrc = `${iconFolderPath}pausePixil.png`;
-const pausePixilHoverSrc = `${iconFolderPath}pausePixilHover.png`;
-const playPixilSrc = `${iconFolderPath}playPixil.png`;
-const playPixilHoverSrc = `${iconFolderPath}playPixilHover.png`;
-
-const blankPlayImgSrc = `${iconFolderPath}play.png`;
 const globalPauseImgSrc = `${iconFolderPath}pausePixil.png`;
+const globalPauseHoverImgSrc = `${iconFolderPath}pausePixilHover.png`;
 const globalPlayImgSrc = `${iconFolderPath}playPixil.png`;
+const globalPlayHoverImgSrc = `${iconFolderPath}playPixilHover.png`;
+const blankPlayImgSrc = `${iconFolderPath}play.png`;
 const globalPlayingGifSrc = `${iconFolderPath}blackcropped.gif`;
 
 
 const table = document.getElementById("songTable");
 const mainAudio = document.getElementById("mainAudio");
-document.getElementById("seekBar").onmousedown = mouseDown;
+
 
 window.createPage = createPage; /* allows for body onload of createPage() */
-
+window.mouseDown = mouseDown;
 
 let lastSongNum = null;
 let draggingSong = false;
 
 
-import setEventSongNum, {prepareHeaderButtonListeners, prepareFooterButtonListeners, fileDropHandler, dragOverHandler} from '/static/eventScript.js'
+import updateEventScriptSongNum, {prepareHeaderButtonListeners, prepareFooterButtonListeners, fileDropHandler, dragOverHandler} from '/static/eventScript.js'
 window.dragOverHandler = dragOverHandler;
 window.fileDropHandler = fileDropHandler;
 
+
+export function clickSongBySongNum(songNum){
+	table.rows[songNum].firstElementChild.firstElementChild.click();
+}
+
+function updateSongNum(currentSongNum){
+	lastSongNum = currentSongNum;
+	updateEventScriptSongNum(lastSongNum);
+}
 
 
 mainAudio.addEventListener('timeupdate', () => {
@@ -33,6 +38,24 @@ mainAudio.addEventListener('timeupdate', () => {
 	if(isNaN(songPosition)){
 		return;
 	}
+	updatePlayingSongTimestamp(songPosition);
+
+	const playingSongEndedNaturally = (songPosition == 1 && !draggingSong);
+	if(playingSongEndedNaturally){
+		const currentSongObject = table.rows[lastSongNum-1].firstElementChild.firstElementChild.getSongObject;
+		seekBarProgress.style.width = '0%';
+
+		let isLastPlaylistSong = (currentSongObject.songNum === table.rows.length);
+		if(isLastPlaylistSong){ 
+			revertPageToNoSong(currentSongObject);
+			return;
+		}
+		const nextSongNum = lastSongNum;
+		clickSongBySongNum(nextSongNum);
+	}
+});
+
+function updatePlayingSongTimestamp(songPosition){
 	seekBarProgress.style.width = `${songPosition * 100}%`;
 
 	const minutes = Math.floor(mainAudio.currentTime / 60);
@@ -42,32 +65,21 @@ mainAudio.addEventListener('timeupdate', () => {
 		seconds = `0${seconds}`;
 	}
 
-
 	const updateCurrentTime = document.getElementById('currentTimeStamp');
 	updateCurrentTime.innerText = `${minutes}:${seconds}`;
+}
 
-	if(songPosition == 1 && !draggingSong){ //if the song finishes naturally: revert the song that just finished back to its original state
-		const lastSongObject = table.rows[lastSongNum-1].firstElementChild.firstElementChild.getSongObject;
-		seekBarProgress.style.width = '0%';
 
-		/*if the last song in the playlist finishes playing... revert the player. Otherwise, play the next song*/
-		if(lastSongObject.songNum === table.rows.length){ 
-			document.getElementById('footerPlayImg').src = determinePlayImgSrc();
-			getSongImage(lastSongNum-1);
-			document.getElementById('currentTimeStamp').innerText = '-.--';
-			document.getElementById('playingTitleID').innerText = 'Playing:';
-			document.getElementById('timeLength').innerText = '-.--';
-			lastSongObject.isPlaying = false;
+function revertPageToNoSong(currentSongObject){
+	document.getElementById('footerPlayImg').src = determinePlayImgSrc();
+	getSongImage(lastSongNum-1);
+	document.getElementById('currentTimeStamp').innerText = '-:--';
+	document.getElementById('playingTitleID').innerText = 'Playing:';
+	document.getElementById('playingTimeLength').innerText = '-:--';
+	currentSongObject.isPlaying = false;
 
-			lastSongNum = null;
-			setEventSongNum(lastSongNum);	
-		}
-		else{
-			const nextSongNum = lastSongNum;
-			table.rows[nextSongNum].firstElementChild.firstElementChild.click();
-		}
-	}
-});
+	updateSongNum(null);
+}
 
 
 
@@ -111,7 +123,6 @@ function stopDragElement() {
 }
 
 
-/* -------helper functions------- */
 function getCSSProperty(ID, Property){
 	let element = document.getElementById(ID);
 	let elementProperty = window.getComputedStyle(element).getPropertyValue(Property);
@@ -121,17 +132,14 @@ function getCSSProperty(ID, Property){
 function calculateDragWidthAndTime(){
 	const getSeekBarWidth = getCSSProperty('seekBar', 'width');
 	const seekBarWidth = getSeekBarWidth.slice(0, getSeekBarWidth.indexOf('px')); /* remove 'px' from given width */
-
 	const clickedPos = event.clientX;
 	const seekBarLeftOffset = seekBar.getBoundingClientRect().left;
 	const middleOfHandle = seekBarHandle.getBoundingClientRect().width / 2;
-
 	const clickedWidth = clickedPos - seekBarLeftOffset - middleOfHandle;
-	seekBarProgress.style.width = `${(clickedWidth / seekBarWidth) * 100}%`;
 
+	seekBarProgress.style.width = `${(clickedWidth / seekBarWidth) * 100}%`;
 	mainAudio.currentTime = (parseFloat(seekBarProgress.style.width) / 100) * mainAudio.duration;
 }
-/* ^^^^^^ ---helper functions--- ^^^^^^ */
 
 
 function createPage(){
@@ -148,7 +156,6 @@ function createPage(){
 
 	fillPlaylistPreviewImages();
 	prepareHeaderButtonListeners();
-
 	prepareFooterButtonListeners();
 }
 
@@ -177,7 +184,7 @@ async function fillPlaylistPreviewImages(){
 
 
 
-export function addRow(songCount, numOfPlaylistSongs){
+function addRow(songCount, numOfPlaylistSongs){
 	const songObject = new addSongObject(songCount);
 
 	const tr = table.insertRow(-1);
@@ -199,6 +206,11 @@ export function addRow(songCount, numOfPlaylistSongs){
 		tr.appendChild(songDivider);
 	}
 
+	addSongImgEventListener(songObject);
+}
+
+
+function addSongImgEventListener(songObject){
 	songObject.coverImg.addEventListener('click', () => {
 
 		const currentSongNum = songObject.songNum;
@@ -216,55 +228,63 @@ export function addRow(songCount, numOfPlaylistSongs){
 			playingTimeLengthDiv.innerText = songObject.songDuration.innerText;
 		}
 
-		
-
 		if(songObject.isPlaying){
-			const playPromise = mainAudio.play();
-
-			if(playPromise !== undefined){
-				playPromise.then(() => {
-					mainAudio.pause();
-					songObject.isPlaying = false;
-					getSongImage(songObject.songNum-1);
-					document.getElementById('footerPlayImg').src = determinePlayImgSrc();
-				})
-				.catch(error => {
-					console.log(`Error from pausing is: %c${error}`,"color: red;");
-				});
-			}
-
+			pauseAudio(songObject);
 			return;
 		}
 
-		lastSongNum = currentSongNum;
-		setEventSongNum(lastSongNum);
+		updateSongNum(currentSongNum);
+		playNextSong(songObject);
 
-		mainAudio.play();
-		songObject.isPlaying = true;
-		songObject.coverImg.src = globalPlayingGifSrc;
-		document.getElementById('footerPlayImg').src = determinePauseImgSrc();
 	});
 }
+
+function pauseAudio(songObject){
+	const playPromise = mainAudio.play();
+
+	if(playPromise !== undefined){
+		playPromise.then(() => {
+			mainAudio.pause();
+			songObject.isPlaying = false;
+			getSongImage(songObject.songNum-1);
+			document.getElementById('footerPlayImg').src = determinePlayImgSrc();
+		})
+		.catch(error => {
+			console.log(`Error from pausing is: %c${error}`,"color: red;");
+		});
+	}
+}
+
+
+
+
+function playNextSong(songObject){
+	mainAudio.play();
+	songObject.isPlaying = true;
+	songObject.coverImg.src = globalPlayingGifSrc;
+	document.getElementById('footerPlayImg').src = determinePauseImgSrc();
+}
+
 
 function determinePlayImgSrc(){
 	const footerImgElement = document.getElementById('footerPlayImg');
 
-	if(footerImgElement.src === pausePixilHoverSrc){
-		return footerImgElement.src = playPixilHoverSrc;
+	if(footerImgElement.src === globalPauseHoverImgSrc){
+		return footerImgElement.src = globalPlayHoverImgSrc;
 	}
 	
-	return footerImgElement.src = playPixilSrc;
+	return footerImgElement.src = globalPlayImgSrc;
 }
 
 
 function determinePauseImgSrc(){
 	const footerImgElement = document.getElementById('footerPlayImg');
 
-	if(footerImgElement.src === playPixilHoverSrc){
-		return footerImgElement.src = pausePixilHoverSrc;
+	if(footerImgElement.src === globalPlayHoverImgSrc){
+		return footerImgElement.src = globalPauseHoverImgSrc;
 	}
 
-	return footerImgElement.src = pausePixilSrc;
+	return footerImgElement.src = globalPauseImgSrc;
 }
 
 
@@ -272,37 +292,30 @@ function determinePauseImgSrc(){
 function addSongObject(songCount){
 	this.songTitle = document.createElement('span');
 	this.songTitle.setAttribute('class', 'songTitleOrArtist');
-
 	this.songArtist = document.createElement('span');
 	this.songArtist.setAttribute('class', 'songTitleOrArtist');
-
 	this.songDuration = document.createElement('span');
 	this.songDuration.setAttribute('class', 'songDurationClass');
-
 	this.coverImg = document.createElement('img');
 	this.coverImg.setAttribute('class', 'coverImg');
-
 	this.coverImg.getSongObject = this; //way to reference the object itself in other functions. Probably a cleaner solution to this
-	
 	this.wholeSongName = '';
-
 	this.songNum = songCount;
-
 	this.isPlaying = false;
 }
 
 
 
 function addEntryInfo(){
-	const songNamesList = arrayifyFlaskData('songNames');
-	const titleList = arrayifyFlaskData('songTitles');
-	const artistList = arrayifyFlaskData('songArtists');
-	const durationsList = arrayifyFlaskData('songDurations')
-
-	let songObject = table.rows[0].firstElementChild.firstElementChild.getSongObject;
+	/* change this function */
+		/* initialize variables before function call. loop through, pass variable indexes to new function*/
+	const songNamesList = JSON.parse(document.getElementById('scriptTag').getAttribute('songNames'));
+	const titleList = JSON.parse(document.getElementById('scriptTag').getAttribute('songTitles'));
+	const artistList = JSON.parse(document.getElementById('scriptTag').getAttribute('songArtists'));
+	const durationsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songDurations'));
 
 	songNamesList.forEach((songName, index) => {
-		songObject = table.rows[index].firstElementChild.firstElementChild.getSongObject;
+		let songObject = table.rows[index].firstElementChild.firstElementChild.getSongObject;
 
 		let wholeSongName = songName.slice(0, songName.indexOf(".mp3"));
 
@@ -318,7 +331,7 @@ function addEntryInfo(){
 
 
 async function getSongImage(index){
-	const songNamesList = arrayifyFlaskData('songNames');
+	const songNamesList = JSON.parse(document.getElementById('scriptTag').getAttribute('songNames'));
 
 	const currentSongName = songNamesList[index].slice(0, songNamesList[index].indexOf(".mp3")); //removes .mp3 extension
 	const songCoverPath = `static/media/songCovers/${currentSongName}.jpeg`;
@@ -341,17 +354,6 @@ async function getSongImage(index){
 }
 
 
-function arrayifyFlaskData(getAttribute){
-	const arr = document.getElementById('scriptTag').getAttribute(getAttribute).split(",");
-
-	const arrLength = arr.length;
-	const lastIndex = arrLength - 1;
-	for(let index = 0; index < arrLength; index++){
-		arr[index] = arr[index].slice(2, arr[index].length-1); // removes ', ' between each entry
-		if(index === lastIndex){
-			arr[index] = arr[index].slice(0, arr[index].length-1); //handle last element with closing bracket
-		}
-	}
-
-	return arr;
+export function log(thingToConsoleLog){
+	console.log(thingToConsoleLog);
 }

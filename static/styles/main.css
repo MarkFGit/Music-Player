@@ -274,6 +274,11 @@ body
     overflow: hidden;
 }
 
+.songRowClass:hover
+{
+    background-color: #161616;
+}
+
 
 .songContainer
 {
@@ -283,20 +288,19 @@ body
     height: 40px;
 
     overflow: hidden;
+    white-space: nowrap;
 }
 
 
 .songTitleOrArtist
 {
-    align-items: center;
-    display: flex;
-
-    height: 35px;
+    height: fit-content;
     width: 100%;
 
     margin: 0 4px;
     padding: 0 4px;
 
+    text-overflow: ellipsis;
     overflow: hidden;
 }
 

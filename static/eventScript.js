@@ -1,9 +1,9 @@
 let lastSongNum = null;
 const table = document.getElementById("songTable")
 
-import {addRow} from '/static/script.js'
+import {log, clickSongBySongNum} from '/static/script.js'
 
-export default function setEventSongNum(updatedSongNum){
+export default function updateEventScriptSongNum(updatedSongNum){
 	lastSongNum = updatedSongNum;
 }
 
@@ -12,7 +12,7 @@ export function prepareHeaderButtonListeners(){
 
 	headerPlayIcon.addEventListener('click', () => {
 		if(lastSongNum === null){
-			table.rows[0].firstElementChild.firstElementChild.click();
+			clickSongBySongNum(0);
 		}
 	});
 
@@ -30,11 +30,11 @@ export function prepareHeaderButtonListeners(){
 }
 
 export function prepareFooterButtonListeners(){
-	document.getElementById("prevImg").addEventListener('click', () => {
+	document.getElementById("footerPrevImg").addEventListener('click', () => {
 		try{ 
 			const prevSongNum = lastSongNum - 2;
 			if(prevSongNum >= 0){
-				table.rows[prevSongNum].firstElementChild.firstElementChild.click();
+				clickSongBySongNum(prevSongNum);
 			}
 		}
 		catch{ console.log("%cError: Cannot play previous song.", "color: red"); }
@@ -43,17 +43,17 @@ export function prepareFooterButtonListeners(){
 	document.getElementById("footerPlayImg").addEventListener('click', () => {
 		try{ 
 			const currentSongNum = lastSongNum - 1;
-			table.rows[currentSongNum].firstElementChild.firstElementChild.click();
+			clickSongBySongNum(currentSongNum);
 		}
 		catch{ console.log("%cError: Cannot play song when no song has been selected.", "color: red");}
 	});
 
-	document.getElementById("nextImg").addEventListener('click', () => {
+	document.getElementById("footerNextImg").addEventListener('click', () => {
 		try{
 			const nextSongNum = lastSongNum;
 			const numberOfRows = table.rows.length;
 			if(nextSongNum < numberOfRows){
-				table.rows[nextSongNum].firstElementChild.firstElementChild.click();
+				clickSongBySongNum(nextSongNum);
 			}
 		}
 		catch{ console.log("%cError: Cannot play next song.", "color: red");}
@@ -62,16 +62,24 @@ export function prepareFooterButtonListeners(){
 	addHoverToFooterButtons();
 }
 
+
+
+
+
+
 function addHoverToFooterButtons(){
-	const footerImgIDs = ['nextImg', 'footerPlayImg', 'prevImg'];
-	const imgFileNames = ['nextPixil', 'playPixil', 'prevPixil'];
+	const footerImgElementIDs = {
+		footerPrevImg: 'prevPixil',
+		footerPlayImg: 'playPixil',
+		footerNextImg: 'nextPixil'
+	}
 
 	const iconFolderPath = 'http://127.0.0.1:5000/static/media/icons';
 
-	footerImgIDs.forEach((currentElementID, index) => {
-		const normalImgSrc = `${iconFolderPath}/${imgFileNames[index]}`;
-		const normalSrc = `${normalImgSrc}.png`;
-		const hoverSrc = `${normalImgSrc}Hover.png`;
+
+	for(const [currentElementID, imgSrc] of Object.entries(footerImgElementIDs)){
+		const normalPlaySrc = `${iconFolderPath}/${imgSrc}.png`;
+		const hoverPlaySrc = `${iconFolderPath}/${imgSrc}Hover.png`;
 		const normalPauseSrc = `${iconFolderPath}/pausePixil.png`;
 		const hoverPauseSrc = `${iconFolderPath}/pausePixilHover.png`;
 
@@ -81,8 +89,8 @@ function addHoverToFooterButtons(){
 				return;
 			}
 
-			if(currentElement.src === normalSrc){
-				currentElement.src = hoverSrc;
+			if(currentElement.src === normalPlaySrc){
+				currentElement.src = hoverPlaySrc;
 			}
 			if(currentElement.src === normalPauseSrc){
 				currentElement.src = hoverPauseSrc;
@@ -90,62 +98,68 @@ function addHoverToFooterButtons(){
 		});
 
 		currentElement.addEventListener('mouseout', () => {
-			if(currentElement.src === hoverSrc){
-				currentElement.src = normalSrc;
+			if(currentElement.src === hoverPlaySrc){
+				currentElement.src = normalPlaySrc;
 			}
 			if(currentElement.src === hoverPauseSrc){
 				currentElement.src = normalPauseSrc;
 			}
 		});
+
+	}
+}
+
+
+
+export async function fileDropHandler(e){
+	e.preventDefault();
+	let arrStu = [];
+	if(e.dataTransfer.items){
+		for(let index = 0; index < e.dataTransfer.items.length; index++){
+			const currentFile = e.dataTransfer.items[index];
+			if(currentFile.kind !== 'file'){
+				continue;
+			}
+
+			const form = new FormData();
+			const file = currentFile.getAsFile();
+			const fileName = file.name;
+			const fileType = file.type;
+		
+			if(fileType !== "audio/mpeg"){
+				continue;
+			}
+			form.append("file", file);
+			form.append("name", fileName);
+
+			const xhr = new XMLHttpRequest();
+			xhr.open("POST", '/', true);
+			xhr.send(form);
+			
+			xhr.onreadystatechange = () => { reloadOnXhrReady(xhr); }
+		}
+		log(arrStu)
+		return;
+	}
+	e.dataTransfer.items.forEach((item) => {
+		console.log(item.name);
 	});
 }
 
 
-
-export function fileDropHandler(e){
-	e.preventDefault();
-	if(e.dataTransfer.items){
-		for(let index = 0; index < e.dataTransfer.items.length; index++){
-			let currentFile = e.dataTransfer.items[index];
-			if(currentFile.kind === 'file'){
-				let form = new FormData();
-				form.append("file", currentFile.getAsFile());
-
-				let fileName, fileType;
-				for (let value of form.values()) {
-				   fileName = value.name;
-				   fileType = value.type;
-				}
-
-				if(fileType !== "audio/mpeg"){
-					continue;
-				}
-
-				form.append("name", fileName);
-
-				let xhr = new XMLHttpRequest();
-				xhr.open("POST", '/', true);
-				xhr.send(form);
-
-				xhr.onreadystatechange = () => {
-					const doneState = 4;
-					if(xhr.readyState === doneState && xhr.status === 200){
-						window.location.reload(); // update the page with new song
-					}
-					if(xhr.readyState === doneState && xhr.status !== 200){
-						console.error(`Song was not added correctly. Failed with XHR status: ${xhr.status}`);
-					}
-				}
-			}
+function reloadOnXhrReady(xhr){
+	const xhrIsDone = (xhr.readyState === 4);
+	if(xhrIsDone){
+		if(xhr.status === 200) {
+			window.location.reload();
+			return;
 		}
-	}
-	else{
-		e.dataTransfer.items.forEach((item) => {
-			console.log(item.name);
-		});
+		console.error(`Song was not added correctly. Failed with XHR status: ${xhr.status}`);
 	}
 }
 
+
 export function dragOverHandler(e){
+	//e.dataTransfer.dropEffect = "move";
 	e.preventDefault(); /* stops browser from opening file in new tab */
 }
