@@ -113,7 +113,6 @@ function addHoverToFooterButtons(){
 
 export async function fileDropHandler(e){
 	e.preventDefault();
-	let arrStu = [];
 	if(e.dataTransfer.items){
 		for(let index = 0; index < e.dataTransfer.items.length; index++){
 			const currentFile = e.dataTransfer.items[index];
@@ -138,7 +137,6 @@ export async function fileDropHandler(e){
 			
 			xhr.onreadystatechange = () => { reloadOnXhrReady(xhr); }
 		}
-		log(arrStu)
 		return;
 	}
 	e.dataTransfer.items.forEach((item) => {
