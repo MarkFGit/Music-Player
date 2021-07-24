@@ -17,7 +17,7 @@
 </head>
 
 
-<body class="bodyClass" onload="createPage()">
+<body class="bodyClass" onload="createPage()" ondrop="fileDropHandler(event)" ondragover="dragOverHandler(event)">
 	<div class="topBar"></div>
 	<div class="mainContainer">
 		<div class="sidePanel">
@@ -31,7 +31,7 @@
 			<div class="panelButton" id="recentsButton"> 
 				<img class="sidePanelIcon" id="recentImg" src="{{ url_for('static',filename='media/icons/recentPixil.png') }}"> Recent
 			</div>
-			<div class="dropZone" ondrop="fileDropHandler(event)" ondragover="dragOverHandler(event)"> Drop Files Onto Me! </div>
+			<div class="dropZone"> Drop Files Onto Me! </div>
 		</div>
 		<div class="contentContainer">
 			<div class="playlistHeader">

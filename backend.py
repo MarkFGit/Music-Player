@@ -16,7 +16,6 @@ db = mysql.connector.connect(
 
 pointer = db.cursor(buffered=True)
 
-
 app = Flask(__name__, template_folder='html', static_folder='static')
 
 @app.route("/", methods=["POST","GET"])
@@ -44,14 +43,14 @@ def home():
 	allSongInfos.sort(key=lambda songInfo: songInfo[5], reverse = True) # sort by using the date index. most recent song goes to top
 
 	for songInfo in allSongInfos:
-		songFileNames.append(f'{songInfo[0]}.mp3')
+		songFileNames.append(songInfo[0])
 		songTitles.append(songInfo[1])
 		songArtists.append(songInfo[3])
 		songDurations.append(songInfo[2])
 
-		# songTitles.append(songInfo[0][4]) albums?
-		# songTitles.append(songInfo[0][5]) durations?
-		# songTitles.append(songInfo[0][6]) plays?
+		# songTitles.append(songInfo[4]) albums?
+		# songTitles.append(songInfo[5]) date added?
+		# songTitles.append(songInfo[6]) plays?
 
 	numOfSongs = len(songFileNames)
 
@@ -64,12 +63,11 @@ def addNewCoverImgToFS(songName, songData):
 	coverPathFolder = 'C:/Users/markr/Desktop/Website/static/media/songCovers/'
 	coverPathNames = os.listdir(coverPathFolder)
 
-	songCoverName = f'{songName[:-4]}.jpeg'; #remove .mp3 extension, add .jpeg extension
+	songCoverName = f'{songName[:-4]}.jpeg'; #remove .mp3/.m4a extension, add .jpeg extension
 
 	if(songCoverName not in coverPathNames):
 		coverImage_data = songData.get_image()
 		hasCoverImgData = (coverImage_data != None)
-		print(coverImage_data)
 		if(hasCoverImgData):
 			coverBytes = Image.open(BytesIO(coverImage_data))
 			coverBytes.save(f'{coverPathFolder}{songName[:-4]}.jpeg')
@@ -82,7 +80,7 @@ def insertNewSongEntryInDatabase(songName, songData):
 	songAlbum = determineAlbum(songData)
 
 	pointer.execute("INSERT INTO songTest3 (fileName, title, durationSecs, artist, album, created, plays) VALUES (%s,%s,%s,%s,%s,%s,%s)", 
-								(songName[:-4], songTitle, songDuration, songArtist, songAlbum, datetime.now(), 0))
+								(songName, songTitle, songDuration, songArtist, songAlbum, datetime.now(), 0))
 	db.commit()
 
 
@@ -90,7 +88,7 @@ def insertNewSongEntryInDatabase(songName, songData):
 def determineTitle(songData):
 	if(isinstance(songData.title, str)):
 		return songData.title
-	return songName[:-4]
+	return songName
 
 
 def determineArtist(songData):

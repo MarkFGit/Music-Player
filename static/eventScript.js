@@ -31,40 +31,27 @@ export function prepareHeaderButtonListeners(){
 
 export function prepareFooterButtonListeners(){
 	document.getElementById("footerPrevImg").addEventListener('click', () => {
-		try{ 
-			const prevSongNum = lastSongNum - 2;
-			if(prevSongNum >= 0){
-				clickSongBySongNum(prevSongNum);
-			}
-		}
-		catch{ console.log("%cError: Cannot play previous song.", "color: red"); }
+		const previousSongNum = lastSongNum - 2;
+		const canPlayPreviousSong = (lastSongNum !== null && previousSongNum >= 0);
+		if(canPlayPreviousSong) return clickSongBySongNum(previousSongNum);
+		console.error("Error: Cannot play previous song.");
 	});
 
 	document.getElementById("footerPlayImg").addEventListener('click', () => {
-		try{ 
-			const currentSongNum = lastSongNum - 1;
-			clickSongBySongNum(currentSongNum);
-		}
-		catch{ console.log("%cError: Cannot play song when no song has been selected.", "color: red");}
+		if(lastSongNum === null) return (console.error("Error: Cannot play song when no song has been selected."));
+		const currentSongNum = lastSongNum - 1;
+		clickSongBySongNum(currentSongNum);
 	});
 
 	document.getElementById("footerNextImg").addEventListener('click', () => {
-		try{
-			const nextSongNum = lastSongNum;
-			const numberOfRows = table.rows.length;
-			if(nextSongNum < numberOfRows){
-				clickSongBySongNum(nextSongNum);
-			}
-		}
-		catch{ console.log("%cError: Cannot play next song.", "color: red");}
+		const canPlayPreviousSong = (lastSongNum !== null && lastSongNum >= 0);
+		const nextSongNum = lastSongNum;
+		if(canPlayPreviousSong) return clickSongBySongNum(nextSongNum);
+		console.error("Error: Cannot play next song.");
 	});
 
 	addHoverToFooterButtons();
 }
-
-
-
-
 
 
 function addHoverToFooterButtons(){
@@ -85,9 +72,7 @@ function addHoverToFooterButtons(){
 
 		const currentElement = document.getElementById(currentElementID);
 		currentElement.addEventListener('mouseover', () => {
-			if(lastSongNum === null){
-				return;
-			}
+			if(lastSongNum === null) return;
 
 			if(currentElement.src === normalPlaySrc){
 				currentElement.src = hoverPlaySrc;
@@ -110,6 +95,10 @@ function addHoverToFooterButtons(){
 }
 
 
+export function dragOverHandler(e){
+	//e.dataTransfer.dropEffect = "move";
+	e.preventDefault(); /* stops browser from opening file in new tab */
+}
 
 export async function fileDropHandler(e){
 	e.preventDefault();
@@ -122,12 +111,12 @@ export async function fileDropHandler(e){
 
 			const form = new FormData();
 			const file = currentFile.getAsFile();
-			const fileName = file.name;
-			const fileType = file.type;
-		
-			if(fileType !== "audio/mpeg"){
+
+			if(isNotAcceptedFileUploadType(file.type)){
 				continue;
 			}
+
+			const fileName = file.name;
 			form.append("file", file);
 			form.append("name", fileName);
 
@@ -137,27 +126,24 @@ export async function fileDropHandler(e){
 			
 			xhr.onreadystatechange = () => { reloadOnXhrReady(xhr); }
 		}
-		return;
 	}
-	e.dataTransfer.items.forEach((item) => {
-		console.log(item.name);
-	});
+}
+
+
+function isNotAcceptedFileUploadType(fileType){
+	const allowedFileTypes = ["audio/mpeg", "audio/x-m4a"];
+
+	if(allowedFileTypes.includes(fileType)){
+		return false;
+	}
+	return true;
 }
 
 
 function reloadOnXhrReady(xhr){
 	const xhrIsDone = (xhr.readyState === 4);
 	if(xhrIsDone){
-		if(xhr.status === 200) {
-			window.location.reload();
-			return;
-		}
-		console.error(`Song was not added correctly. Failed with XHR status: ${xhr.status}`);
+		if(xhr.status === 200) return window.location.reload();
+		console.error(`Failed to add song. Failed with XHR status: ${xhr.status}`);
 	}
-}
-
-
-export function dragOverHandler(e){
-	//e.dataTransfer.dropEffect = "move";
-	e.preventDefault(); /* stops browser from opening file in new tab */
 }

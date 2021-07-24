@@ -11,17 +11,18 @@ const table = document.getElementById("songTable");
 const mainAudio = document.getElementById("mainAudio");
 
 
-window.createPage = createPage; /* allows for body onload of createPage() */
-window.mouseDown = mouseDown;
+
 
 let lastSongNum = null;
 let draggingSong = false;
 
-
-import updateEventScriptSongNum, {prepareHeaderButtonListeners, prepareFooterButtonListeners, fileDropHandler, dragOverHandler} from '/static/eventScript.js'
 window.dragOverHandler = dragOverHandler;
 window.fileDropHandler = fileDropHandler;
+window.createPage = createPage;
+window.mouseDown = mouseDown;
 
+import updateEventScriptSongNum, {prepareHeaderButtonListeners, 
+	   prepareFooterButtonListeners, fileDropHandler, dragOverHandler} from '/static/eventScript.js';
 
 export function clickSongBySongNum(songNum){
 	table.rows[songNum].firstElementChild.firstElementChild.click();
@@ -42,10 +43,10 @@ mainAudio.addEventListener('timeupdate', () => {
 
 	const playingSongEndedNaturally = (songPosition == 1 && !draggingSong);
 	if(playingSongEndedNaturally){
-		const currentSongObject = table.rows[lastSongNum-1].firstElementChild.firstElementChild.getSongObject;
 		seekBarProgress.style.width = '0%';
 
-		let isLastPlaylistSong = (currentSongObject.songNum === table.rows.length);
+		const currentSongObject = table.rows[lastSongNum-1].firstElementChild.firstElementChild.getSongObject;
+		const isLastPlaylistSong = (currentSongObject.songNum === table.rows.length);
 		if(isLastPlaylistSong){ 
 			revertPageToNoSong(currentSongObject);
 			return;
@@ -96,7 +97,8 @@ function mouseDown(event) {
 	const e = event || window.event;
 	e.preventDefault();
 
-	calculateDragWidthAndTime();
+	calculateDragWidth();
+	calculateCurrentTime();
 
 	document.onmouseup = stopDragElement;
 	document.onmousemove = dragElement;
@@ -106,7 +108,9 @@ function dragElement(event) {
 	const e = event || window.event;
 	e.preventDefault();
 
-	calculateDragWidthAndTime();
+	calculateDragWidth();
+	calculateCurrentTime();
+	
 }
 
 
@@ -117,9 +121,8 @@ function stopDragElement() {
 	draggingSong = false;
 
 	const currentSongSrc = table.rows[lastSongNum-1].firstElementChild.firstElementChild.src;
-	if(currentSongSrc === globalPlayingGifSrc){ //if it was playing (paused temporarily due to dragElement), then resume play
-		mainAudio.play();
-	} 
+	const pausedFromDragging = (currentSongSrc === globalPlayingGifSrc);
+	if(pausedFromDragging) mainAudio.play();
 }
 
 
@@ -129,7 +132,7 @@ function getCSSProperty(ID, Property){
 	return elementProperty;
 }
 
-function calculateDragWidthAndTime(){
+function calculateDragWidth(){
 	const getSeekBarWidth = getCSSProperty('seekBar', 'width');
 	const seekBarWidth = getSeekBarWidth.slice(0, getSeekBarWidth.indexOf('px')); /* remove 'px' from given width */
 	const clickedPos = event.clientX;
@@ -138,15 +141,15 @@ function calculateDragWidthAndTime(){
 	const clickedWidth = clickedPos - seekBarLeftOffset - middleOfHandle;
 
 	seekBarProgress.style.width = `${(clickedWidth / seekBarWidth) * 100}%`;
+}
+
+function calculateCurrentTime(){
 	mainAudio.currentTime = (parseFloat(seekBarProgress.style.width) / 100) * mainAudio.duration;
 }
 
-
 function createPage(){
-
-	/* creates Table */
 	const numOfPlaylistSongs = document.getElementById('scriptTag').getAttribute('numOfSongs');
-	for(let songCount = 1; songCount <= numOfPlaylistSongs; songCount++){ /*Songs*/
+	for(let songCount = 1; songCount <= numOfPlaylistSongs; songCount++){ /* Creates table */
 		addRow(songCount, numOfPlaylistSongs);
 	}
 
@@ -219,19 +222,17 @@ function addSongImgEventListener(songObject){
 				getSongImage(lastSongNum-1);
 				songObject.isPlaying = false;
 			}
-			mainAudio.src = `static/media/songs/${songObject.wholeSongName}.mp3`;
+			mainAudio.src = `static/media/songs/${songObject.songFileName}`;
 
 			const playingTitleDiv = document.getElementById('playingTitleID');
-			playingTitleDiv.innerText = `Playing: ${songObject.wholeSongName}`;
+			const songNameWithoutExtension = removeFileExtension(songObject.songFileName);
+			playingTitleDiv.innerText = `Playing: ${songNameWithoutExtension}`;
 
 			const playingTimeLengthDiv = document.getElementById('playingTimeLength');
 			playingTimeLengthDiv.innerText = songObject.songDuration.innerText;
 		}
 
-		if(songObject.isPlaying){
-			pauseAudio(songObject);
-			return;
-		}
+		if(songObject.isPlaying) return pauseAudio(songObject);
 
 		updateSongNum(currentSongNum);
 		playNextSong(songObject);
@@ -268,22 +269,18 @@ function playNextSong(songObject){
 
 function determinePlayImgSrc(){
 	const footerImgElement = document.getElementById('footerPlayImg');
-
 	if(footerImgElement.src === globalPauseHoverImgSrc){
 		return footerImgElement.src = globalPlayHoverImgSrc;
 	}
-	
 	return footerImgElement.src = globalPlayImgSrc;
 }
 
 
 function determinePauseImgSrc(){
 	const footerImgElement = document.getElementById('footerPlayImg');
-
 	if(footerImgElement.src === globalPlayHoverImgSrc){
 		return footerImgElement.src = globalPauseHoverImgSrc;
 	}
-
 	return footerImgElement.src = globalPauseImgSrc;
 }
 
@@ -299,7 +296,7 @@ function addSongObject(songCount){
 	this.coverImg = document.createElement('img');
 	this.coverImg.setAttribute('class', 'coverImg');
 	this.coverImg.getSongObject = this; //way to reference the object itself in other functions. Probably a cleaner solution to this
-	this.wholeSongName = '';
+	this.songFileName = '';
 	this.songNum = songCount;
 	this.isPlaying = false;
 }
@@ -317,9 +314,7 @@ function addEntryInfo(){
 	songNamesList.forEach((songName, index) => {
 		let songObject = table.rows[index].firstElementChild.firstElementChild.getSongObject;
 
-		let wholeSongName = songName.slice(0, songName.indexOf(".mp3"));
-
-		songObject.wholeSongName = wholeSongName;
+		songObject.songFileName = songName;
 		songObject.songTitle.innerText = titleList[index];
 		songObject.songArtist.innerText = artistList[index];
 		songObject.songDuration.innerText = durationsList[index];
@@ -333,7 +328,8 @@ function addEntryInfo(){
 async function getSongImage(index){
 	const songNamesList = JSON.parse(document.getElementById('scriptTag').getAttribute('songNames'));
 
-	const currentSongName = songNamesList[index].slice(0, songNamesList[index].indexOf(".mp3")); //removes .mp3 extension
+	//const currentSongName = songNamesList[index].slice(0, songNamesList[index].lastIndexOf(".")); //removes file extension
+	const currentSongName = removeFileExtension(songNamesList[index]);
 	const songCoverPath = `static/media/songCovers/${currentSongName}.jpeg`;
 
 	return await fetch(songCoverPath)
@@ -356,4 +352,8 @@ async function getSongImage(index){
 
 export function log(thingToConsoleLog){
 	console.log(thingToConsoleLog);
+}
+
+function removeFileExtension(fileName){
+	return fileName.slice(0, fileName.lastIndexOf("."));
 }
