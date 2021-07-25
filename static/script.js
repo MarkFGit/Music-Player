@@ -36,9 +36,8 @@ function updateSongNum(currentSongNum){
 
 mainAudio.addEventListener('timeupdate', () => {
 	const songPosition = mainAudio.currentTime / mainAudio.duration;
-	if(isNaN(songPosition)){
-		return;
-	}
+	if(isNaN(songPosition)) return;
+
 	updatePlayingSongTimestamp(songPosition);
 
 	const playingSongEndedNaturally = (songPosition == 1 && !draggingSong);
@@ -46,6 +45,7 @@ mainAudio.addEventListener('timeupdate', () => {
 		seekBarProgress.style.width = '0%';
 
 		const currentSongObject = table.rows[lastSongNum-1].firstElementChild.firstElementChild.getSongObject;
+		incrementPlayCount(currentSongObject);
 		const isLastPlaylistSong = (currentSongObject.songNum === table.rows.length);
 		if(isLastPlaylistSong){ 
 			revertPageToNoSong(currentSongObject);
@@ -68,6 +68,24 @@ function updatePlayingSongTimestamp(songPosition){
 
 	const updateCurrentTime = document.getElementById('currentTimeStamp');
 	updateCurrentTime.innerText = `${minutes}:${seconds}`;
+}
+
+
+function incrementPlayCount(currentSongObject){
+	const songName = currentSongObject.songFileName;
+	const form = new FormData();
+	form.append("songName", songName);
+
+	const xhr = new XMLHttpRequest();
+	xhr.open("POST", '/updatePlays', true);
+	xhr.send(form);
+
+	xhr.onreadystatechange = () => {
+		if(xhr.readyState === 4 && xhr.status === 200){
+			const currentPlayNum = parseInt(currentSongObject.songPlays.innerText);
+			currentSongObject.songPlays.innerText =  currentPlayNum + 1;
+		}	
+	}
 }
 
 
@@ -202,6 +220,8 @@ function addRow(songCount, numOfPlaylistSongs){
 	songInfoDiv.appendChild(songObject.songTitle);
 	songInfoDiv.appendChild(songObject.songDuration);
 	songInfoDiv.appendChild(songObject.songArtist);
+	songInfoDiv.appendChild(songObject.songAlbum);
+	songInfoDiv.appendChild(songObject.songPlays);
 
 	if(songCount < numOfPlaylistSongs){
 		const songDivider = document.createElement('div');
@@ -288,9 +308,9 @@ function determinePauseImgSrc(){
 
 function addSongObject(songCount){
 	this.songTitle = document.createElement('span');
-	this.songTitle.setAttribute('class', 'songTitleOrArtist');
+	this.songTitle.setAttribute('class', 'songTitles');
 	this.songArtist = document.createElement('span');
-	this.songArtist.setAttribute('class', 'songTitleOrArtist');
+	this.songArtist.setAttribute('class', 'songArtistOrAlbum');
 	this.songDuration = document.createElement('span');
 	this.songDuration.setAttribute('class', 'songDurationClass');
 	this.coverImg = document.createElement('img');
@@ -299,6 +319,11 @@ function addSongObject(songCount){
 	this.songFileName = '';
 	this.songNum = songCount;
 	this.isPlaying = false;
+
+	this.songAlbum = document.createElement('span');
+	this.songAlbum.setAttribute('class', 'songArtistOrAlbum');
+	this.songPlays = document.createElement('span');
+	this.songPlays.setAttribute('class', 'playsWidth');
 }
 
 
@@ -310,15 +335,18 @@ function addEntryInfo(){
 	const titleList = JSON.parse(document.getElementById('scriptTag').getAttribute('songTitles'));
 	const artistList = JSON.parse(document.getElementById('scriptTag').getAttribute('songArtists'));
 	const durationsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songDurations'));
+	const albumsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songAlbums'));
+	const playsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songPlays'));
 
 	songNamesList.forEach((songName, index) => {
-		let songObject = table.rows[index].firstElementChild.firstElementChild.getSongObject;
+		const songObject = table.rows[index].firstElementChild.firstElementChild.getSongObject;
 
 		songObject.songFileName = songName;
 		songObject.songTitle.innerText = titleList[index];
 		songObject.songArtist.innerText = artistList[index];
 		songObject.songDuration.innerText = durationsList[index];
-
+		songObject.songAlbum.innerText = albumsList[index];
+		songObject.songPlays.innerText = playsList[index];
 
 		getSongImage(index);
 	});
@@ -328,7 +356,6 @@ function addEntryInfo(){
 async function getSongImage(index){
 	const songNamesList = JSON.parse(document.getElementById('scriptTag').getAttribute('songNames'));
 
-	//const currentSongName = songNamesList[index].slice(0, songNamesList[index].lastIndexOf(".")); //removes file extension
 	const currentSongName = removeFileExtension(songNamesList[index]);
 	const songCoverPath = `static/media/songCovers/${currentSongName}.jpeg`;
 

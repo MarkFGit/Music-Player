@@ -36,6 +36,8 @@ def home():
 	songArtists = []
 	songAlbums = []
 	songDurations = []
+	songAlbums = []
+	songPlays = []
 
 	pointer.execute("SELECT * FROM songtest3")
 	allSongInfos = pointer.fetchall()
@@ -47,16 +49,16 @@ def home():
 		songTitles.append(songInfo[1])
 		songArtists.append(songInfo[3])
 		songDurations.append(songInfo[2])
-
-		# songTitles.append(songInfo[4]) albums?
+		songAlbums.append(songInfo[4])
+		songPlays.append(songInfo[6])
 		# songTitles.append(songInfo[5]) date added?
-		# songTitles.append(songInfo[6]) plays?
 
 	numOfSongs = len(songFileNames)
 
 	return render_template('index.html', songNames = songFileNames, numOfSongs = numOfSongs, 
 										 songTitles = songTitles, songArtists = songArtists, 
-										 songDurations = songDurations)
+										 songDurations = songDurations, songAlbums = songAlbums,
+										 songPlays = songPlays)
 
 
 def addNewCoverImgToFS(songName, songData):
@@ -111,9 +113,16 @@ def determineSongDurationText(songData):
 	return ''
 
 
-# @app.route("/Playlists")
-# def playlists():
-# 	return render_template('playlist.html')
+@app.route("/updatePlays", methods=["POST"])
+def updatePlays():
+	songName =  request.form.to_dict().get("songName")
+	pointer.execute("SELECT plays FROM songtest3 WHERE fileName = %s", (songName, ))
+	result = pointer.fetchall()
+	newPlayValue = result[0][0] + 1
+	pointer.execute("UPDATE songtest3 set plays = %s WHERE fileName = %s", (newPlayValue, songName))
+	db.commit()
+	
+	return "OK"
 
 
 @app.route('/favicon.ico')

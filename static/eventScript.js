@@ -112,13 +112,10 @@ export async function fileDropHandler(e){
 			const form = new FormData();
 			const file = currentFile.getAsFile();
 
-			if(isNotAcceptedFileUploadType(file.type)){
-				continue;
-			}
-
-			const fileName = file.name;
+			if(isNotAcceptedFileUploadType(file.type)) continue;
+			
 			form.append("file", file);
-			form.append("name", fileName);
+			form.append("name", file.name);
 
 			const xhr = new XMLHttpRequest();
 			xhr.open("POST", '/', true);

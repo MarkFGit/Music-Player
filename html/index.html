@@ -10,6 +10,8 @@
 			songTitles = '{{ songTitles|tojson }}' 
 			songArtists = '{{ songArtists|tojson }}' 
 			songDurations = '{{ songDurations|tojson }}'
+			songAlbums = '{{ songAlbums|tojson }}'
+			songPlays = '{{ songPlays|tojson }}'
 			src="{{ url_for('static',filename='script.js') }}"
 			> 
 	</script>
@@ -22,7 +24,7 @@
 	<div class="mainContainer">
 		<div class="sidePanel">
 			<div class="panelButton" id="playlistsButton">
-				<a href="playlists"> </a>
+				<!-- <a href="playlists"> </a> -->
 				<img class="sidePanelIcon" id="homeImg" src="{{ url_for('static',filename='media/icons/homePixil.png') }}"> Home
 			</div>
 			<div class="panelButton" id="artistsButton"> 
@@ -31,7 +33,6 @@
 			<div class="panelButton" id="recentsButton"> 
 				<img class="sidePanelIcon" id="recentImg" src="{{ url_for('static',filename='media/icons/recentPixil.png') }}"> Recent
 			</div>
-			<div class="dropZone"> Drop Files Onto Me! </div>
 		</div>
 		<div class="contentContainer">
 			<div class="playlistHeader">
@@ -56,9 +57,11 @@
 			<div class="content">
 				<audio id="mainAudio" src=""></audio>
 				<div class="songTableHeader">
-					<span style="width: 100%;"> Name </span>
+					<span style="width: 200%;"> Name </span>
 					<img class="durationImg" src="{{ url_for('static',filename='media/icons/recentPixil.png') }}">
 					<span style="width: 100%;"> Artist </span>
+					<span style="width: 100%;"> Album </span>
+					<span class="playsWidth"> Plays </span>
 				</div>
 				<table class="songTableClass" id="songTable"> </table>
 			</div>
