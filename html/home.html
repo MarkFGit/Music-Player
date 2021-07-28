@@ -11,6 +11,8 @@
 	{% endwith %}
 
 	<div class="homePageBackground">
-		
+		{% with select="sidePanel" %}
+			{% include "globalSiteComponents.html" %}
+		{% endwith %}
 	</div>
 </body>
