@@ -1,0 +1,27 @@
+{% if select == 'navbar' %}
+	<div class="topBar">
+		<div class="searchBar"> Search... </div>
+	</div>
+{% endif %}
+
+
+
+{% if select == 'sidePanel' %}
+	<div class="sidePanel">
+		<div class="panelButton" id="playlistsButton">
+			<a class="noPaddingMargin" href="/home/">
+				<img class="sidePanelIcon" id="homeImg" href="127.0.0.1:5000/home" src="{{ url_for('static',filename='media/icons/homeButton.png') }}">
+			</a>
+		</div>
+		<div class="panelButton" id="artistsButton">
+			<a class="noPaddingMargin" href="/artists/"> 
+				<img class="sidePanelIcon" id="artistImg" src="{{ url_for('static',filename='media/icons/artistButton.png') }}">
+			</a>
+		</div>
+		<div class="panelButton" id="recentsButton">
+			<a class="noPaddingMargin" href="/recents/">
+				<img class="sidePanelIcon" id="recentImg" src="{{ url_for('static',filename='media/icons/recentsImg.png') }}">
+			</a>
+		</div>
+	</div>
+{% endif %}

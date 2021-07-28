@@ -18,8 +18,8 @@ pointer = db.cursor(buffered=True)
 
 app = Flask(__name__, template_folder='html', static_folder='static')
 
-@app.route("/", methods=["POST","GET"])
-def home():
+@app.route("/lastAdded", methods=["POST","GET"])
+def lastAdded():
 	if(request.method == "POST"):
 		songName = request.form.to_dict().get('name');
 		songFile = request.files['file']
@@ -113,16 +113,29 @@ def determineSongDurationText(songData):
 	return ''
 
 
+@app.route("/home/")
+def home():
+	# query SQL database, retreive how many playlists there are
+	# fetch that data, send it with render template
+	# For each playlist generate a new square within a grid, put playlist title on grid
+	return render_template('home.html')
+
+
+
+
 @app.route("/updatePlays", methods=["POST"])
 def updatePlays():
 	songName =  request.form.to_dict().get("songName")
 	pointer.execute("SELECT plays FROM songtest3 WHERE fileName = %s", (songName, ))
 	result = pointer.fetchall()
 	newPlayValue = result[0][0] + 1
-	pointer.execute("UPDATE songtest3 set plays = %s WHERE fileName = %s", (newPlayValue, songName))
+	pointer.execute("UPDATE songtest3 SET plays = %s WHERE fileName = %s", (newPlayValue, songName))
 	db.commit()
-	
+
 	return "OK"
+
+
+
 
 
 @app.route('/favicon.ico')

@@ -187,7 +187,7 @@ async function fillPlaylistPreviewImages(){
 	const maxNumOfPreviews = 4;
 
 	for(let index = 0; index < numOfPlaylistSongs; index++){
-		let currentCoverSrc = await getSongImage(index);
+		const currentCoverSrc = await getSongImage(index);
 		if(currentCoverSrc !== undefined){
 			document.getElementById(`coverPreview${numOfFoundPreviewImages}`).src = currentCoverSrc;
 			numOfFoundPreviewImages++;
@@ -237,10 +237,11 @@ function addSongImgEventListener(songObject){
 	songObject.coverImg.addEventListener('click', () => {
 
 		const currentSongNum = songObject.songNum;
-		if(lastSongNum !== currentSongNum){ //If the last song is different than the current song
-			if(lastSongNum !== null){ //If a song has been played before set corresponding image to the paused icon
+		if(lastSongNum !== currentSongNum){
+			if(lastSongNum !== null){ //revert previous song/row
 				getSongImage(lastSongNum-1);
 				songObject.isPlaying = false;
+				table.rows[lastSongNum-1].style = "";
 			}
 			mainAudio.src = `static/media/songs/${songObject.songFileName}`;
 
@@ -250,9 +251,13 @@ function addSongImgEventListener(songObject){
 
 			const playingTimeLengthDiv = document.getElementById('playingTimeLength');
 			playingTimeLengthDiv.innerText = songObject.songDuration.innerText;
+
+			table.rows[currentSongNum - 1].style = "background-color: #161616;";
+			
+			playlistScrollIfNeeded(currentSongNum);
 		}
 
-		if(songObject.isPlaying) return pauseAudio(songObject);
+		if(songObject.isPlaying) return pauseSong(songObject);
 
 		updateSongNum(currentSongNum);
 		playNextSong(songObject);
@@ -260,7 +265,26 @@ function addSongImgEventListener(songObject){
 	});
 }
 
-function pauseAudio(songObject){
+
+function playlistScrollIfNeeded(currentSongNum){
+	const playlistContainer = document.getElementById('playlistContainer');
+	const bottomOfPlaylistContainer = playlistContainer.getBoundingClientRect().bottom;
+	const bottomOfCurrentRow = table.rows[currentSongNum - 1].getBoundingClientRect().bottom;
+	if(bottomOfCurrentRow > bottomOfPlaylistContainer){
+		table.rows[currentSongNum - 1].scrollIntoView(false);
+		return;
+	}
+
+	const topOfPlaylistContainer = playlistContainer.getBoundingClientRect().top;
+	const topOfCurrentRow = table.rows[currentSongNum - 1].getBoundingClientRect().top;
+
+	if(topOfCurrentRow < topOfPlaylistContainer){
+		table.rows[currentSongNum - 1].scrollIntoView();
+	}
+}
+
+
+function pauseSong(songObject){
 	const playPromise = mainAudio.play();
 
 	if(playPromise !== undefined){
@@ -275,8 +299,6 @@ function pauseAudio(songObject){
 		});
 	}
 }
-
-
 
 
 function playNextSong(songObject){
@@ -376,11 +398,11 @@ async function getSongImage(index){
 	  	.catch(error => console.log('error is', error));
 }
 
+function removeFileExtension(fileName){
+	return fileName.slice(0, fileName.lastIndexOf("."));
+}
+
 
 export function log(thingToConsoleLog){
 	console.log(thingToConsoleLog);
-}
-
-function removeFileExtension(fileName){
-	return fileName.slice(0, fileName.lastIndexOf("."));
 }

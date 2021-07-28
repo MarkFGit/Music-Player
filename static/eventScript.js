@@ -96,8 +96,7 @@ function addHoverToFooterButtons(){
 
 
 export function dragOverHandler(e){
-	//e.dataTransfer.dropEffect = "move";
-	e.preventDefault(); /* stops browser from opening file in new tab */
+	e.preventDefault();
 }
 
 export async function fileDropHandler(e){
@@ -113,12 +112,12 @@ export async function fileDropHandler(e){
 			const file = currentFile.getAsFile();
 
 			if(isNotAcceptedFileUploadType(file.type)) continue;
-			
+
 			form.append("file", file);
 			form.append("name", file.name);
 
 			const xhr = new XMLHttpRequest();
-			xhr.open("POST", '/', true);
+			xhr.open("POST", '/lastAdded', true);
 			xhr.send(form);
 			
 			xhr.onreadystatechange = () => { reloadOnXhrReady(xhr); }

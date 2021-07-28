@@ -3,11 +3,18 @@ CSS formatting:
 	- positional formatting - ex: display, position
 	- sizing ---------------- ex: width, height, font-sizing
 	- layout ---------------- ex: margin, padding
-	- color, fonts 
+	- color, fonts, cosmetic (no importance to layout)
  
  with each category alphabetized
 */
 
+
+:root
+{
+
+    --mainBgColor: #0f0f0f;
+    --topBarTotalHeight: 65px;
+}
 
 body
 {
@@ -16,12 +23,10 @@ body
 
     margin: 0;
     padding: 0;
-
-    background-color: #171717;
 }
 
 
-.bodyClass */* div, img, table */
+.bodyClass *
 {
     margin: 4px;
     padding: 4px;
@@ -30,9 +35,20 @@ body
 }
 
 
+.noPaddingMargin
+{
+    margin: 0;
+    padding: 0;
+}
+
+
 .topBar
 {
-    height: 60px; /* make percentage? */
+    align-items: center;
+    display: flex;
+    justify-content: center;
+
+    height: 60px;
     width: 100%;
 
     border-width: 0 0 5px 0;
@@ -46,19 +62,33 @@ body
 }
 
 
-.mainContainer
+.searchBar
+{
+    align-items: center;
+    display: flex;
+
+    height: 30px;
+    width: 400px;
+
+    margin: 0;
+
+    background-color: #2a2a2a;
+    border-radius: 2px;
+}
+
+
+.playlistContainer
 {
     overflow-x: hidden;
     overflow-y: scroll;
-    position: relative;
 
-    height: calc(100vh - (65px + 12vh + 9px)); /* whole screen minus header and footer */
+    height: calc(100vh - (var(--topBarTotalHeight) + 108px)); /* whole screen minus header and footer */
     width: 100vw;
 
     margin: 0;
     padding: 0;
 
-    background-color: #0f0f0f;
+    background-color: var(--mainBgColor);
     background-position: center;
 }
 
@@ -68,8 +98,7 @@ body
     position: fixed;
 
     height: inherit;
-    width: 70px; /* percentage? */
-    /* min-width: fit-content; */
+    width: 70px;
 
     flex-direction: column;
     margin: 0;
@@ -93,9 +122,6 @@ body
     width: 40px;
 
     margin: 8px 0 0 0;
-
-    background-color: transparent;
-    cursor: pointer;
 }
 
 
@@ -111,7 +137,7 @@ body
 {
     width: 100%;
 
-    margin: 0 0 5vh 0;
+    margin: 0;
     padding: 0;
 }
 
@@ -125,7 +151,6 @@ body
 
     height: 180px;
     min-width: fit-content;
-    width: auto;
 
     margin: 40px 80px;
 
@@ -136,28 +161,25 @@ body
 .playlistPreviewImages
 {
     display: flex;
-    flex-wrap: wrap; /* fix wrap problem */
+    flex-wrap: wrap;
 
     height: 160px;
     min-width: 160px;
     width: 160px;
 
-
-
     padding: 0;
 }
 
-    .coverPreviewImg
-    {
-        height: 80px;
-        width: 80px;
+.coverPreviewImg
+{
+    height: 80px;
+    width: 80px;
 
-        margin: 0;
-        padding: 0;
+    margin: 0;
+    padding: 0;
 
-        object-fit: cover;
-
-    }
+    object-fit: cover;
+}
 
 .headerTitleAndButtons
 {
@@ -177,16 +199,15 @@ body
 }
 
 
-.buttonTextCombo
-{
-    align-items: center;
-    display: flex;
-
-}
-
 .headerPlayIcon
 {
     width: 50px;
+}
+
+
+.buttonTextCombo {
+    align-items: center;
+    display: flex;
 }
 
 
@@ -212,13 +233,13 @@ body
 
 
 
-.content
+.songContent
 {
     min-width: fit-content;
     width: auto;
 
     border: 4px;
-    margin: 0 80px;
+    margin: 0 80px 50px 80px;
     padding: 15px 25px 5px 25px;
 
     background-color: #070707;
@@ -246,6 +267,8 @@ body
 .durationImg
 {
     width: 29.2px;
+
+    padding: 0 4px;
 }
 
 
@@ -323,6 +346,8 @@ body
     min-width: 40px;
 
     padding: 4px 0;
+
+    text-align: center;
 }
 
 
@@ -347,12 +372,10 @@ body
 
 .lowerBar
 {
-    bottom: 0;
-
     width: calc(100vw - 20px);
-    height: 12vh;
+    height: 100px;
 
-    border-width: 9px 0 0 0;
+    border-width: 8px 0 0 0;
     margin: 0;
     padding: 0 10px;
 
@@ -471,7 +494,7 @@ body
 
 .smallImg
 {
-	width: 40px;
+	width: 30px;
 
     cursor: pointer;
 }
@@ -493,26 +516,26 @@ body
 }
 
 
-.mainContainer::-webkit-scrollbar
+.playlistContainer::-webkit-scrollbar
 {
     width: 13px;
 }
 
-.mainContainer::-webkit-scrollbar-thumb
+.playlistContainer::-webkit-scrollbar-thumb
 {
     background: grey;
     border-radius: 50px;
 }
 
 
-.mainContainer::-webkit-scrollbar-thumb:hover
+.playlistContainer::-webkit-scrollbar-thumb:hover
 {
     background: #9c9c9c;
 }
 
 
 
-.mainContainer::-webkit-scrollbar-track
+.playlistContainer::-webkit-scrollbar-track
 {
     background-color: white;
 }
@@ -522,3 +545,21 @@ body
 /* margin: y,x,z; top | horizontal | bottom*/
 
 /* same for padding */
+
+
+
+
+
+
+
+/* home page stuff below here */
+
+.homePageBackground
+{
+    height: calc(100vh - var(--topBarTotalHeight));
+
+    margin: 0;
+    padding: 0;
+
+    background-color: var(--mainBgColor);
+}

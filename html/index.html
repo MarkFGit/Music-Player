@@ -19,21 +19,16 @@
 </head>
 
 
+
 <body class="bodyClass" onload="createPage()" ondrop="fileDropHandler(event)" ondragover="dragOverHandler(event)">
-	<div class="topBar"></div>
-	<div class="mainContainer">
-		<div class="sidePanel">
-			<div class="panelButton" id="playlistsButton">
-				<!-- <a href="playlists"> </a> -->
-				<img class="sidePanelIcon" id="homeImg" src="{{ url_for('static',filename='media/icons/homePixil.png') }}"> Home
-			</div>
-			<div class="panelButton" id="artistsButton"> 
-				<img class="sidePanelIcon" id="artistImg" src="{{ url_for('static',filename='media/icons/artistPixil2.png') }}"> Artists
-			</div>
-			<div class="panelButton" id="recentsButton"> 
-				<img class="sidePanelIcon" id="recentImg" src="{{ url_for('static',filename='media/icons/recentPixil.png') }}"> Recent
-			</div>
-		</div>
+	{% with select="navbar" %}
+		{% include "globalSiteComponents.html" %}
+	{% endwith %}
+
+	<div class="playlistContainer" id="playlistContainer">
+		{% with select="sidePanel" %}
+			{% include "globalSiteComponents.html" %}
+		{% endwith %}
 		<div class="contentContainer">
 			<div class="playlistHeader">
 				<div class="playlistPreviewImages"> 
@@ -54,7 +49,7 @@
 					<img class="headerEditIcon"></img>
 				</div>
 			</div>
-			<div class="content">
+			<div class="songContent">
 				<audio id="mainAudio" src=""></audio>
 				<div class="songTableHeader">
 					<span style="width: 200%;"> Name </span>
