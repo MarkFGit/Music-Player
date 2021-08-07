@@ -2,10 +2,10 @@
 <html>
 <head>
 	<title> Home </title>
-	<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/main.css') }}">
+	<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='main.css') }}">
 </head>
 
-<body class="bodyClass">
+<body class="bodyClass" id="bodyID">
 	{% with select="navbar" %}
 		{% include "globalSiteComponents.html" %}
 	{% endwith %}
@@ -14,5 +14,22 @@
 		{% with select="sidePanel" %}
 			{% include "globalSiteComponents.html" %}
 		{% endwith %}
+		<div class="playlistGridContainer noPaddingMargin">
+			<div class="playlistBasicInfoContainer"> 
+				<span class="playlistPreviewTitle"> Last Added </span>
+			</div>
+			<div class="playlistBasicInfoContainer"> 
+				<span class="playlistPreviewTitle"> Lorem Ipsum </span>
+			</div>
+			<div class="playlistBasicInfoContainer"> 
+				<span class="playlistPreviewTitle"> Test Playlist Which name is really really super duper long </span>
+			</div>
+			<div class="playlistBasicInfoContainer">
+				<span class="playlistPreviewTitle"> </span>
+			</div>
+			<div class="playlistBasicInfoContainer">
+				<span class="playlistPreviewTitle"> Hi </span>
+			</div>
+		</div>
 	</div>
 </body>

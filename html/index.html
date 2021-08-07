@@ -15,17 +15,17 @@
 			src="{{ url_for('static',filename='script.js') }}"
 			> 
 	</script>
-	<script id='moduleScript' defer type="module" src="{{ url_for('static',filename='eventScript.js') }}"> </script> 
+	<script defer id='moduleScript' type="module" src="{{ url_for('static',filename='eventScript.js') }}"> </script> 
 </head>
 
 
 
-<body class="bodyClass" onload="createPage()" ondrop="fileDropHandler(event)" ondragover="dragOverHandler(event)">
+<body class="bodyClass" id="bodyID" onload="createPage()" ondrop="fileDropHandler(event)" ondragover="dragOverHandler(event)">
 	{% with select="navbar" %}
 		{% include "globalSiteComponents.html" %}
 	{% endwith %}
 
-	<div class="playlistContainer" id="playlistContainer">
+	<div class="playlistContentContainer" id="playlistContentContainer">
 		{% with select="sidePanel" %}
 			{% include "globalSiteComponents.html" %}
 		{% endwith %}
@@ -40,10 +40,10 @@
 				<div class="headerTitleAndButtons">
 					<div class=headerTitleAndPlay>
 						<div class="playlistTitle"> Last Added </div>
-						<img class="headerPlayIcon" id="headerPlayIconID" src="{{ url_for('static',filename='media/icons/playPixil.png') }}"> </img>
+						<img class="headerPlayIcon" id="headerPlayIconID" src="{{ url_for('static',filename='media/icons/play.png') }}"> </img>
 					</div>
 					<div class="buttonTextCombo">
-						<img class="headerSmallButton" id="headerShuffleIconID" src="static/media/icons/shufflePixil.png"></img>
+						<img class="headerSmallButton" id="headerShuffleIconID" src="static/media/icons/shuffle.png"></img>
 						<span class="headerSmallButtonText"> Shuffle </span>
 					</div>
 					<img class="headerEditIcon"></img>
@@ -53,7 +53,7 @@
 				<audio id="mainAudio" src=""></audio>
 				<div class="songTableHeader">
 					<span style="width: 200%;"> Name </span>
-					<img class="durationImg" src="{{ url_for('static',filename='media/icons/durationImg.png') }}">
+					<img class="durationImg" src="{{ url_for('static',filename='media/icons/duration.png') }}">
 					<span style="width: 100%;"> Artist </span>
 					<span style="width: 100%;"> Album </span>
 					<span class="playsWidth"> Plays </span>
@@ -75,9 +75,9 @@
 			</div>
 
 			<div class="threeButtonContainer" id="playButtons">
-        		<img class="smallImg" id="footerPrevImg" src="{{ url_for('static',filename='media/icons/prevPixil.png') }}">
-        		<img class="mainImg" id="footerPlayImg" src="{{ url_for('static',filename='media/icons/playPixil.png') }}">
-        		<img class="smallImg" id="footerNextImg" src="{{ url_for('static',filename='media/icons/nextPixil.png') }}">
+        		<img class="smallImg" id="footerPrevImg" src="{{ url_for('static',filename='media/icons/prev.png') }}">
+        		<img class="mainImg" id="footerPlayImg" src="{{ url_for('static',filename='media/icons/play.png') }}">
+        		<img class="smallImg" id="footerNextImg" src="{{ url_for('static',filename='media/icons/next.png') }}">
 	        </div>
 
         	<div class="playingTimeLength lowerBarSmallText" id="playingTimeLength"> -:-- </div>

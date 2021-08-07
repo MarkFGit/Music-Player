@@ -1,10 +1,10 @@
 const iconFolderPath = 'http://127.0.0.1:5000/static/media/icons/';
-const globalPauseImgSrc = `${iconFolderPath}pausePixil.png`;
-const globalPauseHoverImgSrc = `${iconFolderPath}pausePixilHover.png`;
-const globalPlayImgSrc = `${iconFolderPath}playPixil.png`;
-const globalPlayHoverImgSrc = `${iconFolderPath}playPixilHover.png`;
+const globalPauseImgSrc = `${iconFolderPath}pause.png`;
+const globalPauseHoverImgSrc = `${iconFolderPath}hoverPause.png`;
+const globalPlayImgSrc = `${iconFolderPath}playSong.png`;
+const globalPlayHoverImgSrc = `${iconFolderPath}hoverPlay.png`;
 const blankPlayImgSrc = `${iconFolderPath}play.png`;
-const globalPlayingGifSrc = `${iconFolderPath}blackcropped.gif`;
+const globalPlayingGifSrc = `${iconFolderPath}playing.gif`;
 
 
 const table = document.getElementById("songTable");
@@ -50,6 +50,7 @@ mainAudio.addEventListener('timeupdate', () => {
 	if(playingSongEndedNaturally){
 		seekBarProgress.style.width = '0%';
 
+		console.log(lastSongNum - 1)
 		const currentSongObject = table.rows[lastSongNum-1].firstElementChild.firstElementChild.getSongObject;
 		incrementPlayCount(currentSongObject);
 		const isLastPlaylistSong = (currentSongObject.songNum === table.rows.length);
@@ -86,6 +87,8 @@ function revertPageToNoSong(songObject){
 	document.getElementById('currentTimeStamp').innerText = '-:--';
 	document.getElementById('playingTitleID').innerText = 'Playing:';
 	document.getElementById('playingTimeLength').innerText = '-:--';
+	table.rows[songObject.songNum - 1].style = "background-color: ;";
+	mainAudio.src = "";
 	
 	updateSongNum(null);
 }
@@ -93,9 +96,10 @@ function revertPageToNoSong(songObject){
 
 
 function mouseDown(event) {
-	const noSelectedAudioSrc = "http://127.0.0.1:5000/";
+	const noSelectedAudioSrc = "http://127.0.0.1:5000/lastAdded";
 	if(mainAudio.src === noSelectedAudioSrc){
-		return console.log("%cError: Cannot use seekbar when no song is selected.", "color: red");
+		console.log("%cError: Cannot use seekbar when no song is selected.", "color: red");
+		return;
 	}
 
 	draggingSong = true;
@@ -226,7 +230,7 @@ function addSongImgEventListener(songObject){
 
 
 function playlistScrollIfNeeded(currentSongNum){
-	const playlistContainer = document.getElementById('playlistContainer');
+	const playlistContainer = document.getElementById('playlistContentContainer');
 	const playlistContainerCoords = playlistContainer.getBoundingClientRect();
 	const currentRowCoords = table.rows[currentSongNum - 1].getBoundingClientRect();
 
@@ -269,7 +273,7 @@ function playNextSong(songObject){
 function addSongObject(songCount){
 	this.coverImg = document.createElement('img');
 	this.coverImg.setAttribute('class', 'coverImg');
-	
+
 	//way to reference the object itself in other functions. Probably a cleaner solution to this
 	this.coverImg.getSongObject = this; 
 
@@ -315,8 +319,4 @@ function addEntryInfoToAllRows(){
 
 export function removeFileExtension(fileName){
 	return fileName.slice(0, fileName.lastIndexOf("."));
-}
-
-export function log(thingToConsoleLog){
-	console.log(thingToConsoleLog);
 }

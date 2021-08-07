@@ -2,11 +2,11 @@ import {removeFileExtension} from '/static/script.js'
 
 
 const iconFolderPath = 'http://127.0.0.1:5000/static/media/icons/';
-const lowerBarPauseImgSrc = `${iconFolderPath}pausePixil.png`;
-const lowerBarPauseHoverImgSrc = `${iconFolderPath}pausePixilHover.png`;
-const lowerBarPlayImgSrc = `${iconFolderPath}playPixil.png`;
-const lowerBarPlayHoverImgSrc = `${iconFolderPath}playPixilHover.png`;
-const blankPlayImgSrc = `${iconFolderPath}play.png`;
+const lowerBarPauseImgSrc = `${iconFolderPath}pause.png`;
+const lowerBarPauseHoverImgSrc = `${iconFolderPath}pauseHover.png`;
+const lowerBarPlayImgSrc = `${iconFolderPath}play.png`;
+const lowerBarPlayHoverImgSrc = `${iconFolderPath}playHover.png`;
+const blankPlayImgSrc = `${iconFolderPath}noCoverImg.png`;
 
 
 const table = document.getElementById("songTable");

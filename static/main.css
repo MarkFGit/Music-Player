@@ -14,6 +14,7 @@ CSS formatting:
 
     --mainBgColor: #0f0f0f;
     --topBarTotalHeight: 65px;
+    --contentGlow: 0px 0px 4px 0px #b3b3b3;
 }
 
 body
@@ -77,7 +78,7 @@ body
 }
 
 
-.playlistContainer
+.playlistContentContainer
 {
     overflow-x: hidden;
     overflow-y: scroll;
@@ -105,7 +106,6 @@ body
     padding: 0;
 
     background-color: transparent;
-    color: #cccccc;
 }
 
 
@@ -114,6 +114,8 @@ body
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
+
+    cursor: pointer;
 }
 
 
@@ -246,7 +248,7 @@ body
     border-color: #070707;
     border-radius: 2px;
     border-style: solid;
-    box-shadow: 0px 0px 4px 0px #b3b3b3;
+    box-shadow: var(--contentGlow);
     color: #c3c3c3;
     font-size: 15px;
 }
@@ -310,6 +312,8 @@ body
     display: flex;
 
     height: 40px;
+
+    margin: 1px;
 
     overflow: hidden;
     white-space: nowrap;
@@ -516,38 +520,33 @@ body
 }
 
 
-.playlistContainer::-webkit-scrollbar
+.playlistContentContainer::-webkit-scrollbar
 {
     width: 13px;
 }
 
-.playlistContainer::-webkit-scrollbar-thumb
+.playlistContentContainer::-webkit-scrollbar-thumb
 {
     background: grey;
     border-radius: 50px;
 }
 
 
-.playlistContainer::-webkit-scrollbar-thumb:hover
+.playlistContentContainer::-webkit-scrollbar-thumb:hover
 {
     background: #9c9c9c;
 }
 
 
 
-.playlistContainer::-webkit-scrollbar-track
+.playlistContentContainer::-webkit-scrollbar-track
 {
     background-color: white;
 }
 
-/* margin: x,y; vertical | horizontal */
-/* margin: w,y,x,z; TRBL */
-/* margin: y,x,z; top | horizontal | bottom*/
-
-/* same for padding */
-
-
-
+/* m/p: x,y; vertical | horizontal */
+/* m/p: w,y,x,z; TRBL */
+/* m/p: y,x,z; top | horizontal | bottom*/
 
 
 
@@ -562,4 +561,89 @@ body
     padding: 0;
 
     background-color: var(--mainBgColor);
+}
+
+
+.playlistGridContainer
+{
+    display: grid;
+    grid-gap: 100px 70px;
+    grid-template-columns: repeat(auto-fill, 264px);
+    justify-content: center;
+
+    padding: 40px 80px;
+}
+
+
+.playlistBasicInfoContainer
+{
+    align-items: flex-end;
+    display: flex;
+    justify-content: center;
+    justify-self: center;
+
+    height: 150px;
+    width: 250px;
+
+    background-color: #8d8d8d;
+    box-shadow: var(--contentGlow);
+    font-size: 120%;
+}
+
+
+
+.addPlaylist
+{
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    position: absolute;
+
+    width: 100vw;
+
+    background-color: rgb(110, 110, 120, .4);
+    color: #908f8f;
+    z-index: 1;
+}
+
+
+.playlistBox
+{
+    align-content: center;
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    height: 100px;
+
+    width: 350px;
+
+    background-image: linear-gradient(135deg, black, #212328);
+    border-radius: 4px;
+    box-shadow: var(--contentGlow);
+}
+
+
+.positiveButtonClass
+{
+    background-color: white;
+    border-radius: 2px;
+}
+
+.positiveButtonClass:hover
+{
+    background-color: #a7cea3;
+}
+
+
+.negativeButtonClass
+{
+    background-color: #9f9f9f;
+    border-radius: 2px;
+}
+
+.negativeButtonClass:hover
+{
+    background-color: #cccccc;
 }

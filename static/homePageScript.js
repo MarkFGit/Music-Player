@@ -5,5 +5,10 @@ function getSqlPlaylists(){
 }
 
 function setPlaylistContent(){
+	//for in sqlPlaylists
+		// document.create div
+		// set class to playlistBasicInfoContainer
+		// create new div under for Text (possibly preview images...)
+
 	return;
 }

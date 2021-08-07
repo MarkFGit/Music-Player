@@ -1,11 +1,13 @@
 let lastSongNum = null;
 const table = document.getElementById("songTable")
 
-import {log, clickSongBySongNum} from '/static/script.js'
+import {clickSongBySongNum} from '/static/script.js'
 
 export default function updateEventScriptSongNum(updatedSongNum){
 	lastSongNum = updatedSongNum;
 }
+
+
 
 export function prepareHeaderButtonListeners(){
 	const headerPlayIcon = document.getElementById('headerPlayIconID');
@@ -18,13 +20,13 @@ export function prepareHeaderButtonListeners(){
 
 	headerPlayIcon.addEventListener('mouseover', () => {
 		if(lastSongNum === null){
-			headerPlayIcon.src = 'static/media/icons/playPixilHover.png';
+			headerPlayIcon.src = 'static/media/icons/playHover.png';
 			headerPlayIcon.style.cursor = 'pointer';
 		}
 	});
 
 	headerPlayIcon.addEventListener('mouseout', () => {
-		headerPlayIcon.src = 'static/media/icons/playPixil.png';
+		headerPlayIcon.src = 'static/media/icons/play.png';
 		headerPlayIcon.style.cursor = 'default';
 	});
 }
@@ -39,8 +41,8 @@ export function prepareFooterButtonListeners(){
 
 	document.getElementById("footerPlayImg").addEventListener('click', () => {
 		if(lastSongNum === null) return (console.error("Error: Cannot play song when no song has been selected."));
-		const currentSongNum = lastSongNum - 1;
-		clickSongBySongNum(currentSongNum);
+		const currentIDSongNum = lastSongNum - 1;
+		clickSongBySongNum(currentIDSongNum);
 	});
 
 	document.getElementById("footerNextImg").addEventListener('click', () => {
@@ -50,46 +52,60 @@ export function prepareFooterButtonListeners(){
 		console.error("Error: Cannot play next song.");
 	});
 
-	addHoverToFooterButtons();
+	addHoverToFooterImgs()
 }
 
-
-function addHoverToFooterButtons(){
-	const footerImgElementIDs = {
-		footerPrevImg: 'prevPixil',
-		footerPlayImg: 'playPixil',
-		footerNextImg: 'nextPixil'
-	}
-
+function addHoverToFooterImgs(){
 	const iconFolderPath = 'http://127.0.0.1:5000/static/media/icons';
+	const footerImgInfo = {
+		prev: {
+			id: 'footerPrevImg',
+			srcs: {
+				normal: `${iconFolderPath}/prev.png`,
+				hover: `${iconFolderPath}/prevHover.png`
+			}
+		},
+		play: {
+			id: 'footerPlayImg',
+			srcs: {
+				normal: `${iconFolderPath}/play.png`,
+				hover: `${iconFolderPath}/playHover.png`,
+				pause: `${iconFolderPath}/pause.png`,
+				pauseHover: `${iconFolderPath}/pauseHover.png`
+			}
+		},
+		next: {
+			id: 'footerNextImg',
+			srcs: {
+				normal: `${iconFolderPath}/next.png`,
+				hover: `${iconFolderPath}/nextHover.png`
+			}
+		}
+	};
 
+	for(const [current] of Object.entries(footerImgInfo)){
+		const currentSrcs = footerImgInfo[current].srcs;
+		const currentID = document.getElementById(footerImgInfo[current].id);
+		const hasPauseImg = ('pause' in footerImgInfo[current].srcs);
 
-	for(const [currentElementID, imgSrc] of Object.entries(footerImgElementIDs)){
-		const normalPlaySrc = `${iconFolderPath}/${imgSrc}.png`;
-		const hoverPlaySrc = `${iconFolderPath}/${imgSrc}Hover.png`;
-		const normalPauseSrc = `${iconFolderPath}/pausePixil.png`;
-		const hoverPauseSrc = `${iconFolderPath}/pausePixilHover.png`;
-
-		const currentElement = document.getElementById(currentElementID);
-		currentElement.addEventListener('mouseover', () => {
+		currentID.addEventListener('mouseover', () => {
 			if(lastSongNum === null) return;
 
-			if(currentElement.src === normalPlaySrc){
-				currentElement.src = hoverPlaySrc;
+			if(currentID.src === currentSrcs.normal){ /* normal play */
+				currentID.src = currentSrcs.hover;
 			}
-			if(currentElement.src === normalPauseSrc){
-				currentElement.src = hoverPauseSrc;
-			}
-		});
-
-		currentElement.addEventListener('mouseout', () => {
-			if(currentElement.src === hoverPlaySrc){
-				currentElement.src = normalPlaySrc;
-			}
-			if(currentElement.src === hoverPauseSrc){
-				currentElement.src = normalPauseSrc;
+			if(hasPauseImg && currentID.src === currentSrcs.pause){
+				currentID.src = currentSrcs.pauseHover;
 			}
 		});
 
+		currentID.addEventListener('mouseout', () => {
+			if(currentID.src === currentSrcs.hover){
+				currentID.src = currentSrcs.normal;
+			}
+			if(hasPauseImg && currentID.src === currentSrcs.pauseHover){
+				currentID.src = currentSrcs.pause;
+			}
+		});
 	}
 }
