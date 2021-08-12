@@ -1,3 +1,15 @@
+/*module.exports = {
+	science: 'poo'
+}*/
+/*
+const hi = require('contactServer.js')
+*/
+
+/*import ReactDOM from 'react-dom'
+*/
+var React = require('react');
+var ReactDOM = require('react-dom');
+
 document.getElementById('newPlaylistButton').addEventListener('click', () => {
 	document.getElementById('addPlaylistBoxContainer').style.height = '100vh';
 	ReactDOM.render(
@@ -26,11 +38,13 @@ document.getElementById('newPlaylistButton').addEventListener('click', () => {
 	});
 });
 
+import {createNewPlaylistToServer} from './contactServer.js'
 
 function createNewPlaylistInDatabase(){
 	const textBox = document.getElementById("createPlaylistTextbox");
 	console.log(`im going create a new playlist in the DB named '${textBox.value}'`);
-	textBox.value = '';
+	
+	createNewPlaylistToServer(textBox.value);
 	removeAddPlaylistMenu();
 }
 

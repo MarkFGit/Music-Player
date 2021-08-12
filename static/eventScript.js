@@ -84,14 +84,14 @@ function addHoverToFooterImgs(){
 	};
 
 	for(const [current] of Object.entries(footerImgInfo)){
-		const currentSrcs = footerImgInfo[current].srcs;
 		const currentID = document.getElementById(footerImgInfo[current].id);
+		const currentSrcs = footerImgInfo[current].srcs;
 		const hasPauseImg = ('pause' in footerImgInfo[current].srcs);
 
 		currentID.addEventListener('mouseover', () => {
 			if(lastSongNum === null) return;
 
-			if(currentID.src === currentSrcs.normal){ /* normal play */
+			if(currentID.src === currentSrcs.normal){
 				currentID.src = currentSrcs.hover;
 			}
 			if(hasPauseImg && currentID.src === currentSrcs.pause){

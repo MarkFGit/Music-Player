@@ -11,8 +11,6 @@ const table = document.getElementById("songTable");
 const mainAudio = document.getElementById("mainAudio");
 
 
-
-
 let lastSongNum = null;
 let draggingSong = false;
 
@@ -21,11 +19,14 @@ window.fileDropHandler = fileDropHandler;
 window.createPage = createPage;
 window.mouseDown = mouseDown;
 
+
+import './globalEventListener.js'
+
 import updateEventScriptSongNum, {prepareHeaderButtonListeners, 
 	   prepareFooterButtonListeners, } from '/static/eventScript.js';
 
-import dragOverHandler, {fileDropHandler, 
-	incrementPlayCount} from '/static/contactServer.js'
+import dragOverHandler, {fileDropHandler, incrementPlayCount,
+		createNewPlaylistToServer} from './contactServer.js'
 
 import getSongImage, {fillPlaylistPreviewImages, 
 	determineFooterPlayImgSrc} from '/static/findImages.js'

@@ -39,7 +39,7 @@ def lastAdded():
 	songAlbums = []
 	songPlays = []
 
-	pointer.execute("SELECT * FROM songtest3")
+	pointer.execute("SELECT * FROM lastaddedplaylist")
 	allSongInfos = pointer.fetchall()
 
 	allSongInfos.sort(key=lambda songInfo: songInfo[5], reverse = True) # sort by using the date index. most recent song goes to top
@@ -81,7 +81,7 @@ def insertNewSongEntryInDatabase(songName, songData):
 	songArtist = determineArtist(songData)
 	songAlbum = determineAlbum(songData)
 
-	pointer.execute("INSERT INTO songTest3 (fileName, title, durationSecs, artist, album, created, plays) VALUES (%s,%s,%s,%s,%s,%s,%s)", 
+	pointer.execute("INSERT INTO lastaddedplaylist (fileName, title, durationSecs, artist, album, created, plays) VALUES (%s,%s,%s,%s,%s,%s,%s)", 
 								(songName, songTitle, songDuration, songArtist, songAlbum, datetime.now(), 0))
 	db.commit()
 
@@ -126,16 +126,22 @@ def home():
 @app.route("/updatePlays", methods=["POST"])
 def updatePlays():
 	songName =  request.form.to_dict().get("songName")
-	pointer.execute("SELECT plays FROM songtest3 WHERE fileName = %s", (songName, ))
+	pointer.execute("SELECT plays FROM lastaddedplaylist WHERE fileName = %s", (songName, ))
 	result = pointer.fetchall()
 	newPlayValue = result[0][0] + 1
-	pointer.execute("UPDATE songtest3 SET plays = %s WHERE fileName = %s", (newPlayValue, songName))
+	pointer.execute("UPDATE lastaddedplaylist SET plays = %s WHERE fileName = %s", (newPlayValue, songName))
 	db.commit()
 
 	return "OK"
 
 
-
+@app.route("/createPlaylist", methods=["POST"])
+def createPlaylist():
+	playlistName = request.form.to_dict().get("playlistName")
+	sql = """CREATE TABLE %s (fileName VARCHAR(100) PRIMARY KEY NOT NULL, songIndex smallint UNSIGNED)""" %playlistName
+	pointer.execute(sql)
+	
+	return "OK"
 
 
 @app.route('/favicon.ico')

@@ -65,3 +65,13 @@ export function incrementPlayCount(currentSongObject){
 		}	
 	}
 }
+
+
+export function createNewPlaylistToServer(playlistName){
+	const form = new FormData();
+	form.append("playlistName", playlistName);
+
+	const xhr = new XMLHttpRequest();
+	xhr.open("POST", '/createPlaylist', true)
+	xhr.send(form);
+}

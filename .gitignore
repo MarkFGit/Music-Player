@@ -3,8 +3,6 @@
 Reference/
 node_modules/
 notes/
-package.json
-package-lock.json
 static/media/oldSongs/
 static/media/songCovers/
 static/media/songs/

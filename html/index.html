@@ -12,12 +12,10 @@
 			songDurations = '{{ songDurations|tojson }}'
 			songAlbums = '{{ songAlbums|tojson }}'
 			songPlays = '{{ songPlays|tojson }}'
-			src="{{ url_for('static',filename='script.js') }}"
+			src="{{ url_for('static',filename='./dist/bundle.js') }}"
 			> 
 	</script>
-	<script defer id='moduleScript' type="module" src="{{ url_for('static',filename='eventScript.js') }}"> </script> 
 </head>
-
 
 
 <body class="bodyClass" id="bodyID" onload="createPage()" ondrop="fileDropHandler(event)" ondragover="dragOverHandler(event)">
