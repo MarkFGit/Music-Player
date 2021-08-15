@@ -19,17 +19,22 @@ window.fileDropHandler = fileDropHandler;
 window.createPage = createPage;
 window.mouseDown = mouseDown;
 
+import './_globalVars.scss'
+import './main.scss';
+import './homePage.scss';
+import './lowerBarStyles.scss'
+import './globalComponentStyles.scss';
 
-import './globalEventListener.js'
+import './globalEventListener.js';
 
 import updateEventScriptSongNum, {prepareHeaderButtonListeners, 
-	   prepareFooterButtonListeners, } from '/static/eventScript.js';
+	   prepareFooterButtonListeners, } from './eventScript.js';
 
 import dragOverHandler, {fileDropHandler, incrementPlayCount,
 		createNewPlaylistToServer} from './contactServer.js'
 
 import getSongImage, {fillPlaylistPreviewImages, 
-	determineFooterPlayImgSrc} from '/static/findImages.js'
+	determineFooterPlayImgSrc} from './findImages.js'
 
 export function clickSongBySongNum(songNum){
 	table.rows[songNum].firstElementChild.firstElementChild.click();

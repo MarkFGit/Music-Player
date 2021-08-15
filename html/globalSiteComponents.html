@@ -1,5 +1,5 @@
 {% if select == 'navbar' %}
-	<div class="addPlaylist noPaddingMargin" id="addPlaylistBoxContainer"> </div>
+	<div class="addPlaylistPrompt" id="addPlaylistBoxContainer"> </div>
 	<div class="topBar">
 		<div class="searchBar"> Search... </div>
 	</div>
@@ -10,26 +10,21 @@
 {% if select == 'sidePanel' %}
 	<div class="sidePanel">
 		<div class="panelButton" id="playlistsButton">
-			<a class="noPaddingMargin" href="/home/">
+			<a href="/home/">
 				<img class="sidePanelIcon" id="homeImg" src="{{ url_for('static',filename='media/icons/home.png') }}">
 			</a>
 		</div>
 		<div class="panelButton" id="artistsButton">
-			<a class="noPaddingMargin" href="/artists/"> 
+			<a href="/artists/"> 
 				<img class="sidePanelIcon" id="artistImg" src="{{ url_for('static',filename='media/icons/artists.png') }}">
 			</a>
 		</div>
 		<div class="panelButton" id="recentsButton">
-			<a class="noPaddingMargin" href="/recents/">
+			<a href="/recents/">
 				<img class="sidePanelIcon" id="recentImg" src="{{ url_for('static',filename='media/icons/recents.png') }}">
 			</a>
 		</div>
 		<div class="panelButton" id="newPlaylistButton">
-<!-- 			<script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
-  			<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
-  			<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-  			<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script> -->
-			<script type="text/babel" src="{{ url_for('static',filename='globalEventListener.js') }}"></script>
 			<img class="sidePanelIcon" id="addPlaylistImg" src="{{ url_for('static',filename='media/icons/addPlaylist.png') }}">
 		</div>
 	</div>

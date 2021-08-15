@@ -1,0 +1,49 @@
+@use 'globalVars';
+
+
+.homePageBackground
+{
+    height: calc(100vh - #{globalVars.$topBarTotalHeight});
+
+    margin: 0;
+    padding: 0;
+
+    background-color: globalVars.$mainBgColor;
+}
+
+
+.playlistGridContainer
+{
+    display: grid;
+    grid-gap: 100px 70px;
+    grid-template-columns: repeat(auto-fill, 264px);
+    justify-content: center;
+
+    min-width: 266px;
+
+    margin: 0;
+    padding: 40px 80px;
+}
+
+
+.playlistBasicInfoContainer
+{
+    align-items: flex-end;
+    display: flex;
+    justify-content: center;
+    justify-self: center;
+
+    height: 150px;
+    width: 250px;
+
+    background-color: #8d8d8d;
+    box-shadow: globalVars.$contentGlow;
+    font-size: 120%;
+}
+
+
+.playlistPreviewTitle{
+	max-height: calc(100% - 16px);
+
+	color: white;
+}

@@ -1,0 +1,17 @@
+@mixin noMarginOrPadding
+{
+    margin: 0;
+    padding: 0;
+}
+
+@mixin ellipsesAfterTwoLines
+{
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+
+$mainBgColor: #0f0f0f;
+$topBarTotalHeight: 65px;
+$contentGlow: 0px 0px 4px 0px #b3b3b3;

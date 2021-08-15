@@ -1,0 +1,285 @@
+
+/* 
+CSS formatting:
+    - positional formatting - ex: display, position
+    - sizing ---------------- ex: width, height, font-sizing
+    - layout ---------------- ex: margin, padding
+    - color, fonts, cosmetic
+ with each category alphabetized
+*/
+
+@use'globalVars';
+
+#bodyID
+{
+    @include globalVars.noMarginOrPadding;
+}
+
+.bodyClass *
+{
+    margin: 4px;
+    padding: 4px;
+
+    font-family: sans-serif;
+}
+
+
+.playlistContentContainer
+{
+    overflow-y: scroll;
+
+    height: calc(100vh - (#{globalVars.$topBarTotalHeight} + 108px)); /* whole screen minus header and footer */
+    width: 100vw;
+
+    @include globalVars.noMarginOrPadding;
+
+    background-color: globalVars.$mainBgColor;
+    background-position: center;
+}
+
+
+.contentContainer
+{
+    width: 100%;
+
+    @include globalVars.noMarginOrPadding;
+}
+
+
+.playlistHeader
+{
+    align-items: center;
+    display: flex;
+    justify-content: left;
+
+    height: 180px;
+    min-width: fit-content;
+
+    margin: 40px 80px;
+
+    background-color: transparent;
+}
+
+
+.playlistPreviewImages
+{
+    display: flex;
+    flex-wrap: wrap;
+
+    height: 160px;
+    min-width: 160px;
+    width: 160px;
+
+    padding: 0;
+}
+
+
+.coverPreviewImg
+{
+    height: 80px;
+    width: 80px;
+
+    @include globalVars.noMarginOrPadding;
+
+    object-fit: cover;
+}
+
+
+.headerTitleAndButtons
+{
+    min-width: fit-content;
+
+    color: white;
+    font-size: xx-large;
+    font-style: italic;
+    font-weight: 700;
+}
+
+
+.headerTitleAndPlay
+{
+    align-items: center;
+    display: flex;
+}
+
+
+.headerPlayIcon
+{
+    width: 50px;
+}
+
+
+.buttonTextCombo {
+    align-items: center;
+    display: flex;
+}
+
+
+.headerSmallButton
+{
+    width: 25px;
+
+    margin: 0;
+
+    cursor: pointer;
+}
+
+
+.headerSmallButtonText
+{
+    margin: 0;
+
+    font-size: 14px;
+    font-style: normal;   
+    font-weight: 100;
+
+}
+
+
+
+.songContent
+{
+    min-width: fit-content;
+    width: auto;
+
+    border: 4px;
+    margin: 0 80px 50px 80px;
+    padding: 15px 25px 5px 25px;
+
+    background-color: #070707;
+    border-color: #070707;
+    border-radius: 2px;
+    border-style: solid;
+    box-shadow: globalVars.$contentGlow;
+    color: #c3c3c3;
+    font-size: 15px;
+}
+
+
+.songTableHeader
+{
+    display: flex;
+
+    margin: 0 4px;
+    padding: 0 16px 0 52px;
+
+    color: #979090;
+    font-size: 16px;
+}
+
+
+.durationImg
+{
+    width: 29.2px;
+
+    padding: 0 4px;
+}
+
+
+.coverImg
+{
+    width: 40px;
+    height: 40px;
+
+    @include globalVars.noMarginOrPadding;
+
+    cursor: pointer;
+    object-fit: cover;
+}
+
+
+.songTableClass
+{
+    width: calc(100% - 8px);
+}
+
+
+.songRowClass
+{
+    height: 10px;
+
+    overflow: hidden;
+
+    &:hover{
+        background-color: #161616;
+    }
+}
+
+
+.songContainer
+{
+    align-items: center;
+    display: flex;
+
+    height: 40px;
+
+    margin: 1px;
+
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+
+.songTitles
+{
+    height: fit-content;
+    width: 200%;
+
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+
+.songArtistOrAlbum
+{
+    height: fit-content;
+    width: 100%;
+
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.playsWidth
+{
+    min-width: 40px;
+
+    padding: 4px 0;
+
+    text-align: center;
+}
+
+
+.songDivider
+{
+    height: 1px;
+    width: inherit;
+
+    @include globalVars.noMarginOrPadding;
+
+    background-color: #414141;
+}
+
+
+.playlistContentContainer::-webkit-scrollbar
+{
+    max-height:13px;
+    width: 13px;
+
+    &-thumb{
+        background: grey;
+        border-radius: 50px;
+
+        &:hover{
+            background: #9c9c9c;
+        }
+    }
+
+    &-track{
+        background-color: white;
+    }
+}
+
+
+/* m/p: x,y; vertical | horizontal */
+/* m/p: w,y,x,z; TRBL */
+/* m/p: y,x,z; top | horizontal | bottom*/

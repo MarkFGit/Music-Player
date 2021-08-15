@@ -2,8 +2,9 @@
 <html>
 <head>
 	<title> Music </title>
-	<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='main.css') }}">
-	<script type="module" defer id='scriptTag' 
+	<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='./dist/bundle.css') }}">
+	<script defer 
+			id='scriptTag' 
 			songNames='{{ songNames|tojson }}' 
 			numOfSongs='{{ numOfSongs }}' 
 			image_data = '{{ image_data }}' 
@@ -28,16 +29,16 @@
 			{% include "globalSiteComponents.html" %}
 		{% endwith %}
 		<div class="contentContainer">
-			<div class="playlistHeader">
+			<header class="playlistHeader">
 				<div class="playlistPreviewImages"> 
 					<img class="coverPreviewImg" id="coverPreview0"></img>
 					<img class="coverPreviewImg" id="coverPreview1"></img>
 					<img class="coverPreviewImg" id="coverPreview2"></img>
 					<img class="coverPreviewImg" id="coverPreview3"></img>
 				</div>
-				<div class="headerTitleAndButtons">
+				<header class="headerTitleAndButtons">
 					<div class=headerTitleAndPlay>
-						<div class="playlistTitle"> Last Added </div>
+						<h3 class="playlistTitle"> Last Added </h3>
 						<img class="headerPlayIcon" id="headerPlayIconID" src="{{ url_for('static',filename='media/icons/play.png') }}"> </img>
 					</div>
 					<div class="buttonTextCombo">
@@ -45,8 +46,8 @@
 						<span class="headerSmallButtonText"> Shuffle </span>
 					</div>
 					<img class="headerEditIcon"></img>
-				</div>
-			</div>
+				</header>
+			</header>
 			<div class="songContent">
 				<audio id="mainAudio" src=""></audio>
 				<div class="songTableHeader">
@@ -68,7 +69,7 @@
 
 		<div class="lowerBarButtonsWrapper">
 			<div class="currentTimeAndTitle">
-				<div class="lowerBarSmallText" id="currentTimeStamp"> -:-- </div>
+				<span class="lowerBarSmallText" id="currentTimeStamp"> -:-- </span>
 				<div class="playingTitle" id="playingTitleID"> Playing: </div>
 			</div>
 
@@ -78,7 +79,7 @@
         		<img class="smallImg" id="footerNextImg" src="{{ url_for('static',filename='media/icons/next.png') }}">
 	        </div>
 
-        	<div class="playingTimeLength lowerBarSmallText" id="playingTimeLength"> -:-- </div>
+        	<span class="playingTimeLength lowerBarSmallText" id="playingTimeLength"> -:-- </span>
 		</div>
 	</div>
 </body>

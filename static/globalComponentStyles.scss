@@ -1,0 +1,134 @@
+@use 'globalVars';
+
+.topBar
+{
+    align-items: center;
+    display: flex;
+    justify-content: center;
+
+    height: 60px;
+    width: 100%;
+
+    border-width: 0 0 5px 0;
+    @include globalVars.noMarginOrPadding;
+
+    background-color: #000000;
+    border-image: linear-gradient(to bottom, rgba(255,0,0,0), rgba(66, 66, 66, .5)) 100;
+    border-style: solid;
+
+}
+
+
+.searchBar
+{
+    align-items: center;
+    display: flex;
+
+    height: 30px;
+    width: 400px;
+
+    margin: 0;
+
+    background-color: #2a2a2a;
+    border-radius: 2px;
+}
+
+
+.sidePanel
+{
+    display: flex;
+    position: fixed;
+
+    height: inherit;
+    width: 70px;
+
+    flex-direction: column;
+    @include globalVars.noMarginOrPadding;
+
+    background-color: transparent;
+}
+
+
+.panelButton
+{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    @include globalVars.noMarginOrPadding;
+
+    cursor: pointer;
+}
+
+
+.sidePanelIcon
+{
+    width: 40px;
+
+    margin: 8px 0 0 0;
+}
+
+
+.dropZone
+{
+    height: 30px;
+    width: 30px;
+
+    background-color: purple;
+}
+
+
+.addPlaylistPrompt
+{
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    position: absolute;
+
+    width: 100vw;
+
+    @include globalVars.noMarginOrPadding;
+
+    background-color: rgb(110, 110, 120, .4);
+    color: #908f8f;
+    z-index: 1;
+}
+
+
+.playlistBox
+{
+    align-content: center;
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    height: 100px;
+    width: 350px;
+
+    background-image: linear-gradient(135deg, black, #212328);
+    border-radius: 4px;
+    box-shadow: globalVars.$contentGlow;
+}
+
+
+.positiveButtonClass
+{
+    background-color: white;
+    border-radius: 2px;
+
+    &:hover{
+        background-color: #a7cea3;
+    }
+}
+
+
+.cancelButtonClass
+{
+    background-color: #9f9f9f;
+    border-radius: 2px;
+
+    &:hover{
+        background-color: #cccccc;
+    }
+}

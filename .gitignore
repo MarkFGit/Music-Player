@@ -1,9 +1,12 @@
-/static/media/icon/Backup*Icons/
+./static/media/icon/Backup*Icons/
 
-Reference/
-node_modules/
-notes/
-static/media/oldSongs/
-static/media/songCovers/
-static/media/songs/
-static/potential favicons/
+./don't*need/
+./Reference/
+./node_modules/
+./notes/
+package-lock.json
+
+./static/media/oldSongs/
+./static/media/songCovers/
+./static/media/songs/
+./static/potential*favicons/

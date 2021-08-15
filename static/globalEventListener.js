@@ -1,12 +1,3 @@
-/*module.exports = {
-	science: 'poo'
-}*/
-/*
-const hi = require('contactServer.js')
-*/
-
-/*import ReactDOM from 'react-dom'
-*/
 var React = require('react');
 var ReactDOM = require('react-dom');
 
@@ -22,7 +13,7 @@ document.getElementById('newPlaylistButton').addEventListener('click', () => {
 				Add Playlist 
 			</button>
 			<button 
-				className="negativeButtonClass" 
+				className="cancelButtonClass" 
 				onClick={ () => {removeAddPlaylistMenu()} }> 
 				Cancel 
 			</button>
@@ -38,12 +29,11 @@ document.getElementById('newPlaylistButton').addEventListener('click', () => {
 	});
 });
 
-import {createNewPlaylistToServer} from './contactServer.js'
+import {createNewPlaylistToServer} from './contactServer.js';
 
 function createNewPlaylistInDatabase(){
 	const textBox = document.getElementById("createPlaylistTextbox");
-	console.log(`im going create a new playlist in the DB named '${textBox.value}'`);
-	
+	if(textBox.value.length > 100) return console.error("Playlist names cannot exceed 100 characters.") 
 	createNewPlaylistToServer(textBox.value);
 	removeAddPlaylistMenu();
 }
