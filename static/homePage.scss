@@ -1,9 +1,15 @@
 @use 'globalVars';
 
 
+::-webkit-scrollbar
+{
+    @include globalVars.scrollBar;
+}
+
+
 .homePageBackground
 {
-    height: calc(100vh - #{globalVars.$topBarTotalHeight});
+    min-height: calc(100vh - #{globalVars.$topBarTotalHeight});
 
     margin: 0;
     padding: 0;

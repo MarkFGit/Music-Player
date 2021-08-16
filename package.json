@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/MarkFGit/Music-Player#readme",
   "devDependencies": {
+    "@babel/core": "^7.15.0",
     "@babel/plugin-transform-runtime": "^7.15.0",
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-react": "^7.14.5",

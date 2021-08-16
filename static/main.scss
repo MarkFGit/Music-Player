@@ -1,4 +1,3 @@
-
 /* 
 CSS formatting:
     - positional formatting - ex: display, position
@@ -262,21 +261,7 @@ CSS formatting:
 
 .playlistContentContainer::-webkit-scrollbar
 {
-    max-height:13px;
-    width: 13px;
-
-    &-thumb{
-        background: grey;
-        border-radius: 50px;
-
-        &:hover{
-            background: #9c9c9c;
-        }
-    }
-
-    &-track{
-        background-color: white;
-    }
+    @include globalVars.scrollBar;
 }
 
 

@@ -24,7 +24,7 @@ document.getElementById('newPlaylistButton').addEventListener('click', () => {
 	document.addEventListener('keydown', function escPlaylistmenu(e){
 		if(e.key === 'Escape'){
 			removeAddPlaylistMenu(); 
-			document.removeEventListener('keydown', escPlaylistmenu)
+			document.removeEventListener('keydown', escPlaylistmenu);
 		}
 	});
 });

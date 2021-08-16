@@ -4,12 +4,33 @@
     padding: 0;
 }
 
+
 @mixin ellipsesAfterTwoLines
 {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     overflow: hidden;
+}
+
+
+@mixin scrollBar
+{
+    max-height:13px;
+    width: 13px;
+
+    &-thumb{
+        background: grey;
+        border-radius: 50px;
+
+        &:hover{
+            background: #9c9c9c;
+        }
+    }
+
+    &-track{
+        background-color: #444444;
+    }
 }
 
 $mainBgColor: #0f0f0f;
