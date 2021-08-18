@@ -1,22 +1,24 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-/*const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;*/
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
+const webpackPlugins = [
+	new MiniCssExtractPlugin({filename: "bundle.css"})
+];
+
+const analyzeBundle = false;
+if(analyzeBundle) webpackPlugins.push( new BundleAnalyzerPlugin() );
 
 module.exports = {
-	/*entry: './static/script.js',*/
 	entry: {
 		playlists: './static/script.js',
 		home: './static/globalEventListener.js'
 	},
 	output: {
-		/*filename: 'bundle.js',*/
-		filename: '[name].bundle.js',
+		filename: '[name].js',
 		path: path.resolve(__dirname, './static/dist/')
 	},
-	plugins: [
-	 new MiniCssExtractPlugin({filename: "bundle.css"}),
-	 /*new BundleAnalyzerPlugin()*/
-	],
+	plugins: webpackPlugins,
 	module: {
 		rules: [
 		 	{

@@ -4,7 +4,6 @@
 ./Reference/
 ./node_modules/
 ./notes/
-package-lock.json
 
 ./static/media/oldSongs/
 ./static/media/songCovers/
