@@ -25,7 +25,7 @@ CSS formatting:
 }
 
 .playlistContentContainer {
-  overflow-y: scroll;
+  overflow: auto;
   height: calc(100vh - (65px + 108px));
   /* whole screen minus header and footer */
   width: 100vw;
