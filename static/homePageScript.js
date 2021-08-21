@@ -1,14 +1,39 @@
-/* have some sort of function that gets called on load */
-/* gets a list of all playlists & generates a box and link for each*/
+var React = require('react');
+var ReactDOM = require('react-dom');
+
+import './globalEventListener.js';
+
 function getSqlPlaylists(){
+	// retrieve playlist names
+	// set testNamesList to retrievedPlaylistNames
 	return;
 }
 
-function setPlaylistContent(){
-	//for in sqlPlaylists
-		// document.create div
-		// set class to playlistBasicInfoContainer
-		// create new div under for Text (possibly preview images...)
+createPlaylistGrid();
 
-	return;
+
+function createPlaylistGrid(){
+	const testNamesList = ["lastAdded","otherPlaylist","doesThisWork"];
+
+	ReactDOM.render(
+		<>
+			{
+				testNamesList.map(name => {
+					return <CreatePlaylistCard key={name} name={name}/>
+				})
+			}
+		</>, 
+		document.getElementById('playlistGridContainer')
+	)
+}
+
+
+function CreatePlaylistCard(nameObject){
+	return(
+		<>
+			<div className="playlistBasicInfoContainer">
+				<span className="playlistPreviewTitle"> {nameObject.name} </span>
+			</div>
+		</>
+	);
 }

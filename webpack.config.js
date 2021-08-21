@@ -12,7 +12,7 @@ if(analyzeBundle) webpackPlugins.push( new BundleAnalyzerPlugin() );
 module.exports = {
 	entry: {
 		playlists: './static/script.js',
-		home: './static/globalEventListener.js'
+		home: './static/homePageScript.js'
 	},
 	output: {
 		filename: '[name].js',

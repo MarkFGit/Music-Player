@@ -3,7 +3,7 @@
 <head>
 	<title> Home </title>
 	<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='./dist/bundle.css') }}">
-	<script defer src="{{ url_for('static', filename='./dist/home.bundle.js') }}"> </script>
+	<script defer src="{{ url_for('static', filename='./dist/home.js') }}"> </script>
 </head>
 
 <body class="bodyClass" id="bodyID">
@@ -15,7 +15,7 @@
 		{% with select="sidePanel" %}
 			{% include "globalSiteComponents.html" %}
 		{% endwith %}
-		<div class="playlistGridContainer">
+		<div class="playlistGridContainer" id="playlistGridContainer">
 			<div class="playlistBasicInfoContainer"> 
 				<span class="playlistPreviewTitle"> Last Added </span>
 			</div>

@@ -41,6 +41,17 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _con
 
 /***/ }),
 
+/***/ "./static/homePageScript.js":
+/*!**********************************!*\
+  !*** ./static/homePageScript.js ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _globalEventListener_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./globalEventListener.js */ \"./static/globalEventListener.js\");\nvar React = __webpack_require__(/*! react */ \"./node_modules/react/index.js\");\n\nvar ReactDOM = __webpack_require__(/*! react-dom */ \"./node_modules/react-dom/index.js\");\n\n\n\nfunction getSqlPlaylists() {\n  // retrieve playlist names\n  // set testNamesList to retrievedPlaylistNames\n  return;\n}\n\ncreatePlaylistGrid();\n\nfunction createPlaylistGrid() {\n  var testNamesList = [\"lastAdded\", \"otherPlaylist\", \"doesThisWork\"];\n  ReactDOM.render( /*#__PURE__*/React.createElement(React.Fragment, null, testNamesList.map(function (name) {\n    return /*#__PURE__*/React.createElement(CreatePlaylistCard, {\n      key: name,\n      name: name\n    });\n  })), document.getElementById('playlistGridContainer'));\n}\n\nfunction CreatePlaylistCard(nameObject) {\n  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(\"div\", {\n    className: \"playlistBasicInfoContainer\"\n  }, /*#__PURE__*/React.createElement(\"span\", {\n    className: \"playlistPreviewTitle\"\n  }, \" \", nameObject.name, \" \")));\n}\n\n//# sourceURL=webpack://website/./static/homePageScript.js?");
+
+/***/ }),
+
 /***/ "./node_modules/object-assign/index.js":
 /*!*********************************************!*\
   !*** ./node_modules/object-assign/index.js ***!
@@ -233,7 +244,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module can't be inlined because the eval devtool is used.
-/******/ 	var __webpack_exports__ = __webpack_require__("./static/globalEventListener.js");
+/******/ 	var __webpack_exports__ = __webpack_require__("./static/homePageScript.js");
 /******/ 	
 /******/ })()
 ;
