@@ -34,6 +34,20 @@ CSS formatting:
   background-color: #0f0f0f;
   background-position: center;
 }
+.playlistContentContainer::-webkit-scrollbar {
+  max-height: 13px;
+  width: 13px;
+}
+.playlistContentContainer::-webkit-scrollbar-thumb {
+  background: grey;
+  border-radius: 50px;
+}
+.playlistContentContainer::-webkit-scrollbar-thumb:hover {
+  background: #9c9c9c;
+}
+.playlistContentContainer::-webkit-scrollbar-track {
+  background-color: #444444;
+}
 
 .contentContainer {
   width: 100%;
@@ -189,42 +203,12 @@ CSS formatting:
   background-color: #414141;
 }
 
-.playlistContentContainer::-webkit-scrollbar {
-  max-height: 13px;
-  width: 13px;
-}
-.playlistContentContainer::-webkit-scrollbar-thumb {
-  background: grey;
-  border-radius: 50px;
-}
-.playlistContentContainer::-webkit-scrollbar-thumb:hover {
-  background: #9c9c9c;
-}
-.playlistContentContainer::-webkit-scrollbar-track {
-  background-color: #444444;
-}
-
 /* m/p: x,y; vertical | horizontal */
 /* m/p: w,y,x,z; TRBL */
 /* m/p: y,x,z; top | horizontal | bottom*/
 /*!***************************************************************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/homePage.scss ***!
   \***************************************************************************************************************/
-::-webkit-scrollbar {
-  max-height: 13px;
-  width: 13px;
-}
-::-webkit-scrollbar-thumb {
-  background: grey;
-  border-radius: 50px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #9c9c9c;
-}
-::-webkit-scrollbar-track {
-  background-color: #444444;
-}
-
 .homePageBackground {
   min-height: calc(100vh - 65px);
   margin: 0;
@@ -233,6 +217,28 @@ CSS formatting:
 }
 
 .playlistGridContainer {
+  height: calc(100vh - 65px);
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+.playlistGridContainer::-webkit-scrollbar {
+  max-height: 13px;
+  width: 13px;
+}
+.playlistGridContainer::-webkit-scrollbar-thumb {
+  background: grey;
+  border-radius: 50px;
+}
+.playlistGridContainer::-webkit-scrollbar-thumb:hover {
+  background: #9c9c9c;
+}
+.playlistGridContainer::-webkit-scrollbar-track {
+  background-color: #444444;
+}
+
+.playlistGrid {
+  align-content: start;
   display: grid;
   grid-gap: 100px 70px;
   grid-template-columns: repeat(auto-fill, 264px);
@@ -240,9 +246,10 @@ CSS formatting:
   min-width: 266px;
   margin: 0;
   padding: 40px 80px;
+  overflow: auto;
 }
 
-.playlistBasicInfoContainer {
+.playlistCard {
   align-items: flex-end;
   display: flex;
   justify-content: center;

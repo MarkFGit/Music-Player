@@ -23,7 +23,7 @@ export async function fileDropHandler(e){
 			xhr.open("POST", '/lastAdded', true);
 			xhr.send(form);
 			
-			xhr.onreadystatechange = () => { reloadOnXhrReady(xhr); }
+			xhr.onreadystatechange = () => { reloadOnXhrReady(xhr); };
 		}
 	}
 }
@@ -50,28 +50,55 @@ function reloadOnXhrReady(xhr){
 
 
 export function incrementPlayCount(currentSongObject){
-	const songName = currentSongObject.songFileName;
 	const form = new FormData();
-	form.append("songName", songName);
+	form.append("songName", currentSongObject.songFileName);
 
 	const xhr = new XMLHttpRequest();
-	xhr.open("POST", '/updatePlays', true);
-	xhr.send(form);
-
 	xhr.onreadystatechange = () => {
 		if(xhr.readyState === 4 && xhr.status === 200){
 			const currentPlayNum = parseInt(currentSongObject.songPlays.innerText);
 			currentSongObject.songPlays.innerText =  currentPlayNum + 1;
 		}	
-	}
+	};
+	xhr.open("POST", '/updatePlays', true);
+	xhr.send(form);
+
+
 }
 
+import {createPlaylistGrid} from './homePageScript.js';
 
 export function createNewPlaylistToServer(playlistName){
 	const form = new FormData();
 	form.append("playlistName", playlistName);
 
 	const xhr = new XMLHttpRequest();
-	xhr.open("POST", '/createPlaylist', true)
+	xhr.onreadystatechange = () => {
+		if(xhr.readyState === 4 && xhr.status === 200){
+			createPlaylistGrid();
+		}
+	};
+	xhr.open("POST", '/createPlaylist', true);
 	xhr.send(form);
+}
+
+
+export function getPlaylistNamesFromDB(resolve){
+	const xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = () => {
+		if(xhr.readyState === 4 && xhr.status === 200){
+			resolve(JSON.parse(xhr.response));
+		}
+	};
+	xhr.open("POST", '/getPlaylists', true);
+	xhr.send();
+}
+
+export async function resolvePlaylistNames(){
+	const playlistPromise = new Promise(resolve => {
+		getPlaylistNamesFromDB(resolve);
+	});
+
+	const data = await playlistPromise;
+	return data["PlaylistNames"];
 }

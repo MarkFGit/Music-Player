@@ -12,25 +12,11 @@
 	{% endwith %}
 
 	<div class="homePageBackground">
-		{% with select="sidePanel" %}
-			{% include "globalSiteComponents.html" %}
-		{% endwith %}
-		<div class="playlistGridContainer" id="playlistGridContainer">
-			<div class="playlistBasicInfoContainer"> 
-				<span class="playlistPreviewTitle"> Last Added </span>
-			</div>
-			<div class="playlistBasicInfoContainer"> 
-				<span class="playlistPreviewTitle"> Lorem Ipsum </span>
-			</div>
-			<div class="playlistBasicInfoContainer"> 
-				<span class="playlistPreviewTitle"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, </span>
-			</div>
-			<div class="playlistBasicInfoContainer">
-				<span class="playlistPreviewTitle"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore </span>
-			</div>
-			<div class="playlistBasicInfoContainer">
-				<span class="playlistPreviewTitle"> Hi </span>
-			</div>
+		<div class="playlistGridContainer">
+			{% with select="sidePanel" %}
+				{% include "globalSiteComponents.html" %}
+			{% endwith %}
+			<div class="playlistGrid" id="playlistGrid"> </div>
 		</div>
 	</div>
 </body>

@@ -1,38 +1,49 @@
-@use 'globalVars';
-
-
-::-webkit-scrollbar
-{
-    @include globalVars.scrollBar;
-}
+@use 'globalVars' as *;
 
 
 .homePageBackground
 {
-    min-height: calc(100vh - #{globalVars.$topBarTotalHeight});
+    min-height: calc(100vh - #{$topBarTotalHeight});
 
-    margin: 0;
-    padding: 0;
+    @include noMarginOrPadding;
 
-    background-color: globalVars.$mainBgColor;
+    background-color: $mainBgColor;
 }
 
 
 .playlistGridContainer
 {
+    height: calc(100vh - #{$topBarTotalHeight});
+
+    @include noMarginOrPadding;
+
+    overflow: auto;
+
+    &::-webkit-scrollbar
+    {
+        @include scrollBar;
+    }
+}
+
+
+.playlistGrid
+{
+    align-content: start;
     display: grid;
     grid-gap: 100px 70px;
     grid-template-columns: repeat(auto-fill, 264px);
     justify-content: center;
-
+    
     min-width: 266px;
 
     margin: 0;
     padding: 40px 80px;
+
+    overflow: auto;
 }
 
 
-.playlistBasicInfoContainer
+.playlistCard
 {
     align-items: flex-end;
     display: flex;
@@ -43,9 +54,12 @@
     width: 250px;
 
     background-color: #8d8d8d;
-    box-shadow: globalVars.$contentGlow;
+    box-shadow: $contentGlow;
     font-size: 120%;
 }
+
+
+
 
 
 .playlistPreviewTitle{

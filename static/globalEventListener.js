@@ -3,6 +3,8 @@ var ReactDOM = require('react-dom');
 
 document.getElementById('newPlaylistButton').addEventListener('click', () => {
 	document.getElementById('addPlaylistBoxContainer').style.height = '100vh';
+	document.getElementById('addPlaylistBoxContainer').style.position = 'fixed';
+
 	ReactDOM.render(
 		<div className="playlistBox" id="playlistBox"> 
 			<div style={{ width: "100%", fontSize: "large" }}> Create New Playlist </div>

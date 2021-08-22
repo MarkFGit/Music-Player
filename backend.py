@@ -144,6 +144,19 @@ def createPlaylist():
 	return "OK"
 
 
+@app.route("/getPlaylists", methods=["POST"])
+def getPlaylistNamesFromDB():
+	pointer.execute("SHOW TABLES")
+	results = pointer.fetchall()
+
+	playlistNames = []
+	for result in results:
+		playlistNames.append(result[0])
+
+	return {"PlaylistNames": playlistNames}
+
+
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'media/icons/favicon.ico', mimetype='image/vnd.microsoft.icon')

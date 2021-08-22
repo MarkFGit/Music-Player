@@ -2,38 +2,29 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 
 import './globalEventListener.js';
-
-function getSqlPlaylists(){
-	// retrieve playlist names
-	// set testNamesList to retrievedPlaylistNames
-	return;
-}
+import {resolvePlaylistNames, getPlaylistNamesFromDB} from './contactServer.js';
 
 createPlaylistGrid();
 
-
-function createPlaylistGrid(){
-	const testNamesList = ["lastAdded","otherPlaylist","doesThisWork"];
+export async function createPlaylistGrid(){
+	const names = await resolvePlaylistNames();
+	const namesLen = names.length;
 
 	ReactDOM.render(
 		<>
-			{
-				testNamesList.map(name => {
-					return <CreatePlaylistCard key={name} name={name}/>
-				})
-			}
+			{names.map(name => {
+				return <CreatePlaylistCard key={name} name={name}/>
+			})}
 		</>, 
-		document.getElementById('playlistGridContainer')
+		document.getElementById('playlistGrid')
 	)
 }
 
 
 function CreatePlaylistCard(nameObject){
 	return(
-		<>
-			<div className="playlistBasicInfoContainer">
-				<span className="playlistPreviewTitle"> {nameObject.name} </span>
-			</div>
-		</>
+		<a href='/lastAdded' className="playlistCard">
+			<span className="playlistPreviewTitle"> {nameObject.name} </span>
+		</a>
 	);
 }

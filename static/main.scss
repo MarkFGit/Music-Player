@@ -7,11 +7,11 @@ CSS formatting:
  with each category alphabetized
 */
 
-@use'globalVars';
+@use'globalVars' as *;
 
 #bodyID
 {
-    @include globalVars.noMarginOrPadding;
+    @include noMarginOrPadding;
 }
 
 .bodyClass *
@@ -27,13 +27,18 @@ CSS formatting:
 {
     overflow: auto;
 
-    height: calc(100vh - (#{globalVars.$topBarTotalHeight} + 108px)); /* whole screen minus header and footer */
+    height: calc(100vh - (#{$topBarTotalHeight} + 108px)); /* whole screen minus header and footer */
     width: 100vw;
 
-    @include globalVars.noMarginOrPadding;
+    @include noMarginOrPadding;
 
-    background-color: globalVars.$mainBgColor;
+    background-color: $mainBgColor;
     background-position: center;
+
+    &::-webkit-scrollbar
+    {
+        @include scrollBar;
+    }
 }
 
 
@@ -41,7 +46,7 @@ CSS formatting:
 {
     width: 100%;
 
-    @include globalVars.noMarginOrPadding;
+    @include noMarginOrPadding;
 }
 
 
@@ -78,7 +83,7 @@ CSS formatting:
     height: 80px;
     width: 80px;
 
-    @include globalVars.noMarginOrPadding;
+    @include noMarginOrPadding;
 
     object-fit: cover;
 }
@@ -149,7 +154,7 @@ CSS formatting:
     border-color: #070707;
     border-radius: 2px;
     border-style: solid;
-    box-shadow: globalVars.$contentGlow;
+    box-shadow: $contentGlow;
     color: #c3c3c3;
     font-size: 15px;
 }
@@ -180,7 +185,7 @@ CSS formatting:
     width: 40px;
     height: 40px;
 
-    @include globalVars.noMarginOrPadding;
+    @include noMarginOrPadding;
 
     cursor: pointer;
     object-fit: cover;
@@ -253,17 +258,10 @@ CSS formatting:
     height: 1px;
     width: inherit;
 
-    @include globalVars.noMarginOrPadding;
+    @include noMarginOrPadding;
 
     background-color: #414141;
 }
-
-
-.playlistContentContainer::-webkit-scrollbar
-{
-    @include globalVars.scrollBar;
-}
-
 
 /* m/p: x,y; vertical | horizontal */
 /* m/p: w,y,x,z; TRBL */
