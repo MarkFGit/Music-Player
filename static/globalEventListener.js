@@ -31,7 +31,7 @@ document.getElementById('newPlaylistButton').addEventListener('click', () => {
 	});
 });
 
-import {createNewPlaylistToServer} from './contactServer.js';
+/*import {createNewPlaylistToServer} from './contactServer.js';*/
 
 function createNewPlaylistInDatabase(){
 	const textBox = document.getElementById("createPlaylistTextbox");

@@ -19,7 +19,6 @@ window.fileDropHandler = fileDropHandler;
 window.createPage = createPage;
 window.mouseDown = mouseDown;
 
-import './_globalVars.scss'
 import './main.scss';
 import './homePage.scss';
 import './lowerBarStyles.scss'
@@ -56,7 +55,6 @@ mainAudio.addEventListener('timeupdate', () => {
 	if(playingSongEndedNaturally){
 		seekBarProgress.style.width = '0%';
 
-		console.log(lastSongNum - 1)
 		const currentSongObject = table.rows[lastSongNum-1].firstElementChild.firstElementChild.getSongObject;
 		incrementPlayCount(currentSongObject);
 		const isLastPlaylistSong = (currentSongObject.songNum === table.rows.length);

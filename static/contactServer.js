@@ -66,7 +66,16 @@ export function incrementPlayCount(currentSongObject){
 
 }
 
-import {createPlaylistGrid} from './homePageScript.js';
+test();
+
+async function test(){
+	const importedScript = await require('./homePageScript.js');
+	importedScript.requireTest()
+}
+
+// Make new playlist from playlist page ---> call createNewPlaylistToServer BUT do not call createPlaylistGrid()
+// OR, Make new playlist from home page ---> call createNewPlaylistToServer AND call createPlaylistGrid()
+
 
 export function createNewPlaylistToServer(playlistName){
 	const form = new FormData();
@@ -76,6 +85,7 @@ export function createNewPlaylistToServer(playlistName){
 	xhr.onreadystatechange = () => {
 		if(xhr.readyState === 4 && xhr.status === 200){
 			createPlaylistGrid();
+			console.log("say hi")
 		}
 	};
 	xhr.open("POST", '/createPlaylist', true);

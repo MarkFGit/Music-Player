@@ -28,3 +28,8 @@ function CreatePlaylistCard(nameObject){
 		</a>
 	);
 }
+
+console.log("homePageLoaded");
+export function requireTest(){
+	console.log("Test Imported");
+}
