@@ -1,5 +1,5 @@
-var React = require('react');
-var ReactDOM = require('react-dom');
+const React = require('react');
+const ReactDOM = require('react-dom');
 
 import './globalEventListener.js';
 import {resolvePlaylistNames, getPlaylistNamesFromDB} from './contactServer.js';
@@ -29,7 +29,6 @@ function CreatePlaylistCard(nameObject){
 	);
 }
 
-console.log("homePageLoaded");
 export function requireTest(){
 	console.log("Test Imported");
 }

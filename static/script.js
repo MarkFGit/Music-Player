@@ -19,6 +19,9 @@ window.fileDropHandler = fileDropHandler;
 window.createPage = createPage;
 window.mouseDown = mouseDown;
 
+const React = require('react');
+const ReactDOM = require('react-dom');
+
 import './main.scss';
 import './homePage.scss';
 import './lowerBarStyles.scss'
@@ -159,11 +162,10 @@ function calculateCurrentTime(){
 
 function createPage(){
 	const numOfPlaylistSongs = document.getElementById('scriptTag').getAttribute('numOfSongs');
-	for(let songCount = 1; songCount <= numOfPlaylistSongs; songCount++){ /* Creates table */
+	for(let songCount = 1; songCount <= numOfPlaylistSongs; songCount++){
 		addRow(songCount, numOfPlaylistSongs);
 	}
 
-	addEntryInfoToAllRows();
 
 	fillPlaylistPreviewImages();
 	prepareHeaderButtonListeners();
@@ -171,10 +173,17 @@ function createPage(){
 }
 
 
+const songNamesList = JSON.parse(document.getElementById('scriptTag').getAttribute('songNames'));
+const titleList = JSON.parse(document.getElementById('scriptTag').getAttribute('songTitles'));
+const artistList = JSON.parse(document.getElementById('scriptTag').getAttribute('songArtists'));
+const durationsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songDurations'));
+const albumsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songAlbums'));
+const playsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songPlays'));
+
 
 function addRow(songCount, numOfPlaylistSongs){
 	const songObject = new addSongObject(songCount);
-
+	songObject.songFileName = songNamesList[songCount-1];
 	const tr = table.insertRow(-1);
 	tr.setAttribute('class','songRowClass');
 
@@ -182,13 +191,19 @@ function addRow(songCount, numOfPlaylistSongs){
 	songContainer.setAttribute('class','songContainer');
 	tr.appendChild(songContainer);
 
-	const songInfoDiv = tr.childNodes[0];
-	songInfoDiv.appendChild(songObject.coverImg);
-	songInfoDiv.appendChild(songObject.songTitle);
-	songInfoDiv.appendChild(songObject.songDuration);
-	songInfoDiv.appendChild(songObject.songArtist);
-	songInfoDiv.appendChild(songObject.songAlbum);
-	songInfoDiv.appendChild(songObject.songPlays);
+	const currentLastRow = table.rows[table.rows.length-1].firstElementChild;
+	ReactDOM.render(
+		<>
+			<img className="coverImg" getsongobject={songObject.getSongObject}></img>
+			<span className="songTitles"> {titleList[songCount-1]} </span>
+			<span className="songDurationClass"> {durationsList[songCount-1]} </span>
+			<span className="songArtistOrAlbum"> {artistList[songCount-1]} </span>
+			<span className="songArtistOrAlbum"> {albumsList[songCount-1]} </span>
+			<span className="playsWidth"> {playsList[songCount-1]} </span>
+		</>,
+		currentLastRow
+	);
+	getSongImage(songCount-1);
 
 	if(songCount < numOfPlaylistSongs){
 		const songDivider = document.createElement('div');
@@ -196,13 +211,23 @@ function addRow(songCount, numOfPlaylistSongs){
 		tr.appendChild(songDivider);
 	}
 
-	addSongImgEventListener(songObject);
+	addSongImgEventListener();
+}
+
+function addSongObject(songCount){
+	//way to reference the object itself in other functions. Probably a cleaner solution to this
+	this.getSongObject = this; 
+
+	this.songFileName = '';
+	this.songNum = songCount;
+	this.isPlaying = false;
 }
 
 
-function addSongImgEventListener(songObject){
-	songObject.coverImg.addEventListener('click', () => {
-
+function addSongImgEventListener(){
+	const imgForRow = getImgBySongRow(table.rows.length);
+	const songObject = getSongObjectBySongRow(table.rows.length);
+	imgForRow.addEventListener('click', () => {
 		const currentSongNum = songObject.songNum;
 		if(lastSongNum !== currentSongNum){
 			if(lastSongNum !== null){ //revert previous song/row
@@ -217,7 +242,7 @@ function addSongImgEventListener(songObject){
 			playingTitleDiv.innerText = `Playing: ${songNameWithoutExtension}`;
 
 			const playingTimeLengthDiv = document.getElementById('playingTimeLength');
-			playingTimeLengthDiv.innerText = songObject.songDuration.innerText;
+			playingTimeLengthDiv.innerText = durationsList[songObject.songNum-1];
 
 			table.rows[currentSongNum - 1].style = "background-color: #161616;";
 			
@@ -228,7 +253,6 @@ function addSongImgEventListener(songObject){
 
 		updateSongNum(currentSongNum);
 		playNextSong(songObject);
-
 	});
 }
 
@@ -266,61 +290,29 @@ function pauseSong(songObject){
 }
 
 
-function playNextSong(songObject){
+function playNextSong(){
+	const songObject = getSongObjectBySongRow(lastSongNum);
 	mainAudio.play();
 	songObject.isPlaying = true;
-	songObject.coverImg.src = globalPlayingGifSrc;
+	const imgForRow = getImgBySongRow(lastSongNum);
+	imgForRow.src = globalPlayingGifSrc;
 	document.getElementById('footerPlayImg').src = determineFooterPlayImgSrc(songObject.isPlaying);
 }
 
 
-function addSongObject(songCount){
-	this.coverImg = document.createElement('img');
-	this.coverImg.setAttribute('class', 'coverImg');
-
-	//way to reference the object itself in other functions. Probably a cleaner solution to this
-	this.coverImg.getSongObject = this; 
-
-	this.songTitle = document.createElement('span');
-	this.songTitle.setAttribute('class', 'songTitles');
-	this.songDuration = document.createElement('span');
-	this.songDuration.setAttribute('class', 'songDurationClass');
-	this.songArtist = document.createElement('span');
-	this.songArtist.setAttribute('class', 'songArtistOrAlbum');
-	this.songAlbum = document.createElement('span');
-	this.songAlbum.setAttribute('class', 'songArtistOrAlbum');
-	this.songPlays = document.createElement('span');
-	this.songPlays.setAttribute('class', 'playsWidth');
-	this.songFileName = '';
-	this.songNum = songCount;
-	this.isPlaying = false;
-}
-
-
-
-function addEntryInfoToAllRows(){
-	const songNamesList = JSON.parse(document.getElementById('scriptTag').getAttribute('songNames'));
-	const titleList = JSON.parse(document.getElementById('scriptTag').getAttribute('songTitles'));
-	const artistList = JSON.parse(document.getElementById('scriptTag').getAttribute('songArtists'));
-	const durationsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songDurations'));
-	const albumsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songAlbums'));
-	const playsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songPlays'));
-
-	songNamesList.forEach((songName, index) => {
-		const songObject = table.rows[index].firstElementChild.firstElementChild.getSongObject;
-
-		songObject.songFileName = songName;
-		songObject.songTitle.innerText = titleList[index];
-		songObject.songArtist.innerText = artistList[index];
-		songObject.songDuration.innerText = durationsList[index];
-		songObject.songAlbum.innerText = albumsList[index];
-		songObject.songPlays.innerText = playsList[index];
-
-		getSongImage(index);
-	});
-}
-
 
 export function removeFileExtension(fileName){
 	return fileName.slice(0, fileName.lastIndexOf("."));
+}
+
+
+function getSongObjectBySongRow(songRow){
+	const currentRow = table.rows[songRow-1];
+	const imgForRow = currentRow.firstElementChild.firstElementChild;
+	const songObject = Object.values(imgForRow)[1]['getsongobject'];
+	return songObject;
+}
+
+function getImgBySongRow(songRow){
+	return table.rows[songRow-1].firstElementChild.firstElementChild;
 }

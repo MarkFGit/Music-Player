@@ -66,28 +66,23 @@ export function incrementPlayCount(currentSongObject){
 
 }
 
-test();
 
-async function test(){
-	const importedScript = await require('./homePageScript.js');
-	importedScript.requireTest()
-}
-
-// Make new playlist from playlist page ---> call createNewPlaylistToServer BUT do not call createPlaylistGrid()
-// OR, Make new playlist from home page ---> call createNewPlaylistToServer AND call createPlaylistGrid()
-
-
-export function createNewPlaylistToServer(playlistName){
+export async function createNewPlaylistToServer(playlistName){
 	const form = new FormData();
 	form.append("playlistName", playlistName);
 
 	const xhr = new XMLHttpRequest();
-	xhr.onreadystatechange = () => {
-		if(xhr.readyState === 4 && xhr.status === 200){
-			createPlaylistGrid();
-			console.log("say hi")
-		}
-	};
+
+	const isHomePage = (document.getElementById('playlistGrid') !== null);
+	if(isHomePage){
+		var homePageScript = await require('./homePageScript.js');
+		xhr.onreadystatechange = () => {
+			if(xhr.readyState === 4 && xhr.status === 200){
+				homePageScript.createPlaylistGrid();
+			}
+		};
+	}
+
 	xhr.open("POST", '/createPlaylist', true);
 	xhr.send(form);
 }

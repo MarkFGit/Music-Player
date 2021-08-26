@@ -1,5 +1,5 @@
-var React = require('react');
-var ReactDOM = require('react-dom');
+const React = require('react');
+const ReactDOM = require('react-dom');
 
 document.getElementById('newPlaylistButton').addEventListener('click', () => {
 	document.getElementById('addPlaylistBoxContainer').style.height = '100vh';
@@ -31,7 +31,7 @@ document.getElementById('newPlaylistButton').addEventListener('click', () => {
 	});
 });
 
-/*import {createNewPlaylistToServer} from './contactServer.js';*/
+import {createNewPlaylistToServer} from './contactServer.js';
 
 function createNewPlaylistInDatabase(){
 	const textBox = document.getElementById("createPlaylistTextbox");

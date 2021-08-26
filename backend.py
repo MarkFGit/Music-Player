@@ -132,9 +132,9 @@ def updatePlays():
 
 @app.route("/createPlaylist", methods=["POST"])
 def createPlaylist():
-	# playlistName = request.form.to_dict().get("playlistName")
-	# sql = """CREATE TABLE %s (fileName VARCHAR(100) PRIMARY KEY NOT NULL, songIndex smallint UNSIGNED)""" %playlistName
-	# pointer.execute(sql)
+	playlistName = request.form.to_dict().get("playlistName")
+	sql = """CREATE TABLE %s (fileName VARCHAR(100) PRIMARY KEY NOT NULL, songIndex smallint UNSIGNED)""" %playlistName
+	pointer.execute(sql)
 	
 	return "OK"
 
