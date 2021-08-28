@@ -13,7 +13,6 @@ const table = document.getElementById("songTable");
 
 export default async function getSongImage(index){
 	const songNamesList = JSON.parse(document.getElementById('scriptTag').getAttribute('songNames'));
-
 	const currentSongName = removeFileExtension(songNamesList[index]);
 	const songCoverPath = `static/media/songCovers/${currentSongName}.jpeg`;
 
@@ -31,7 +30,7 @@ export default async function getSongImage(index){
 			console.log(`Find Image Error. Status of Error: %c${response.status}`,"color: red");
 			return;
 		})
-	  	.catch(error => console.log('error is', error));
+	  	.catch(error => console.error('error is', error));
 }
 
 

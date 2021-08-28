@@ -42,6 +42,19 @@ export function clickSongBySongNum(songNum){
 	table.rows[songNum].firstElementChild.firstElementChild.click();
 }
 
+
+function getSongObjectBySongRow(songRow){
+	const currentRow = table.rows[songRow];
+	const imgForRow = currentRow.firstElementChild.firstElementChild;
+	const songObject = Object.values(imgForRow)[1]['getsongobject'];
+	return songObject;
+}
+
+function getImgBySongRow(songRow){
+	return table.rows[songRow].firstElementChild.firstElementChild;
+}
+
+
 function updateSongNum(currentSongNum){
 	lastSongNum = currentSongNum;
 	updateEventScriptSongNum(lastSongNum);
@@ -58,7 +71,7 @@ mainAudio.addEventListener('timeupdate', () => {
 	if(playingSongEndedNaturally){
 		seekBarProgress.style.width = '0%';
 
-		const currentSongObject = table.rows[lastSongNum-1].firstElementChild.firstElementChild.getSongObject;
+		const currentSongObject = getSongObjectBySongRow(lastSongNum-1);
 		incrementPlayCount(currentSongObject);
 		const isLastPlaylistSong = (currentSongObject.songNum === table.rows.length);
 		if(isLastPlaylistSong){ 
@@ -130,6 +143,10 @@ function dragElement(event) {
 	calculateCurrentTime();
 }
 
+function calculateCurrentTime(){
+	mainAudio.currentTime = (parseFloat(seekBarProgress.style.width) / 100) * mainAudio.duration;
+}
+
 
 function stopDragElement() {
 	document.onmouseup = null;
@@ -137,11 +154,10 @@ function stopDragElement() {
 	
 	draggingSong = false;
 
-	const currentSongSrc = table.rows[lastSongNum-1].firstElementChild.firstElementChild.src;
+	const currentSongSrc = getImgBySongRow(lastSongNum-1).src;
 	const pausedFromDragging = (currentSongSrc === globalPlayingGifSrc);
 	if(pausedFromDragging) mainAudio.play();
 }
-
 
 
 function calculateDragWidth(){
@@ -156,20 +172,55 @@ function calculateDragWidth(){
 	seekBarProgress.style.width = `${(clickedWidth / seekBarWidth) * 100}%`;
 }
 
-function calculateCurrentTime(){
-	mainAudio.currentTime = (parseFloat(seekBarProgress.style.width) / 100) * mainAudio.duration;
-}
 
+
+const numOfPlaylistSongs = parseInt(document.getElementById('scriptTag').getAttribute('numOfSongs'));
 function createPage(){
-	const numOfPlaylistSongs = document.getElementById('scriptTag').getAttribute('numOfSongs');
-	for(let songCount = 1; songCount <= numOfPlaylistSongs; songCount++){
-		addRow(songCount, numOfPlaylistSongs);
-	}
+	const songNums = [...Array(numOfPlaylistSongs).keys()];
+	ReactDOM.render(
+		<>
+			{songNums.map((value, index) => {
+				return <Row key={index+1} songCount={index+1}/>
+			})}
+		</>,
+		document.getElementById('tableBody')
+	);
 
+
+	for(let songCount = 1; songCount <= numOfPlaylistSongs; songCount++){
+		addSongImgEventListener(songCount);
+		getSongImage(songCount-1);
+	}
 
 	fillPlaylistPreviewImages();
 	prepareHeaderButtonListeners();
 	prepareFooterButtonListeners();
+}
+
+
+function Row(reactData){
+	const songCount = reactData.songCount;
+	const songObject = new addSongObject(songCount);
+	return(
+		<tr className="songRowClass">
+			<td className="songContainer">
+				<img className="coverImg" getsongobject={songObject.getSongObject}></img>
+				<span className="songTitles"> {titleList[songCount-1]} </span>
+				<span className="songDurationClass"> {durationsList[songCount-1]} </span>
+				<span className="songArtistOrAlbum"> {artistList[songCount-1]} </span>
+				<span className="songArtistOrAlbum"> {albumsList[songCount-1]} </span>
+				<span className="playsWidth"> {playsList[songCount-1]} </span>
+			</td>
+			{SongDivider(songCount)}
+		</tr>
+	);
+}
+
+
+function SongDivider(songCount){
+	if(songCount < numOfPlaylistSongs){
+		return(<div className="songDivider"></div>);
+	}
 }
 
 
@@ -181,52 +232,21 @@ const albumsList = JSON.parse(document.getElementById('scriptTag').getAttribute(
 const playsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songPlays'));
 
 
-function addRow(songCount, numOfPlaylistSongs){
-	const songObject = new addSongObject(songCount);
-	songObject.songFileName = songNamesList[songCount-1];
-	const tr = table.insertRow(-1);
-	tr.setAttribute('class','songRowClass');
 
-	const songContainer = document.createElement('div');
-	songContainer.setAttribute('class','songContainer');
-	tr.appendChild(songContainer);
-
-	const currentLastRow = table.rows[table.rows.length-1].firstElementChild;
-	ReactDOM.render(
-		<>
-			<img className="coverImg" getsongobject={songObject.getSongObject}></img>
-			<span className="songTitles"> {titleList[songCount-1]} </span>
-			<span className="songDurationClass"> {durationsList[songCount-1]} </span>
-			<span className="songArtistOrAlbum"> {artistList[songCount-1]} </span>
-			<span className="songArtistOrAlbum"> {albumsList[songCount-1]} </span>
-			<span className="playsWidth"> {playsList[songCount-1]} </span>
-		</>,
-		currentLastRow
-	);
-	getSongImage(songCount-1);
-
-	if(songCount < numOfPlaylistSongs){
-		const songDivider = document.createElement('div');
-		songDivider.className = "songDivider";
-		tr.appendChild(songDivider);
-	}
-
-	addSongImgEventListener();
-}
 
 function addSongObject(songCount){
 	//way to reference the object itself in other functions. Probably a cleaner solution to this
 	this.getSongObject = this; 
 
-	this.songFileName = '';
+	this.songFileName = songNamesList[songCount-1];
 	this.songNum = songCount;
 	this.isPlaying = false;
 }
 
 
-function addSongImgEventListener(){
-	const imgForRow = getImgBySongRow(table.rows.length);
-	const songObject = getSongObjectBySongRow(table.rows.length);
+function addSongImgEventListener(songCount){
+	const imgForRow = getImgBySongRow(songCount-1);
+	const songObject = getSongObjectBySongRow(songCount-1);
 	imgForRow.addEventListener('click', () => {
 		const currentSongNum = songObject.songNum;
 		if(lastSongNum !== currentSongNum){
@@ -291,10 +311,10 @@ function pauseSong(songObject){
 
 
 function playNextSong(){
-	const songObject = getSongObjectBySongRow(lastSongNum);
+	const songObject = getSongObjectBySongRow(lastSongNum-1);
 	mainAudio.play();
 	songObject.isPlaying = true;
-	const imgForRow = getImgBySongRow(lastSongNum);
+	const imgForRow = getImgBySongRow(lastSongNum-1);
 	imgForRow.src = globalPlayingGifSrc;
 	document.getElementById('footerPlayImg').src = determineFooterPlayImgSrc(songObject.isPlaying);
 }
@@ -303,16 +323,4 @@ function playNextSong(){
 
 export function removeFileExtension(fileName){
 	return fileName.slice(0, fileName.lastIndexOf("."));
-}
-
-
-function getSongObjectBySongRow(songRow){
-	const currentRow = table.rows[songRow-1];
-	const imgForRow = currentRow.firstElementChild.firstElementChild;
-	const songObject = Object.values(imgForRow)[1]['getsongobject'];
-	return songObject;
-}
-
-function getImgBySongRow(songRow){
-	return table.rows[songRow-1].firstElementChild.firstElementChild;
 }
