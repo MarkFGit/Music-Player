@@ -1,4 +1,6 @@
 const iconFolderPath = 'http://127.0.0.1:5000/static/media/icons/';
+const URLforStaticFolder = 'http://127.0.0.1:5000/static';
+
 const globalPauseImgSrc = `${iconFolderPath}pause.png`;
 const globalPauseHoverImgSrc = `${iconFolderPath}hoverPause.png`;
 const globalPlayImgSrc = `${iconFolderPath}playSong.png`;
@@ -6,6 +8,13 @@ const globalPlayHoverImgSrc = `${iconFolderPath}hoverPlay.png`;
 const blankPlayImgSrc = `${iconFolderPath}play.png`;
 const globalPlayingGifSrc = `${iconFolderPath}playing.gif`;
 
+
+const songNamesList = JSON.parse(document.getElementById('scriptTag').getAttribute('songNames'));
+const titleList = JSON.parse(document.getElementById('scriptTag').getAttribute('songTitles'));
+const artistList = JSON.parse(document.getElementById('scriptTag').getAttribute('songArtists'));
+const durationsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songDurations'));
+const albumsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songAlbums'));
+const playsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songPlays'));
 
 const table = document.getElementById("songTable");
 const mainAudio = document.getElementById("mainAudio");
@@ -22,10 +31,12 @@ window.mouseDown = mouseDown;
 const React = require('react');
 const ReactDOM = require('react-dom');
 
+/* import scss so webpack builds composite css file */
 import './main.scss';
 import './homePage.scss';
-import './lowerBarStyles.scss'
+import './lowerBarStyles.scss';
 import './globalComponentStyles.scss';
+/* ************************************************ */
 
 import './globalEventListener.js';
 
@@ -43,17 +54,20 @@ export function clickSongBySongNum(songNum){
 }
 
 
-function getSongObjectBySongRow(songRow){
+export function getSongObjectBySongRow(songRow){
 	const currentRow = table.rows[songRow];
 	const imgForRow = currentRow.firstElementChild.firstElementChild;
 	const songObject = Object.values(imgForRow)[1]['getsongobject'];
 	return songObject;
 }
 
-function getImgBySongRow(songRow){
+export function getImgBySongRow(songRow){
 	return table.rows[songRow].firstElementChild.firstElementChild;
 }
 
+export function getSongRow(songRow){
+	return table.rows[songRow].firstElementChild;
+}
 
 function updateSongNum(currentSongNum){
 	lastSongNum = currentSongNum;
@@ -116,7 +130,7 @@ function revertPageToNoSong(songObject){
 
 
 function mouseDown(event) {
-	const noSelectedAudioSrc = "http://127.0.0.1:5000/lastAdded";
+	const noSelectedAudioSrc = "http://127.0.0.1:5000/playlists/lastadded";
 	if(mainAudio.src === noSelectedAudioSrc){
 		console.log("%cError: Cannot use seekbar when no song is selected.", "color: red");
 		return;
@@ -224,16 +238,6 @@ function SongDivider(songCount){
 }
 
 
-const songNamesList = JSON.parse(document.getElementById('scriptTag').getAttribute('songNames'));
-const titleList = JSON.parse(document.getElementById('scriptTag').getAttribute('songTitles'));
-const artistList = JSON.parse(document.getElementById('scriptTag').getAttribute('songArtists'));
-const durationsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songDurations'));
-const albumsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songAlbums'));
-const playsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songPlays'));
-
-
-
-
 function addSongObject(songCount){
 	//way to reference the object itself in other functions. Probably a cleaner solution to this
 	this.getSongObject = this; 
@@ -255,7 +259,7 @@ function addSongImgEventListener(songCount){
 				songObject.isPlaying = false;
 				table.rows[lastSongNum-1].style = "";
 			}
-			mainAudio.src = `static/media/songs/${songObject.songFileName}`;
+			mainAudio.src = `${URLforStaticFolder}/media/songs/${songObject.songFileName}`;
 
 			const playingTitleDiv = document.getElementById('playingTitleID');
 			const songNameWithoutExtension = removeFileExtension(songObject.songFileName);

@@ -1,7 +1,7 @@
 import os
-from flask import Flask, redirect, url_for, render_template, send_from_directory, send_file, request
+from flask import Flask, redirect, url_for, render_template, send_from_directory, send_file, request, escape
 from tinytag import TinyTag
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from io import BytesIO
 import mysql.connector
 from datetime import datetime
@@ -18,9 +18,13 @@ pointer = db.cursor(buffered=True)
 
 app = Flask(__name__, template_folder='html', static_folder='static')
 
-@app.route("/lastAdded", methods=["POST","GET"])
-def lastAdded():
+
+@app.route("/playlists/<playlist>", methods=["POST","GET"])
+def dummyPlaylist(playlist):
+	escapedPlaylistName = escape(playlist)
+
 	if(request.method == "POST"):
+		print("posted")
 		songName = request.form.to_dict().get('name');
 		songFile = request.files['file']
 		songFile.save(f'static/media/songs/{songName}')
@@ -39,7 +43,7 @@ def lastAdded():
 	songAlbums = []
 	songPlays = []
 
-	pointer.execute("SELECT * FROM lastaddedplaylist")
+	pointer.execute("""SELECT * FROM %s""" %escapedPlaylistName)
 	allSongInfos = pointer.fetchall()
 
 	allSongInfos.sort(key=lambda songInfo: songInfo[5], reverse = True) # sort by using the date index. most recent song goes to top
@@ -47,11 +51,10 @@ def lastAdded():
 	for songInfo in allSongInfos:
 		songFileNames.append(songInfo[0])
 		songTitles.append(songInfo[1])
-		songArtists.append(songInfo[3])
 		songDurations.append(songInfo[2])
+		songArtists.append(songInfo[3])
 		songAlbums.append(songInfo[4])
 		songPlays.append(songInfo[6])
-		# songTitles.append(songInfo[5]) date added?
 
 	numOfSongs = len(songFileNames)
 
@@ -62,17 +65,20 @@ def lastAdded():
 
 
 def addNewCoverImgToFS(songName, songData):
-	coverPathFolder = 'C:/Users/markr/Desktop/Website/static/media/songCovers/'
-	coverPathNames = os.listdir(coverPathFolder)
+	try:
+		coverPathFolder = 'C:/Users/markr/Desktop/Website/static/media/songCovers/'
+		coverPathNames = os.listdir(coverPathFolder)
 
-	songCoverName = f'{songName[:-4]}.jpeg'; #remove .mp3/.m4a extension, add .jpeg extension
+		songCoverName = f'{songName[:-4]}.jpeg'; #remove .mp3/.m4a extension, add .jpeg extension
 
-	if(songCoverName not in coverPathNames):
-		coverImage_data = songData.get_image()
-		hasCoverImgData = (coverImage_data != None)
-		if(hasCoverImgData):
-			coverBytes = Image.open(BytesIO(coverImage_data))
-			coverBytes.save(f'{coverPathFolder}{songName[:-4]}.jpeg')
+		if(songCoverName not in coverPathNames):
+			coverImage_data = songData.get_image()
+			hasCoverImgData = (coverImage_data != None)
+			if(hasCoverImgData):
+				coverBytes = Image.open(BytesIO(coverImage_data))
+				coverBytes.save(f'{coverPathFolder}{songName[:-4]}.jpeg')
+	except UnidentifiedImageError:
+		print("An UnidentifiedImageError has occurred (probably while trying to open coverImage_data). Proceeding as if image data does not exist")
 
 
 def insertNewSongEntryInDatabase(songName, songData):
@@ -81,7 +87,7 @@ def insertNewSongEntryInDatabase(songName, songData):
 	songArtist = determineArtist(songData)
 	songAlbum = determineAlbum(songData)
 
-	pointer.execute("INSERT INTO lastaddedplaylist (fileName, title, durationSecs, artist, album, created, plays) VALUES (%s,%s,%s,%s,%s,%s,%s)", 
+	pointer.execute("INSERT INTO lastadded (fileName, title, durationSecs, artist, album, created, plays) VALUES (%s,%s,%s,%s,%s,%s,%s)", 
 								(songName, songTitle, songDuration, songArtist, songAlbum, datetime.now(), 0))
 	db.commit()
 
@@ -120,11 +126,12 @@ def home():
 
 @app.route("/updatePlays", methods=["POST"])
 def updatePlays():
+	playlistTableName = 'lastaddedplaylist'
 	songName =  request.form.to_dict().get("songName")
-	pointer.execute("SELECT plays FROM lastaddedplaylist WHERE fileName = %s", (songName, ))
+	pointer.execute("SELECT plays FROM lastadded WHERE fileName = %s", (songName, ))
 	result = pointer.fetchall()
 	newPlayValue = result[0][0] + 1
-	pointer.execute("UPDATE lastaddedplaylist SET plays = %s WHERE fileName = %s", (newPlayValue, songName))
+	pointer.execute("UPDATE lastadded SET plays = %s WHERE fileName = %s", (newPlayValue, songName))
 	db.commit()
 
 	return "OK"
@@ -149,7 +156,6 @@ def getPlaylistNamesFromDB():
 		playlistNames.append(result[0])
 
 	return {"PlaylistNames": playlistNames}
-
 
 
 @app.route('/favicon.ico')

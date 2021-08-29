@@ -22,8 +22,9 @@ export async function createPlaylistGrid(){
 
 
 function CreatePlaylistCard(nameObject){
+	const playlistURL = `/playlists/${nameObject.name}`;
 	return(
-		<a href='/lastAdded' className="playlistCard">
+		<a href={playlistURL} className="playlistCard">
 			<span className="playlistPreviewTitle"> {nameObject.name} </span>
 		</a>
 	);

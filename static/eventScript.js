@@ -7,7 +7,7 @@ export default function updateEventScriptSongNum(updatedSongNum){
 	lastSongNum = updatedSongNum;
 }
 
-
+const URLforIconsFolder = 'http://127.0.0.1:5000/static/media/icons';
 
 export function prepareHeaderButtonListeners(){
 	const headerPlayIcon = document.getElementById('headerPlayIconID');
@@ -20,13 +20,13 @@ export function prepareHeaderButtonListeners(){
 
 	headerPlayIcon.addEventListener('mouseover', () => {
 		if(lastSongNum === null){
-			headerPlayIcon.src = 'static/media/icons/playHover.png';
+			headerPlayIcon.src = `${URLforIconsFolder}/playHover.png`;
 			headerPlayIcon.style.cursor = 'pointer';
 		}
 	});
 
 	headerPlayIcon.addEventListener('mouseout', () => {
-		headerPlayIcon.src = 'static/media/icons/play.png';
+		headerPlayIcon.src = `${URLforIconsFolder}/play.png`;
 		headerPlayIcon.style.cursor = 'default';
 	});
 }
