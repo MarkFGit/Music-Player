@@ -1,3 +1,5 @@
+import {getPlaylistName} from './globals.js';
+
 export default function dragOverHandler(e){
 	e.preventDefault();
 }
@@ -18,7 +20,10 @@ export async function fileDropHandler(e){
 			form.append("name", file.name);
 
 			const xhr = new XMLHttpRequest();
-			xhr.open("POST", '/playlists/lastadded', true);
+
+			const playlistName = getPlaylistName();
+			const serverRoute = `/playlists/${playlistName}`;
+			xhr.open("POST", serverRoute, true);
 			xhr.send(form);
 			
 			xhr.onreadystatechange = () => { 
@@ -100,4 +105,18 @@ export async function resolvePlaylistNames(){
 
 	const data = await playlistPromise;
 	return data["PlaylistNames"];
+}
+
+export function addSongToPlaylistInDB(e){
+	const form = new FormData();
+	form.append('fileName', Object.values(e.target.parentElement)[1]['currentsongname']);
+	form.append('playlistName', e.target.innerText);
+
+	const xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = () => {
+		//on success, display in corner a success?
+	}
+
+	xhr.open("POST", '/insertNewSong', true);
+	xhr.send(form)
 }

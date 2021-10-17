@@ -95,6 +95,17 @@
 }
 
 
+.addSongToPlaylistPrompt
+{
+    position: absolute;
+
+    @include globalVars.noMarginOrPadding;
+
+    color: whitesmoke;
+    z-index: 0;
+}
+
+
 .playlistBox
 {
     align-content: center;

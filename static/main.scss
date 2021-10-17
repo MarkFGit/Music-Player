@@ -150,8 +150,8 @@ CSS formatting:
     margin: 0 80px 50px 80px;
     padding: 15px 25px 5px 25px;
 
-    background-color: #070707;
-    border-color: #070707;
+    background-color: $playlistBgColor;
+    border-color: $playlistBgColor;
     border-radius: 2px;
     border-style: solid;
     box-shadow: $contentGlow;
@@ -200,12 +200,13 @@ CSS formatting:
 
 .songRowClass
 {
-    /*height: 10px;*/
-
     overflow: hidden;
 
     &:hover{
         background-color: #161616;
+        .songRowAddPlaylistButton{
+            display: block;
+        }
     }
 }
 
@@ -231,6 +232,54 @@ CSS formatting:
 
     text-overflow: ellipsis;
     overflow: hidden;
+}
+
+
+.songRowAddPlaylistButton
+{
+    display: none;
+
+    padding: 2px;
+
+    background-color: transparent;
+    border: 0;
+    color: grey;
+    font-size: large;
+    font-weight: 700;
+}
+
+
+.playlistDropDown
+{
+    display: grid;
+    overflow: auto;
+    position: absolute;
+
+    max-height: 200px;
+
+    padding: 6px 4px;
+
+    background-color: #1f1f21;
+    box-shadow: $dropDownGlow;
+
+    &::-webkit-scrollbar
+    {
+        @include scrollBar;
+    }
+}
+
+
+.playlistOption
+{
+    margin: 1px;
+
+    border-radius: 5px;
+
+    border-color: #2b2b2e;
+
+    &:hover{
+        background-color: #dddddd;  
+    }
 }
 
 

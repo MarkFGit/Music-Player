@@ -155,11 +155,13 @@ CSS formatting:
 }
 
 .songRowClass {
-  /*height: 10px;*/
   overflow: hidden;
 }
 .songRowClass:hover {
   background-color: #161616;
+}
+.songRowClass:hover .songRowAddPlaylistButton {
+  display: block;
 }
 
 .songContainer {
@@ -176,6 +178,49 @@ CSS formatting:
   width: 200%;
   text-overflow: ellipsis;
   overflow: hidden;
+}
+
+.songRowAddPlaylistButton {
+  display: none;
+  padding: 2px;
+  background-color: transparent;
+  border: 0;
+  color: grey;
+  font-size: large;
+  font-weight: 700;
+}
+
+.playlistDropDown {
+  display: grid;
+  overflow: auto;
+  position: absolute;
+  max-height: 200px;
+  padding: 6px 4px;
+  background-color: #1f1f21;
+  box-shadow: 0px 0px 2px 2px #c0c0c0;
+}
+.playlistDropDown::-webkit-scrollbar {
+  max-height: 13px;
+  width: 13px;
+}
+.playlistDropDown::-webkit-scrollbar-thumb {
+  background: grey;
+  border-radius: 50px;
+}
+.playlistDropDown::-webkit-scrollbar-thumb:hover {
+  background: #9c9c9c;
+}
+.playlistDropDown::-webkit-scrollbar-track {
+  background-color: #444444;
+}
+
+.playlistOption {
+  margin: 1px;
+  border-radius: 5px;
+  border-color: #2b2b2e;
+}
+.playlistOption:hover {
+  background-color: #dddddd;
 }
 
 .songArtistOrAlbum {
@@ -441,6 +486,14 @@ CSS formatting:
   background-color: rgba(110, 110, 120, 0.4);
   color: #908f8f;
   z-index: 1;
+}
+
+.addSongToPlaylistPrompt {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  color: whitesmoke;
+  z-index: 0;
 }
 
 .playlistBox {

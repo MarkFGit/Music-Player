@@ -20,12 +20,9 @@ app = Flask(__name__, template_folder='html', static_folder='static')
 
 
 @app.route("/playlists/<playlist>", methods=["POST","GET"])
-def dummyPlaylist(playlist):
-	escapedPlaylistName = escape(playlist)
-
-	if(request.method == "POST"):
-		print("posted")
-		songName = request.form.to_dict().get('name');
+def generatePlaylistOntoPage(playlist):
+	if(request.method == "POST"): #
+		songName = request.form.to_dict().get('name')
 		songFile = request.files['file']
 		songFile.save(f'static/media/songs/{songName}')
 
@@ -43,10 +40,17 @@ def dummyPlaylist(playlist):
 	songAlbums = []
 	songPlays = []
 
-	pointer.execute("""SELECT * FROM %s""" %escapedPlaylistName)
+	escapedPlaylistName = escape(playlist)
+	pointer.execute(f"""SELECT * FROM `{escapedPlaylistName}`""")
 	allSongInfos = pointer.fetchall()
+	if(request.path != "/playlists/lastadded"):
+		allSongInfos.sort(key=lambda songInfo: songInfo[1], reverse = True)
+		for index, songInfo in enumerate(allSongInfos):
+			pointer.execute("SELECT * FROM lastAdded WHERE fileName = %s", (songInfo[0], ))
+			allSongInfos[index] = pointer.fetchall()[0]
 
-	allSongInfos.sort(key=lambda songInfo: songInfo[5], reverse = True) # sort by using the date index. most recent song goes to top
+	else:
+		allSongInfos.sort(key=lambda songInfo: songInfo[5], reverse = True) # sort by using the date index. most recent song goes to top
 
 	for songInfo in allSongInfos:
 		songFileNames.append(songInfo[0])
@@ -58,39 +62,14 @@ def dummyPlaylist(playlist):
 
 	numOfSongs = len(songFileNames)
 
-	return render_template('index.html', songNames = songFileNames, numOfSongs = numOfSongs, 
-										 songTitles = songTitles, songArtists = songArtists, 
-										 songDurations = songDurations, songAlbums = songAlbums,
+	return render_template('index.html', playlistName = escapedPlaylistName,
+										 songNames = songFileNames, 
+										 numOfSongs = numOfSongs, 
+										 songTitles = songTitles, 
+										 songArtists = songArtists, 
+										 songDurations = songDurations, 
+										 songAlbums = songAlbums,
 										 songPlays = songPlays)
-
-
-def addNewCoverImgToFS(songName, songData):
-	try:
-		coverPathFolder = 'C:/Users/markr/Desktop/Website/static/media/songCovers/'
-		coverPathNames = os.listdir(coverPathFolder)
-
-		songCoverName = f'{songName[:-4]}.jpeg'; #remove .mp3/.m4a extension, add .jpeg extension
-
-		if(songCoverName not in coverPathNames):
-			coverImage_data = songData.get_image()
-			hasCoverImgData = (coverImage_data != None)
-			if(hasCoverImgData):
-				coverBytes = Image.open(BytesIO(coverImage_data))
-				coverBytes.save(f'{coverPathFolder}{songName[:-4]}.jpeg')
-	except UnidentifiedImageError:
-		print("An UnidentifiedImageError has occurred (probably while trying to open coverImage_data). Proceeding as if image data does not exist")
-
-
-def insertNewSongEntryInDatabase(songName, songData):
-	songTitle = determineTitle(songData)
-	songDuration = determineSongDurationText(songData)
-	songArtist = determineArtist(songData)
-	songAlbum = determineAlbum(songData)
-
-	pointer.execute("INSERT INTO lastadded (fileName, title, durationSecs, artist, album, created, plays) VALUES (%s,%s,%s,%s,%s,%s,%s)", 
-								(songName, songTitle, songDuration, songArtist, songAlbum, datetime.now(), 0))
-	db.commit()
-
 
 
 def determineTitle(songData):
@@ -119,6 +98,54 @@ def determineSongDurationText(songData):
 	return ''
 
 
+def addNewCoverImgToFS(songName, songData):
+	try:
+		coverPathFolder = 'C:/Users/markr/Desktop/Website/static/media/songCovers/'
+		coverPathNames = os.listdir(coverPathFolder)
+
+		songCoverName = f'{songName[:-4]}.jpeg'; #remove .mp3/.m4a extension, add .jpeg extension
+
+		if(songCoverName not in coverPathNames):
+			coverImage_data = songData.get_image()
+			hasCoverImgData = (coverImage_data != None)
+			if(hasCoverImgData):
+				coverBytes = Image.open(BytesIO(coverImage_data))
+				coverBytes.save(f'{coverPathFolder}{songName[:-4]}.jpeg')
+	except UnidentifiedImageError:
+		print("""An UnidentifiedImageError has occurred (probably while trying to open coverImage_data). 
+				 Proceeding as if image data does not exist""")
+
+
+def insertNewSongEntryInDatabase(songName, songData):
+	songTitle = determineTitle(songData)
+	songDuration = determineSongDurationText(songData)
+	songArtist = determineArtist(songData)
+	songAlbum = determineAlbum(songData)
+
+	pointer.execute("""INSERT INTO lastAdded 
+					(fileName, title, durationSecs, artist, album, created, plays) 
+					VALUES (%s,%s,%s,%s,%s,%s,%s)""", 
+					(songName, songTitle, songDuration, songArtist, songAlbum, datetime.now(), 0))
+	db.commit()
+
+
+
+@app.route("/insertNewSong", methods=["POST"])
+def insertNewSongEntryInPlaylist():
+	fileName = request.form.to_dict().get("fileName")
+	playlistName = request.form.to_dict().get("playlistName")
+
+	allPlaylistNames = getPlaylistNamesFromDB()['PlaylistNames']
+	if(playlistName not in allPlaylistNames):
+		return "ERROR, bad playlist name"
+
+	newSQL = f"""INSERT INTO `{playlistName}` (fileName) VALUES ("{fileName}")"""
+	pointer.execute(newSQL)
+	db.commit()
+
+	return "OK"
+
+
 @app.route("/home/")
 def home():
 	return render_template('home.html')
@@ -126,12 +153,11 @@ def home():
 
 @app.route("/updatePlays", methods=["POST"])
 def updatePlays():
-	playlistTableName = 'lastaddedplaylist'
 	songName =  request.form.to_dict().get("songName")
-	pointer.execute("SELECT plays FROM lastadded WHERE fileName = %s", (songName, ))
+	pointer.execute("SELECT plays FROM lastAdded WHERE fileName = %s", (songName, ))
 	result = pointer.fetchall()
 	newPlayValue = result[0][0] + 1
-	pointer.execute("UPDATE lastadded SET plays = %s WHERE fileName = %s", (newPlayValue, songName))
+	pointer.execute("UPDATE lastAdded SET plays = %s WHERE fileName = %s", (newPlayValue, songName))
 	db.commit()
 
 	return "OK"
@@ -140,7 +166,8 @@ def updatePlays():
 @app.route("/createPlaylist", methods=["POST"])
 def createPlaylist():
 	playlistName = request.form.to_dict().get("playlistName")
-	sql = """CREATE TABLE %s (fileName VARCHAR(100) PRIMARY KEY NOT NULL, songIndex smallint UNSIGNED)""" %playlistName
+	sql = """CREATE TABLE `%s` (fileName VARCHAR(100) NOT NULL, songIndex smallint UNSIGNED AUTO_INCREMENT KEY)""" %playlistName
+	# quotations around %s allow for spaces in table names
 	pointer.execute(sql)
 	
 	return "OK"
@@ -165,3 +192,22 @@ def favicon():
 
 if __name__ == "__main__":
 	app.run(debug=True)
+
+
+
+
+
+
+
+
+
+
+
+def devOnlyCreateLastAddedTable():
+	sql = """CREATE TABLE lastAdded (fileName VARCHAR(100) PRIMARY KEY NOT NULL, 
+			title VARCHAR(50), durationSecs VARCHAR(7),  artist VARCHAR(50), 
+			album VARCHAR(50), created datetime, plays smallint UNSIGNED)"""
+	pointer.execute(sql)
+	db.commit()
+
+	return "Created Table: lastAdded"

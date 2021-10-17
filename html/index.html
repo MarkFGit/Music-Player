@@ -5,7 +5,8 @@
 	<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='./dist/bundle.css') }}">
 	<script 
 		defer 
-		id='scriptTag' 
+		id='scriptTag'
+		playlistName = '{{ playlistName }}'
 		songNames='{{ songNames|tojson }}' 
 		numOfSongs='{{ numOfSongs }}' 
 		image_data = '{{ image_data }}' 
@@ -24,7 +25,6 @@
 	{% with select="navbar" %}
 		{% include "globalSiteComponents.html" %}
 	{% endwith %}
-
 	<div class="playlistContentContainer" id="playlistContentContainer">
 		{% with select="sidePanel" %}
 			{% include "globalSiteComponents.html" %}
@@ -39,7 +39,7 @@
 				</div>
 				<header class="headerTitleAndButtons">
 					<div class=headerTitleAndPlay>
-						<h3 class="playlistTitle"> Last Added </h3>
+						<h3 class="playlistTitle"> {{ playlistName }} </h3>
 						<img class="headerPlayIcon" id="headerPlayIconID" src="{{ url_for('static',filename='media/icons/play.png') }}"> </img>
 					</div>
 					<div class="buttonTextCombo">

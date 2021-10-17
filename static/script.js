@@ -16,6 +16,10 @@ const durationsList = JSON.parse(document.getElementById('scriptTag').getAttribu
 const albumsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songAlbums'));
 const playsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songPlays'));
 
+import {getPlaylistName} from './globals.js';
+const playlistName = getPlaylistName();
+
+
 const table = document.getElementById("songTable");
 const mainAudio = document.getElementById("mainAudio");
 
@@ -44,7 +48,8 @@ import updateEventScriptSongNum, {prepareHeaderButtonListeners,
 	   prepareFooterButtonListeners, } from './eventScript.js';
 
 import dragOverHandler, {fileDropHandler, incrementPlayCount,
-		createNewPlaylistToServer} from './contactServer.js'
+		createNewPlaylistToServer, resolvePlaylistNames, 
+		addSongToPlaylistInDB} from './contactServer.js'
 
 import getSongImage, {fillPlaylistPreviewImages, 
 	determineFooterPlayImgSrc} from './findImages.js'
@@ -130,10 +135,9 @@ function revertPageToNoSong(songObject){
 
 
 function mouseDown(event) {
-	const noSelectedAudioSrc = "http://127.0.0.1:5000/playlists/lastadded";
+	const noSelectedAudioSrc = `http://127.0.0.1:5000/playlists/${playlistName}`;
 	if(mainAudio.src === noSelectedAudioSrc){
-		console.log("%cError: Cannot use seekbar when no song is selected.", "color: red");
-		return;
+		return console.log("%cError: Cannot use seekbar when no song is selected.", "color: red");
 	}
 
 	draggingSong = true;
@@ -215,26 +219,75 @@ function createPage(){
 function Row(reactData){
 	const songCount = reactData.songCount;
 	const songObject = new addSongObject(songCount);
+	let songDiv = null;
+	if(songCount < numOfPlaylistSongs){
+		songDiv = <div className="songDivider"></div>
+	}
+
 	return(
 		<tr className="songRowClass">
 			<td className="songContainer">
 				<img className="coverImg" getsongobject={songObject.getSongObject}></img>
 				<span className="songTitles"> {titleList[songCount-1]} </span>
+				<button className="songRowAddPlaylistButton" onClick={createPlaylistDropDown}>+</button>
 				<span className="songDurationClass"> {durationsList[songCount-1]} </span>
 				<span className="songArtistOrAlbum"> {artistList[songCount-1]} </span>
 				<span className="songArtistOrAlbum"> {albumsList[songCount-1]} </span>
 				<span className="playsWidth"> {playsList[songCount-1]} </span>
 			</td>
-			{SongDivider(songCount)}
+			{songDiv}
 		</tr>
 	);
 }
 
 
-function SongDivider(songCount){
-	if(songCount < numOfPlaylistSongs){
-		return(<div className="songDivider"></div>);
+
+const addSongPromptElem = document.getElementById("addSongToPlaylistPrompt");
+addSongPromptElem.addEventListener('click', e => {
+	if(e.target.className === "addSongToPlaylistPrompt"){	
+		ReactDOM.unmountComponentAtNode(addSongPromptElem);
+		addSongPromptElem.style = "width: 0; height: 0";
+
 	}
+});
+
+async function createPlaylistDropDown(e){
+	const playlistNames = await resolvePlaylistNames();
+	playlistNames.splice(playlistNames.indexOf("lastadded"), 1); //remove lastadded from playlists to choose from
+
+	const coverImgInRow = e.target.parentElement.querySelector('.coverImg');
+	const songFileName = Object.values(coverImgInRow)[1]['getsongobject'].songFileName;
+
+	addSongPromptElem.style = "width: 100vw; height: 100vh";
+	const buttonPos = e.target.getBoundingClientRect();
+
+	const stylePos = {
+		left: (buttonPos.x + 10) + 'px',
+		top: (buttonPos.y + 20) + 'px'
+	};
+
+	ReactDOM.render(
+		<>
+			<div 
+				className="playlistDropDown" 
+				style={stylePos}
+				currentsongname = {songFileName}
+				>
+				{playlistNames.map(name => {
+					return (
+						<span 
+							className="playlistOption"
+							key={name}
+							onClick={addSongToPlaylistInDB}
+							> 
+							{name} 
+						</span>
+						)
+				})}
+			</div>
+		</>,
+		addSongPromptElem
+	);
 }
 
 

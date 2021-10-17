@@ -35,7 +35,7 @@ import {createNewPlaylistToServer} from './contactServer.js';
 
 function createNewPlaylistInDatabase(){
 	const textBox = document.getElementById("createPlaylistTextbox");
-	if(textBox.value.length > 100) return console.error("Playlist names cannot exceed 100 characters.") 
+	if(textBox.value.length > 100) return console.error("Playlist names cannot exceed 100 characters.")
 	createNewPlaylistToServer(textBox.value);
 	removeAddPlaylistMenu();
 }
