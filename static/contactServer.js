@@ -7,36 +7,49 @@ export default function dragOverHandler(e){
 
 export async function fileDropHandler(e){
 	e.preventDefault();
-	if(e.dataTransfer.items){
-		for(let index = 0; index < e.dataTransfer.items.length; index++){
-			const currentFile = e.dataTransfer.items[index];
-			if(currentFile.kind !== 'file') continue;
 
-			const form = new FormData();
-			const file = currentFile.getAsFile();
+	if(!e.dataTransfer.items) return;
 
-			if(isNotAcceptedFileUploadType(file.type)) continue;
+	const files = [...e.dataTransfer.items].map(item => item.getAsFile());
 
-			form.append("file", file);
-			form.append("name", file.name);
-
-			const xhr = new XMLHttpRequest();
-
-			const playlistName = getPlaylistName();
-			const serverRoute = `/playlists/${playlistName}`;
-			xhr.open("POST", serverRoute, true);
-			xhr.send(form);
-			
-			xhr.onreadystatechange = () => { 
-				const xhrIsDone = (xhr.readyState === 4);
-				if(xhrIsDone){
-					if(xhr.status === 200) return window.location.reload();
-					console.error(`Failed to add song. Failed with XHR status: ${xhr.status}`);
-				}
-			};
-		}
+	for(const currentFile of files){
+		
+		const xhrPromise = new Promise(resolve => {
+			sendFileXHR(currentFile, resolve);
+		});
+		await xhrPromise; //this await is necessary, otherwise the SQL server recieves to many requests and will crash.
 	}
+	
+	return window.location.reload();
 }
+
+async function sendFileXHR(currentFile, resolve){
+
+	const form = new FormData();
+	const file = currentFile;
+	
+	if(isNotAcceptedFileUploadType(file.type)) return;
+
+	form.append("file", file);
+	form.append("name", file.name);
+
+	const xhr = new XMLHttpRequest();
+
+	const playlistName = getPlaylistName();
+	const serverRoute = `/playlists/${playlistName}`;
+
+	xhr.onreadystatechange = () => { 
+		const xhrIsDone = (xhr.readyState === 4);
+		if(xhrIsDone){
+			if(xhr.status === 200) resolve();
+			else console.error(`Failed to add song. Failed with XHR status: ${xhr.status}`);
+		}
+	};
+
+	xhr.open("POST", serverRoute, true);
+	xhr.send(form);
+}
+
 
 
 function isNotAcceptedFileUploadType(fileType){

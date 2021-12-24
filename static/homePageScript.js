@@ -18,29 +18,14 @@ export async function createPlaylistGrid(){
 	ReactDOM.render(
 		<>
 			{names.map(name => {
-				return <RCreatePlaylistCard key={name} name={name}/>
+				return <CreatePlaylistCard key={name} name={name}/>
 			})}
 		</>, 
 		document.getElementById('playlistGrid')
 	)
 }
 
-
 function CreatePlaylistCard(nameObject){
-	const playlistURL = `/playlists/${nameObject.name}`;
-	return(
-		<a href={playlistURL} className="playlistCard">
-			<div className="divSpacers" style={{justifyContent: "flex-end", zIndex: 100}}>
-				<img className="playlistCardOptionsButton" src={`${URLforStaticFolder}/media/icons/options.png`}/>
-			</div>
-			<div className="divSpacers" style={{justifyContent: "center"}}>
-				<span className="playlistPreviewTitle"> {nameObject.name} </span>
-			</div>
-		</a>
-	);
-}
-
-function RCreatePlaylistCard(nameObject){
 	const playlistURL = `/playlists/${nameObject.name}`;
 	return(
 		<div className="playlistCard">

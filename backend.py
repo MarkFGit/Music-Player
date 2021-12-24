@@ -12,7 +12,7 @@ app = Flask(__name__, template_folder='html', static_folder='static')
 
 @app.route("/playlists/<playlist>", methods=["POST","GET"])
 def generatePlaylistOntoPage(playlist):
-	if(request.method == "POST"): #
+	if(request.method == "POST"):
 		songName = request.form.to_dict().get('name')
 		songFile = request.files['file']
 		songFile.save(f'static/media/songs/{songName}')
