@@ -1,4 +1,4 @@
-@use 'globalVars';
+@use 'globalVars' as *;
 
 .topBar
 {
@@ -10,7 +10,7 @@
     width: 100%;
 
     border-width: 0 0 5px 0;
-    @include globalVars.noMarginOrPadding;
+    @include noMarginOrPadding;
 
     background-color: #000000;
     border-image: linear-gradient(to bottom, rgba(255,0,0,0), rgba(66, 66, 66, .5)) 100;
@@ -37,13 +37,13 @@
 .sidePanel
 {
     display: flex;
+    flex-direction: column;
     position: fixed;
 
     height: inherit;
     width: 70px;
 
-    flex-direction: column;
-    @include globalVars.noMarginOrPadding;
+    @include noMarginOrPadding;
 
     background-color: transparent;
 }
@@ -55,7 +55,7 @@
     justify-content: center;
     flex-wrap: wrap;
 
-    @include globalVars.noMarginOrPadding;
+    @include noMarginOrPadding;
 
     cursor: pointer;
 }
@@ -87,22 +87,11 @@
 
     width: 100vw;
 
-    @include globalVars.noMarginOrPadding;
+    @include noMarginOrPadding;
 
     background-color: rgb(110, 110, 120, .4);
     color: #908f8f;
     z-index: 1;
-}
-
-
-.addSongToPlaylistPrompt
-{
-    position: absolute;
-
-    @include globalVars.noMarginOrPadding;
-
-    color: whitesmoke;
-    z-index: 0;
 }
 
 
@@ -119,7 +108,7 @@
 
     background-image: linear-gradient(135deg, black, #212328);
     border-radius: 4px;
-    box-shadow: globalVars.$contentGlow;
+    box-shadow: $contentGlow;
 }
 
 

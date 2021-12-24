@@ -23,11 +23,24 @@ CSS formatting:
 }
 
 
+.addSongToPlaylistPrompt
+{
+    position: absolute;
+
+    @include noMarginOrPadding;
+
+    color: whitesmoke;
+    z-index: 1;
+}
+
+
+
 .playlistContentContainer
 {
+    position: relative;
     overflow: auto;
 
-    height: calc(100vh - (#{$topBarTotalHeight} + 108px)); /* whole screen minus header and footer */
+    height: calc(100vh - #{$topBarTotalHeight} - #{$bottomBarTotalHeight});
     width: 100vw;
 
     @include noMarginOrPadding;
@@ -40,6 +53,44 @@ CSS formatting:
         @include scrollBar;
     }
 }
+
+
+.successBoxContainer{
+    bottom: $bottomBarTotalHeight;
+    display: flex;
+    position: fixed;
+    right: 13px;
+}
+
+@keyframes fade{
+    from{opacity:1;}
+    to {opacity: 0;}
+}
+
+.successBox{
+    align-items: center;
+    display: flex;
+    justify-content: center;
+
+    height: 50px;
+    width: 160px;
+
+    background-color: #3f3f3f;
+    background-image: linear-gradient(135deg, #474747, #26272a);
+    box-shadow: 0 0 4px 0 #474747;
+
+    animation: fade 8s linear;
+}
+
+
+
+.addToPlaylistSuccessMessage{
+    display: flex;
+    text-align: center;
+
+    font-weight: 700;
+}
+
 
 
 .contentContainer
@@ -107,8 +158,14 @@ CSS formatting:
 }
 
 
-.headerPlayIcon
-{
+.playlistTitle{
+    max-height: 150px;
+    max-width: 500px;
+
+    @include ellipsesAfterThreeLines;
+}
+
+.headerPlayIcon{
     width: 50px;
 }
 
@@ -182,8 +239,8 @@ CSS formatting:
 
 .coverImg
 {
-    width: 40px;
     height: 40px;
+    width: 40px;
 
     @include noMarginOrPadding;
 

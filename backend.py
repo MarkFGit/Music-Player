@@ -7,15 +7,6 @@ import mysql.connector
 from datetime import datetime
 
 
-db = mysql.connector.connect(
-	host="localhost",
-	user="root",
-	passwd="database",
-	database="testDB"
-	)
-
-pointer = db.cursor(buffered=True)
-
 app = Flask(__name__, template_folder='html', static_folder='static')
 
 
@@ -43,14 +34,14 @@ def generatePlaylistOntoPage(playlist):
 	escapedPlaylistName = escape(playlist)
 	pointer.execute(f"""SELECT * FROM `{escapedPlaylistName}`""")
 	allSongInfos = pointer.fetchall()
-	if(request.path != "/playlists/lastadded"):
+	if(request.path == "/playlists/Last Added"): # sort by using the date (most recent song goes to top). otherwise sort by song index
+		allSongInfos.sort(key=lambda songInfo: songInfo[5], reverse = True)
+	else:
 		allSongInfos.sort(key=lambda songInfo: songInfo[1], reverse = True)
 		for index, songInfo in enumerate(allSongInfos):
-			pointer.execute("SELECT * FROM lastAdded WHERE fileName = %s", (songInfo[0], ))
+			pointer.execute("SELECT * FROM `last added` WHERE fileName = %s", (songInfo[0], ))
 			allSongInfos[index] = pointer.fetchall()[0]
-
-	else:
-		allSongInfos.sort(key=lambda songInfo: songInfo[5], reverse = True) # sort by using the date index. most recent song goes to top
+	
 
 	for songInfo in allSongInfos:
 		songFileNames.append(songInfo[0])
@@ -72,10 +63,10 @@ def generatePlaylistOntoPage(playlist):
 										 songPlays = songPlays)
 
 
-def determineTitle(songData):
+def determineTitle(songData, songName):
 	if(isinstance(songData.title, str)):
 		return songData.title
-	return songName
+	return songName[:-4]
 
 
 def determineArtist(songData):
@@ -117,12 +108,12 @@ def addNewCoverImgToFS(songName, songData):
 
 
 def insertNewSongEntryInDatabase(songName, songData):
-	songTitle = determineTitle(songData)
+	songTitle = determineTitle(songData, songName)
 	songDuration = determineSongDurationText(songData)
 	songArtist = determineArtist(songData)
 	songAlbum = determineAlbum(songData)
 
-	pointer.execute("""INSERT INTO lastAdded 
+	pointer.execute("""INSERT INTO `last added` 
 					(fileName, title, durationSecs, artist, album, created, plays) 
 					VALUES (%s,%s,%s,%s,%s,%s,%s)""", 
 					(songName, songTitle, songDuration, songArtist, songAlbum, datetime.now(), 0))
@@ -146,6 +137,7 @@ def insertNewSongEntryInPlaylist():
 	return "OK"
 
 
+
 @app.route("/home/")
 def home():
 	return render_template('home.html')
@@ -154,33 +146,72 @@ def home():
 @app.route("/updatePlays", methods=["POST"])
 def updatePlays():
 	songName =  request.form.to_dict().get("songName")
-	pointer.execute("SELECT plays FROM lastAdded WHERE fileName = %s", (songName, ))
+	pointer.execute("SELECT plays FROM `last added` WHERE fileName = %s", (songName, ))
 	result = pointer.fetchall()
 	newPlayValue = result[0][0] + 1
-	pointer.execute("UPDATE lastAdded SET plays = %s WHERE fileName = %s", (newPlayValue, songName))
+	pointer.execute("UPDATE `last added` SET plays = %s WHERE fileName = %s", (newPlayValue, songName))
 	db.commit()
 
 	return "OK"
 
 
-@app.route("/createPlaylist", methods=["POST"])
+@app.route("/addPlaylist", methods=["POST"])
 def createPlaylist():
 	playlistName = request.form.to_dict().get("playlistName")
+
+	if(len(playlistName) > 5):
+		try:
+			raise Exception('Bad')
+		except Exception as error:
+			print("ERROR: Playlist name cannot exceed 100 characters.")
+		return "ERROR: Playlist name cannot exceed characters."
+
 	sql = """CREATE TABLE `%s` (fileName VARCHAR(100) NOT NULL, songIndex smallint UNSIGNED AUTO_INCREMENT KEY)""" %playlistName
 	# quotations around %s allow for spaces in table names
 	pointer.execute(sql)
+
+	pointer.execute("""INSERT INTO `playlist names`
+					(playlistTableName, actualPlaylistName) VALUES (%s, %s)""", (playlistName.lower(), playlistName))
+
+	db.commit()
 	
+	return "OK"
+
+
+@app.route("/deletePlaylist", methods=["POST"])
+def deletePlaylist():
+	playlistName = request.form.to_dict().get("playlistName")
+
+	if(playlistName.lower() == "last added"):
+		try:
+			raise Exception('Bad')
+		except Exception as error:
+			print("ERROR: Cannot drop Last Added playlist")
+		return "ERROR: Cannot drop Last Added playlist"
+
+
+	sql = """DROP TABLE `%s`""" %playlistName
+	pointer.execute(sql)
+
+	sql = """DELETE FROM `playlist names` WHERE playlistTableName = '%s'""" %playlistName
+	pointer.execute(sql)
+
+	db.commit()
+
 	return "OK"
 
 
 @app.route("/getPlaylists", methods=["POST"])
 def getPlaylistNamesFromDB():
-	pointer.execute("SHOW TABLES")
+	pointer.execute("SELECT actualPlaylistName FROM `playlist names`")
 	results = pointer.fetchall()
 
 	playlistNames = []
 	for result in results:
-		playlistNames.append(result[0])
+		if (result[0] != "Last Added"):
+			playlistNames.append(result[0])
+
+	print(playlistNames)
 
 	return {"PlaylistNames": playlistNames}
 
@@ -190,24 +221,39 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'media/icons/favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
-if __name__ == "__main__":
-	app.run(debug=True)
 
 
-
-
-
-
-
-
-
-
-
-def devOnlyCreateLastAddedTable():
-	sql = """CREATE TABLE lastAdded (fileName VARCHAR(100) PRIMARY KEY NOT NULL, 
+def createInitialTables():
+	pointer.execute("""CREATE TABLE `Last Added` (fileName VARCHAR(100) PRIMARY KEY NOT NULL, 
 			title VARCHAR(50), durationSecs VARCHAR(7),  artist VARCHAR(50), 
-			album VARCHAR(50), created datetime, plays smallint UNSIGNED)"""
-	pointer.execute(sql)
+			album VARCHAR(50), created datetime, plays smallint UNSIGNED)""")
+
+	pointer.execute("""CREATE TABLE `Playlist Names` (playlistTableName VARCHAR(100) PRIMARY KEY NOT NULL, 
+			actualPlaylistName VARCHAR(100))""")
+	# this table exists due to table names not saving caps, actualPlaylistName will retain the caps
+
+	pointer.execute("""INSERT INTO `Playlist Names` (playlistTableName, actualPlaylistName) VALUES (%s, %s)""",
+					('last added', 'Last Added'))
+
 	db.commit()
 
 	return "Created Table: lastAdded"
+
+
+if __name__ == "__main__":
+	db = mysql.connector.connect(
+		host="localhost",
+		user="root",
+		passwd="database",
+		database="testDB"
+	)
+
+	pointer = db.cursor(buffered=True)
+
+
+	pointer.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'testdb'") #Select all tables in testdb
+	if (len(pointer.fetchall()) == 0):
+		createInitialTables()
+
+	
+	app.run(debug=True)

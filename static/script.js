@@ -137,7 +137,7 @@ function revertPageToNoSong(songObject){
 function mouseDown(event) {
 	const noSelectedAudioSrc = `http://127.0.0.1:5000/playlists/${playlistName}`;
 	if(mainAudio.src === noSelectedAudioSrc){
-		return console.log("%cError: Cannot use seekbar when no song is selected.", "color: red");
+		return console.error("Error: Cannot use seekbar when no song is selected.");
 	}
 
 	draggingSong = true;
@@ -253,7 +253,10 @@ addSongPromptElem.addEventListener('click', e => {
 
 async function createPlaylistDropDown(e){
 	const playlistNames = await resolvePlaylistNames();
-	playlistNames.splice(playlistNames.indexOf("lastadded"), 1); //remove lastadded from playlists to choose from
+	const currentPlaylistIndex = playlistNames.indexOf(playlistName);
+	if(currentPlaylistIndex !== -1){
+		playlistNames.splice(currentPlaylistIndex, 1); //remove current playlist from playlists to choose from
+	}
 
 	const coverImgInRow = e.target.parentElement.querySelector('.coverImg');
 	const songFileName = Object.values(coverImgInRow)[1]['getsongobject'].songFileName;
@@ -282,13 +285,14 @@ async function createPlaylistDropDown(e){
 							> 
 							{name} 
 						</span>
-						)
+					)
 				})}
 			</div>
 		</>,
 		addSongPromptElem
 	);
 }
+
 
 
 function addSongObject(songCount){
@@ -361,15 +365,15 @@ function pauseSong(songObject){
 			document.getElementById('footerPlayImg').src = determineFooterPlayImgSrc(songObject.isPlaying);
 		})
 		.catch(error => {
-			console.log(`Error from pausing is: %c${error}`,"color: red;");
+			console.error(`Error from pausing is: ${error}`);
 		});
 	}
 }
 
 
 function playNextSong(){
-	const songObject = getSongObjectBySongRow(lastSongNum-1);
 	mainAudio.play();
+	const songObject = getSongObjectBySongRow(lastSongNum-1);
 	songObject.isPlaying = true;
 	const imgForRow = getImgBySongRow(lastSongNum-1);
 	imgForRow.src = globalPlayingGifSrc;

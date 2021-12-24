@@ -45,21 +45,31 @@
 
 .playlistCard
 {
-    align-items: flex-end;
     display: flex;
-    justify-content: center;
-    justify-self: center;
+    flex-direction: column;
 
     height: 150px;
     width: 250px;
 
     background-color: #8d8d8d;
     box-shadow: $contentGlow;
-    font-size: 120%;
+    font-size: 140%;
 }
 
 
+.divSpacers{
+    display: flex;
 
+    @include noMarginOrPadding;
+}
+
+
+.playlistCardOptionsButton{
+    height: 30px;
+    width: 30px;
+
+    @include noMarginOrPadding;
+}
 
 
 .playlistPreviewTitle{

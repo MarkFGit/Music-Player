@@ -1,5 +1,16 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
+import {deleteOrAddNewPlaylistToServer, resolvePlaylistNames} from './contactServer.js';
+
+
+function addEscapeFeature(){
+	document.addEventListener('keydown', function escPlaylistmenu(e){
+		if(e.key === 'Escape'){
+			removeAddPlaylistMenu(); 
+			document.removeEventListener('keydown', escPlaylistmenu);
+		}
+	});
+}
 
 document.getElementById('newPlaylistButton').addEventListener('click', () => {
 	document.getElementById('addPlaylistBoxContainer').style.height = '100vh';
@@ -11,7 +22,11 @@ document.getElementById('newPlaylistButton').addEventListener('click', () => {
 			<input id="createPlaylistTextbox" type="text" />
 			<button 
 				className="positiveButtonClass" 
-				onClick={ () => {createNewPlaylistInDatabase()} }> 
+				onClick={ () => {
+					const textBox = document.getElementById("createPlaylistTextbox");
+					deleteOrAddNewPlaylistToServer(textBox.value, "add");
+					removeAddPlaylistMenu();
+				} }> 
 				Add Playlist 
 			</button>
 			<button 
@@ -23,25 +38,30 @@ document.getElementById('newPlaylistButton').addEventListener('click', () => {
 		document.getElementById('addPlaylistBoxContainer')
 	);
 
-	document.addEventListener('keydown', function escPlaylistmenu(e){
-		if(e.key === 'Escape'){
-			removeAddPlaylistMenu(); 
-			document.removeEventListener('keydown', escPlaylistmenu);
-		}
-	});
+	addEscapeFeature();
 });
 
-import {createNewPlaylistToServer} from './contactServer.js';
 
-function createNewPlaylistInDatabase(){
-	const textBox = document.getElementById("createPlaylistTextbox");
-	if(textBox.value.length > 100) return console.error("Playlist names cannot exceed 100 characters.")
-	createNewPlaylistToServer(textBox.value);
-	removeAddPlaylistMenu();
+
+export function removeAddPlaylistMenu(){
+	ReactDOM.unmountComponentAtNode(addPlaylistBoxContainer);
+	document.getElementById('addPlaylistBoxContainer').style.height = '0';
 }
 
 
-function removeAddPlaylistMenu(){
-	ReactDOM.unmountComponentAtNode(addPlaylistBoxContainer);
-	document.getElementById('addPlaylistBoxContainer').style.height = '0';
+export function renderSuccessBox(){
+ 	ReactDOM.render(
+ 		<div className="successBox">
+ 			<span className="addToPlaylistSuccessMessage"> Added to Playlist </span>
+ 		</div>,
+ 		document.getElementById("successBoxContainer")
+ 	);
+
+ 	const sevenSeconds = 7000;
+
+ 	setTimeout(() => {
+ 		ReactDOM.unmountComponentAtNode(successBoxContainer);
+ 	},
+ 		sevenSeconds
+ 	);
 }

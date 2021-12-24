@@ -1,4 +1,5 @@
 import {getPlaylistName} from './globals.js';
+import {renderSuccessBox} from './globalEventListener.js';
 
 export default function dragOverHandler(e){
 	e.preventDefault();
@@ -66,14 +67,14 @@ export function incrementPlayCount(currentSongObject){
 }
 
 
-export async function createNewPlaylistToServer(playlistName){
+export async function deleteOrAddNewPlaylistToServer(playlistName, operation){
 	const form = new FormData();
 	form.append("playlistName", playlistName);
 
 	const xhr = new XMLHttpRequest();
 
 	const isHomePage = (document.getElementById('playlistGrid') !== null);
-	if(isHomePage){
+	if(isHomePage){ //if the current site is the home page, recreate the new gride of playlists
 		const homePageScript = await require('./homePageScript.js');
 		xhr.onreadystatechange = () => {
 			if(xhr.readyState === 4 && xhr.status === 200){
@@ -81,10 +82,12 @@ export async function createNewPlaylistToServer(playlistName){
 			}
 		};
 	}
-
-	xhr.open("POST", '/createPlaylist', true);
+	if(operation === "add") xhr.open("POST", '/addPlaylist', true);
+	if(operation === "delete") xhr.open("POST", '/deletePlaylist', true);
+	
 	xhr.send(form);
 }
+
 
 
 export function getPlaylistNamesFromDB(resolve){
@@ -109,12 +112,15 @@ export async function resolvePlaylistNames(){
 
 export function addSongToPlaylistInDB(e){
 	const form = new FormData();
+
 	form.append('fileName', Object.values(e.target.parentElement)[1]['currentsongname']);
 	form.append('playlistName', e.target.innerText);
 
 	const xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = () => {
-		//on success, display in corner a success?
+		if(xhr.readyState === 4 && xhr.status === 200){
+			renderSuccessBox();
+		}
 	}
 
 	xhr.open("POST", '/insertNewSong', true);

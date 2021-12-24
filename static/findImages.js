@@ -27,8 +27,7 @@ export default async function getSongImage(index){
 				currentSongImg.setAttribute('src', blankPlayImgSrc);
 			    return;
 			}
-			console.log(`Find Image Error. Status of Error: %c${response.status}`,"color: red");
-			return;
+			return console.error(`Find Image Error. Status of Error: ${response.status}`);
 		})
 	  	.catch(error => console.error('error is', error));
 }
