@@ -37,8 +37,8 @@ CSS formatting:
 
 .playlistContentContainer
 {
-    position: relative;
     overflow: auto;
+    position: relative;
 
     height: calc(100vh - #{$topBarTotalHeight} - #{$bottomBarTotalHeight});
     width: 100vw;
@@ -60,6 +60,8 @@ CSS formatting:
     display: flex;
     position: fixed;
     right: 13px;
+
+    z-index: 1;
 }
 
 @keyframes fade{
@@ -263,6 +265,12 @@ CSS formatting:
         background-color: #161616;
         .songRowAddPlaylistButton{
             display: block;
+
+            cursor: pointer;
+
+            &:active{
+                color: whitesmoke;
+            }
         }
     }
 }
@@ -333,9 +341,14 @@ CSS formatting:
     border-radius: 5px;
 
     border-color: #2b2b2e;
+    cursor: pointer;
 
     &:hover{
-        background-color: #dddddd;  
+        background-color: #424242;  
+    }
+
+    &:active{
+        background-color: #9a9a9a;
     }
 }
 

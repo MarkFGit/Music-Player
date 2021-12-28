@@ -29,8 +29,8 @@ CSS formatting:
 }
 
 .playlistContentContainer {
-  position: relative;
   overflow: auto;
+  position: relative;
   height: calc(100vh - 65px - 108px);
   width: 100vw;
   margin: 0;
@@ -58,6 +58,7 @@ CSS formatting:
   display: flex;
   position: fixed;
   right: 13px;
+  z-index: 1;
 }
 
 @keyframes fade {
@@ -212,6 +213,10 @@ CSS formatting:
 }
 .songRowClass:hover .songRowAddPlaylistButton {
   display: block;
+  cursor: pointer;
+}
+.songRowClass:hover .songRowAddPlaylistButton:active {
+  color: whitesmoke;
 }
 
 .songContainer {
@@ -268,9 +273,13 @@ CSS formatting:
   margin: 1px;
   border-radius: 5px;
   border-color: #2b2b2e;
+  cursor: pointer;
 }
 .playlistOption:hover {
-  background-color: #dddddd;
+  background-color: #424242;
+}
+.playlistOption:active {
+  background-color: #9a9a9a;
 }
 
 .songArtistOrAlbum {

@@ -30,6 +30,7 @@ def generatePlaylistOntoPage(playlist):
 	songDurations = []
 	songAlbums = []
 	songPlays = []
+	songIndices = []
 
 	escapedPlaylistName = escape(playlist)
 	pointer.execute(f"""SELECT * FROM `{escapedPlaylistName}`""")
@@ -37,10 +38,14 @@ def generatePlaylistOntoPage(playlist):
 	if(request.path == "/playlists/Last Added"): # sort by using the date (most recent song goes to top). otherwise sort by song index
 		allSongInfos.sort(key=lambda songInfo: songInfo[5], reverse = True)
 	else:
+		print(allSongInfos)
 		allSongInfos.sort(key=lambda songInfo: songInfo[1], reverse = True)
+		print(allSongInfos)
 		for index, songInfo in enumerate(allSongInfos):
-			pointer.execute("SELECT * FROM `last added` WHERE fileName = %s", (songInfo[0], ))
-			allSongInfos[index] = pointer.fetchall()[0]
+			pointer.execute("SELECT * FROM `Last Added` WHERE fileName = %s", (songInfo[0], ))
+			# Error: trying to find "undefined" from Last Added, but no such thing exists. Hence indexing the result is out of range
+			allSongInfos[index] = list(pointer.fetchall()[0])
+			allSongInfos[index].append(songInfo[1]) #append indice of song in the playlist
 	
 
 	for songInfo in allSongInfos:
@@ -51,6 +56,10 @@ def generatePlaylistOntoPage(playlist):
 		songAlbums.append(songInfo[4])
 		songPlays.append(songInfo[6])
 
+	if(request.path != "/playlists/Last Added"):
+		for songInfo in allSongInfos:
+			songIndices.append(songInfo[7])
+
 	numOfSongs = len(songFileNames)
 
 	return render_template('index.html', playlistName = escapedPlaylistName,
@@ -60,7 +69,9 @@ def generatePlaylistOntoPage(playlist):
 										 songArtists = songArtists, 
 										 songDurations = songDurations, 
 										 songAlbums = songAlbums,
-										 songPlays = songPlays)
+										 songPlays = songPlays,
+										 songIndices = songIndices
+										 )
 
 
 def determineTitle(songData, songName):
@@ -130,10 +141,27 @@ def insertNewSongEntryInPlaylist():
 	if(playlistName not in allPlaylistNames):
 		return "ERROR, bad playlist name"
 
-	newSQL = f"""INSERT INTO `{playlistName}` (fileName) VALUES ("{fileName}")"""
-	pointer.execute(newSQL)
+	sql = f"""INSERT INTO `{playlistName}` (fileName) VALUES ("{fileName}")"""
+	pointer.execute(sql)
 	db.commit()
 
+	return "OK"
+
+
+@app.route("/removeSong", methods=["POST"])
+def removeSongFromPlaylist():
+	songIndex = request.form.to_dict().get("songPlaylistIndex")
+	playlistName = request.form.to_dict().get("playlistName")
+
+	sql = f"""DELETE FROM `{playlistName}` WHERE songIndex = {songIndex}"""
+	pointer.execute(sql)
+	db.commit()
+
+	return "OK"
+
+
+@app.route("/deleteSong", methods=["POST"])
+def deleteSongFromDB():
 	return "OK"
 
 
@@ -159,12 +187,12 @@ def updatePlays():
 def createPlaylist():
 	playlistName = request.form.to_dict().get("playlistName")
 
+	playlistNames = getPlaylistNamesFromDB()
+	if(playlistName in playlistNames["PlaylistNames"]):
+		return "ERROR: Playlist name already exists"
+
 	if(len(playlistName) > 5):
-		try:
-			raise Exception('Bad')
-		except Exception as error:
-			print("ERROR: Playlist name cannot exceed 100 characters.")
-		return "ERROR: Playlist name cannot exceed characters."
+		return "ERROR: Playlist name cannot exceed 100 characters"
 
 	sql = """CREATE TABLE `%s` (fileName VARCHAR(100) NOT NULL, songIndex smallint UNSIGNED AUTO_INCREMENT KEY)""" %playlistName
 	# quotations around %s allow for spaces in table names
@@ -183,10 +211,6 @@ def deletePlaylist():
 	playlistName = request.form.to_dict().get("playlistName")
 
 	if(playlistName.lower() == "last added"):
-		try:
-			raise Exception('Bad')
-		except Exception as error:
-			print("ERROR: Cannot drop Last Added playlist")
 		return "ERROR: Cannot drop Last Added playlist"
 
 
@@ -211,15 +235,12 @@ def getPlaylistNamesFromDB():
 		if (result[0] != "Last Added"):
 			playlistNames.append(result[0])
 
-	print(playlistNames)
-
 	return {"PlaylistNames": playlistNames}
 
 
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'media/icons/favicon.ico', mimetype='image/vnd.microsoft.icon')
-
 
 
 
@@ -250,10 +271,8 @@ if __name__ == "__main__":
 
 	pointer = db.cursor(buffered=True)
 
-
 	pointer.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'testdb'") #Select all tables in testdb
 	if (len(pointer.fetchall()) == 0):
 		createInitialTables()
 
-	
 	app.run(debug=True)

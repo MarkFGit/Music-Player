@@ -1,5 +1,5 @@
 import {getPlaylistName} from './globals.js';
-import {renderSuccessBox} from './globalEventListener.js';
+import {renderCustomTextBox} from './globalEventListener.js';
 
 export default function dragOverHandler(e){
 	e.preventDefault();
@@ -13,14 +13,14 @@ export async function fileDropHandler(e){
 	const files = [...e.dataTransfer.items].map(item => item.getAsFile());
 
 	for(const currentFile of files){
-		
+
 		const xhrPromise = new Promise(resolve => {
 			sendFileXHR(currentFile, resolve);
 		});
 		await xhrPromise; //this await is necessary, otherwise the SQL server recieves to many requests and will crash.
 	}
 	
-	return window.location.reload();
+	window.location.reload();
 }
 
 async function sendFileXHR(currentFile, resolve){
@@ -80,21 +80,26 @@ export function incrementPlayCount(currentSongObject){
 }
 
 
-export async function deleteOrAddNewPlaylistToServer(playlistName, operation){
+export function deleteOrAddNewPlaylistToServer(playlistName, operation){
 	const form = new FormData();
 	form.append("playlistName", playlistName);
 
 	const xhr = new XMLHttpRequest();
 
 	const isHomePage = (document.getElementById('playlistGrid') !== null);
-	if(isHomePage){ //if the current site is the home page, recreate the new gride of playlists
-		const homePageScript = await require('./homePageScript.js');
-		xhr.onreadystatechange = () => {
-			if(xhr.readyState === 4 && xhr.status === 200){
+
+	xhr.onreadystatechange = async () => {
+		if(xhr.readyState === 4 && xhr.status === 200){
+			if(isHomePage){
+				const homePageScript = await require('./homePageScript.js');
 				homePageScript.createPlaylistGrid();
 			}
-		};
-	}
+			
+			if(xhr.response !== "OK") renderCustomTextBox(xhr.response);
+			renderCustomTextBox("Playlist dropped succesfully")
+		}
+	};
+	
 	if(operation === "add") xhr.open("POST", '/addPlaylist', true);
 	if(operation === "delete") xhr.open("POST", '/deletePlaylist', true);
 	
@@ -125,17 +130,40 @@ export async function resolvePlaylistNames(){
 
 export function addSongToPlaylistInDB(e){
 	const form = new FormData();
-
 	form.append('fileName', Object.values(e.target.parentElement)[1]['currentsongname']);
 	form.append('playlistName', e.target.innerText);
 
 	const xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = () => {
 		if(xhr.readyState === 4 && xhr.status === 200){
-			renderSuccessBox();
+			if(xhr.response !== "OK") return renderCustomTextBox(xhr.response);
+			renderCustomTextBox("Added to Playlist");
 		}
-	}
+	};
 
 	xhr.open("POST", '/insertNewSong', true);
-	xhr.send(form)
+	xhr.send(form);
+}
+
+
+export function removeSongFromPlaylist(e){
+	const form = new FormData();
+
+	form.append('songPlaylistIndex', Object.values(e.target.parentElement)[1]['songplaylistindex']);
+	form.append('playlistName', getPlaylistName());
+
+	const xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = () => {
+		if(xhr.readyState === 4 && xhr.status === 200){
+			if(xhr.response !== "OK") return renderCustomTextBox(xhr.response);
+			window.location.reload();
+		}
+	};
+	xhr.open("POST", '/removeSong', true);
+	xhr.send(form);
+}
+
+
+export function deleteSongFromDB(e){
+
 }

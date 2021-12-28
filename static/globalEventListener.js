@@ -49,10 +49,10 @@ export function removeAddPlaylistMenu(){
 }
 
 
-export function renderSuccessBox(){
+export function renderCustomTextBox(customText){
  	ReactDOM.render(
  		<div className="successBox">
- 			<span className="addToPlaylistSuccessMessage"> Added to Playlist </span>
+ 			<span className="addToPlaylistSuccessMessage"> {customText} </span>
  		</div>,
  		document.getElementById("successBoxContainer")
  	);
