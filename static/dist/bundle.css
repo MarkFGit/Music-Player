@@ -269,16 +269,16 @@ CSS formatting:
   background-color: #444444;
 }
 
-.playlistOption {
+.playlistSongOption {
   margin: 1px;
   border-radius: 5px;
   border-color: #2b2b2e;
   cursor: pointer;
 }
-.playlistOption:hover {
+.playlistSongOption:hover {
   background-color: #424242;
 }
-.playlistOption:active {
+.playlistSongOption:active {
   background-color: #9a9a9a;
 }
 
@@ -357,6 +357,13 @@ CSS formatting:
   background-color: #8d8d8d;
   box-shadow: 0 0 4px 0 #b3b3b3;
   font-size: 140%;
+}
+
+.playlistCardLink {
+  display: grid;
+  justify-content: center;
+  height: inherit;
+  text-decoration: none;
 }
 
 .divSpacers {
@@ -539,13 +546,7 @@ CSS formatting:
   margin: 8px 0 0 0;
 }
 
-.dropZone {
-  height: 30px;
-  width: 30px;
-  background-color: purple;
-}
-
-.addPlaylistPrompt {
+.screenPrompt {
   align-items: center;
   display: flex;
   justify-content: center;
@@ -556,6 +557,11 @@ CSS formatting:
   background-color: rgba(110, 110, 120, 0.4);
   color: #908f8f;
   z-index: 1;
+}
+
+.screenPromptText {
+  width: 100%;
+  font-size: large;
 }
 
 .playlistBox {
@@ -571,18 +577,18 @@ CSS formatting:
   box-shadow: 0 0 4px 0 #b3b3b3;
 }
 
-.positiveButtonClass {
+.screenPromptPositiveButton {
   background-color: white;
   border-radius: 2px;
 }
-.positiveButtonClass:hover {
-  background-color: #a7cea3;
+.screenPromptPositiveButton:hover {
+  background-color: #b6b9d9;
 }
 
-.cancelButtonClass {
+.screenPromptCancelButton {
   background-color: #9f9f9f;
   border-radius: 2px;
 }
-.cancelButtonClass:hover {
+.screenPromptCancelButton:hover {
   background-color: #cccccc;
 }

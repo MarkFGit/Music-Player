@@ -95,8 +95,9 @@ export function deleteOrAddNewPlaylistToServer(playlistName, operation){
 				homePageScript.createPlaylistGrid();
 			}
 			
-			if(xhr.response !== "OK") renderCustomTextBox(xhr.response);
-			renderCustomTextBox("Playlist dropped succesfully")
+			if(xhr.response !== "OK") return renderCustomTextBox(xhr.response);
+			if(operation === "delete") return renderCustomTextBox("Playlist dropped succesfully");
+			if(operation === "add") renderCustomTextBox("Playlist added succesfully");
 		}
 	};
 	
@@ -128,10 +129,11 @@ export async function resolvePlaylistNames(){
 	return data["PlaylistNames"];
 }
 
-export function addSongToPlaylistInDB(e){
+export function addSongToPlaylistInDB(songFileName, playlistName){
 	const form = new FormData();
-	form.append('fileName', Object.values(e.target.parentElement)[1]['currentsongname']);
-	form.append('playlistName', e.target.innerText);
+
+	form.append('fileName', songFileName);
+	form.append('playlistName', playlistName);
 
 	const xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = () => {
@@ -146,10 +148,10 @@ export function addSongToPlaylistInDB(e){
 }
 
 
-export function removeSongFromPlaylist(e){
+export function removeSongFromPlaylist(songPlaylistIndex){
 	const form = new FormData();
 
-	form.append('songPlaylistIndex', Object.values(e.target.parentElement)[1]['songplaylistindex']);
+	form.append('songPlaylistIndex', songPlaylistIndex);
 	form.append('playlistName', getPlaylistName());
 
 	const xhr = new XMLHttpRequest();
@@ -164,6 +166,19 @@ export function removeSongFromPlaylist(e){
 }
 
 
-export function deleteSongFromDB(e){
+export function deleteSongFromDB(songFileName, songName){
+	const form = new FormData();
 
+	form.append('songFileName', songFileName);
+	form.append('songName', songName);
+
+	const xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = () => {
+		if(xhr.readyState === 4 && xhr.status === 200){
+			window.location.reload();
+		}
+	};
+
+	xhr.open("POST", '/deleteSong', true);
+	xhr.send(form);
 }

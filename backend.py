@@ -162,6 +162,33 @@ def removeSongFromPlaylist():
 
 @app.route("/deleteSong", methods=["POST"])
 def deleteSongFromDB():
+	songFileName = request.form.to_dict().get("songFileName")
+	songName = request.form.to_dict().get("songName")
+
+	sql = f"""DELETE FROM `Last Added` WHERE filename = "{songFileName}" """
+	pointer.execute(sql)
+	playlistNames = getPlaylistNamesFromDB()
+	db.commit()
+
+	for playlistName in playlistNames['PlaylistNames']:
+		sql = f"""DELETE FROM `{playlistName}` WHERE filename = "{songFileName}" """
+		pointer.execute(sql)
+		db.commit()
+
+	deleteAssociatedSongFiles(songFileName, songName)
+
+	return "OK"
+
+
+def deleteAssociatedSongFiles(songFileName, songName):
+	songFilePath = f"./static/media/songs/{songFileName}"
+	songCoverFilePath = f"./static/media/songCovers/{songName}.jpeg"
+
+	if(os.path.exists(songFilePath)):
+		os.remove(songFilePath)
+	if(os.path.exists(songCoverFilePath)):
+		os.remove(songCoverFilePath)
+
 	return "OK"
 
 
@@ -191,7 +218,7 @@ def createPlaylist():
 	if(playlistName in playlistNames["PlaylistNames"]):
 		return "ERROR: Playlist name already exists"
 
-	if(len(playlistName) > 5):
+	if(len(playlistName) > 100):
 		return "ERROR: Playlist name cannot exceed 100 characters"
 
 	sql = """CREATE TABLE `%s` (fileName VARCHAR(100) NOT NULL, songIndex smallint UNSIGNED AUTO_INCREMENT KEY)""" %playlistName

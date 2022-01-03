@@ -17,7 +17,7 @@ const albumsList = JSON.parse(document.getElementById('scriptTag').getAttribute(
 const playsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songPlays'));
 const indicesList = JSON.parse(document.getElementById('scriptTag').getAttribute('songIndices'));
 
-import {getPlaylistName} from './globals.js';
+import {getPlaylistName, removeFileExtension} from './globals.js';
 const playlistName = getPlaylistName();
 
 
@@ -43,17 +43,18 @@ import './lowerBarStyles.scss';
 import './globalComponentStyles.scss';
 /* ************************************************ */
 
-import './globalEventListener.js';
+import {removeScreenPrompt, renderScreenPrompt, 
+	DeleteSongScreenPrompt} from './globalEventListener.js';
 
 import updateEventScriptSongNum, {prepareHeaderButtonListeners, 
-	   prepareFooterButtonListeners, } from './eventScript.js';
+	   prepareFooterButtonListeners} from './eventScript.js';
 
 import dragOverHandler, {fileDropHandler, incrementPlayCount,
 		createNewPlaylistToServer, resolvePlaylistNames, 
-		addSongToPlaylistInDB, removeSongFromPlaylist, deleteSongFromDB} from './contactServer.js'
+		addSongToPlaylistInDB, removeSongFromPlaylist/*, deleteSongFromDB*/} from './contactServer.js'
 
 import getSongImage, {fillPlaylistPreviewImages, 
-	determineFooterPlayImgSrc} from './findImages.js'
+	determineFooterPlayImgSrc} from './findImages.js';
 
 export function clickSongBySongNum(songNum){
 	table.rows[songNum].firstElementChild.firstElementChild.click();
@@ -222,15 +223,20 @@ function Row(reactData){
 	const songObject = new addSongObject(songCount);
 	let songDiv = null;
 	if(songCount < numOfPlaylistSongs){
-		songDiv = <div className="songDivider"></div>
+		songDiv = <div className="songDivider"></div>;
 	}
 
 	return(
 		<tr className="songRowClass">
-			<td className="songContainer" playlist-song-index={indicesList[songCount-1]}>
-				<img className="coverImg" getsongobject={songObject.getSongObject}></img>
+			<td className="songContainer">
+				<img className="coverImg" getsongobject={songObject}></img>
 				<span className="songTitles"> {titleList[songCount-1]} </span>
-				<button className="songRowAddPlaylistButton" onClick={createSongOptionsDropDown}>+</button>
+				<button 
+					className="songRowAddPlaylistButton" 
+					onClick={e => createSongOptionsDropDown(e, songObject)}
+				>
+					+
+				</button>
 				<span className="songDurationClass"> {durationsList[songCount-1]} </span>
 				<span className="songArtistOrAlbum"> {artistList[songCount-1]} </span>
 				<span className="songArtistOrAlbum"> {albumsList[songCount-1]} </span>
@@ -246,15 +252,18 @@ function Row(reactData){
 const addSongPromptElem = document.getElementById("addSongToPlaylistPrompt");
 addSongPromptElem.addEventListener('click', e => {
 	if(e.target.className === "addSongToPlaylistPrompt"){	
-		ReactDOM.unmountComponentAtNode(addSongPromptElem);
-		addSongPromptElem.style = "width: 0; height: 0";
-
+		removeAddSongPrompt();
 	}
 });
 
 
+function removeAddSongPrompt(){
+	ReactDOM.unmountComponentAtNode(addSongPromptElem);
+	addSongPromptElem.style = "width: 0; height: 0";
+}
 
-function createSongOptionsDropDown(e){
+
+function createSongOptionsDropDown(e, songObject){
 	const coverImgInRow = e.target.parentElement.querySelector('.coverImg');
 	addSongPromptElem.style = "width: 100vw; height: 100vh";
 	const buttonPos = e.target.getBoundingClientRect();
@@ -262,37 +271,57 @@ function createSongOptionsDropDown(e){
 		left: buttonPos.x + 'px',
 		top: (buttonPos.y + 20) + 'px'
 	};
-	const songFileName = Object.values(coverImgInRow)[1]['getsongobject'].songFileName;
-	const songPlaylistIndex = Object.values(coverImgInRow)[1]['getsongobject'].songPlaylistIndex;
-	
+	const songFileName = songObject.songFileName;
+	const songPlaylistIndex = songObject.songPlaylistIndex;
+
+	let removeSongOption = null;
+	if(playlistName !== "Last Added"){
+		removeSongOption 
+		  = <span 
+				className="playlistSongOption" 
+				onClick={() => removeSongFromPlaylist(songPlaylistIndex)}
+			>
+				Remove song from playlist 
+			</span>;
+	}
+
 	ReactDOM.render(
 		<div 
 			className="playlistDropDown" 
 			style={stylePos}
-			songplaylistindex = {songPlaylistIndex}
-			currentsongname = {songFileName}
 		>
-			<span className="playlistOption" onClick={removeSongFromPlaylist}> Remove song from playlist </span>
-			<span className="playlistOption" onClick={confirmDeleteSongFromDB}> Delete song </span>
-			<span className="playlistOption" onClick={createPlaylistNamesDropDown}> Add song to playlist</span>
+			{removeSongOption}
+			<span 
+				className="playlistSongOption" 
+				onClick={() => {
+					DeleteSongScreenPrompt(songFileName);
+					removeAddSongPrompt();
+				}}
+			> 
+				Delete song 
+			</span>
+			<span 
+				className="playlistSongOption" 
+				onClick={e => createPlaylistNamesDropDown(e, songFileName)}
+			> 
+				Add song to playlist
+			</span>
 		</div>,
 		addSongPromptElem
 	);
 }
 
 
-async function createPlaylistNamesDropDown(e){
+async function createPlaylistNamesDropDown(e, songFileName){
 	const playlistNames = await resolvePlaylistNames();
 	const currentPlaylistIndex = playlistNames.indexOf(playlistName);
 	if(currentPlaylistIndex !== -1){
 		playlistNames.splice(currentPlaylistIndex, 1); //remove current playlist from playlists to choose from
 	}
 
-	const optionsDropDown = e.target.parentElement;
-	const songFileName = Object.values(optionsDropDown)[1]['currentsongname'];
-
 	addSongPromptElem.style = "width: 100vw; height: 100vh";
 
+	const optionsDropDown = e.target.parentElement;
 	const parentPos = optionsDropDown.getBoundingClientRect();
 	const stylePos = {
 		left: parentPos.left + 'px',
@@ -303,14 +332,13 @@ async function createPlaylistNamesDropDown(e){
 		<div 
 			className="playlistDropDown" 
 			style={stylePos}
-			currentsongname = {songFileName}
 		>
 			{playlistNames.map(name => {
 				return (
 					<span 
-						className="playlistOption"
+						className="playlistSongOption"
 						key={name}
-						onClick={addSongToPlaylistInDB}
+						onClick={() => addSongToPlaylistInDB(songFileName, name)}
 					> 
 						{name} 
 					</span>
@@ -318,17 +346,6 @@ async function createPlaylistNamesDropDown(e){
 			})}
 		</div>,
 		addSongPromptElem
-	);
-}
-
-
-function confirmDeleteSongFromDB(){
-	ReactDOM.unmountComponentAtNode(addSongPromptElem);
-
-	addSongPromptElem.style = "width: 100vw; height: 100vh";
-	ReactDOM.render(
-		<div> </div>,
-		document.getElementById("addPlaylistBoxContainer")
 	);
 }
 
@@ -417,10 +434,4 @@ function playNextSong(){
 	const imgForRow = getImgBySongRow(lastSongNum-1);
 	imgForRow.src = globalPlayingGifSrc;
 	document.getElementById('footerPlayImg').src = determineFooterPlayImgSrc(songObject.isPlaying);
-}
-
-
-
-export function removeFileExtension(fileName){
-	return fileName.slice(0, fileName.lastIndexOf("."));
 }

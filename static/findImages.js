@@ -1,4 +1,4 @@
-import {removeFileExtension} from '/static/script.js';
+import {removeFileExtension} from './globals.js';
 
 const iconFolderPath = 'http://127.0.0.1:5000/static/media/icons/';
 const URLforStaticFolder = 'http://127.0.0.1:5000/static';

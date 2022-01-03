@@ -69,16 +69,7 @@
 }
 
 
-.dropZone
-{
-    height: 30px;
-    width: 30px;
-
-    background-color: purple;
-}
-
-
-.addPlaylistPrompt
+.screenPrompt
 {
     align-items: center;
     display: flex;
@@ -92,6 +83,15 @@
     background-color: rgb(110, 110, 120, .4);
     color: #908f8f;
     z-index: 1;
+}
+
+
+
+.screenPromptText
+{
+    width: 100%;
+
+    font-size: large;
 }
 
 
@@ -112,18 +112,18 @@
 }
 
 
-.positiveButtonClass
+.screenPromptPositiveButton
 {
     background-color: white;
     border-radius: 2px;
 
     &:hover{
-        background-color: #a7cea3;
+        background-color: #b6b9d9;
     }
 }
 
 
-.cancelButtonClass
+.screenPromptCancelButton
 {
     background-color: #9f9f9f;
     border-radius: 2px;

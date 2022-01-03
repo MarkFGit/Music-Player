@@ -1,51 +1,101 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
-import {deleteOrAddNewPlaylistToServer, resolvePlaylistNames} from './contactServer.js';
+import {deleteOrAddNewPlaylistToServer, resolvePlaylistNames,
+		deleteSongFromDB} from './contactServer.js';
+import {removeFileExtension} from './globals.js';
 
 
 function addEscapeFeature(){
-	document.addEventListener('keydown', function escPlaylistmenu(e){
+	document.addEventListener('keydown', function escScreenPrompt(e){
 		if(e.key === 'Escape'){
-			removeAddPlaylistMenu(); 
-			document.removeEventListener('keydown', escPlaylistmenu);
+			removeScreenPrompt(); 
+			document.removeEventListener('keydown', escScreenPrompt);
 		}
 	});
 }
 
-document.getElementById('newPlaylistButton').addEventListener('click', () => {
-	document.getElementById('addPlaylistBoxContainer').style.height = '100vh';
-	document.getElementById('addPlaylistBoxContainer').style.position = 'fixed';
 
+document.getElementById('newPlaylistButton').addEventListener('click', NewPlaylistScreenPrompt);
+
+export function renderScreenPrompt(customPrompt){
+	document.getElementById('screenPromptContainer').style.height = '100vh';
+	document.getElementById('screenPromptContainer').style.position = 'fixed';
+	
 	ReactDOM.render(
 		<div className="playlistBox" id="playlistBox"> 
-			<div style={{ width: "100%", fontSize: "large" }}> Create New Playlist </div>
-			<input id="createPlaylistTextbox" type="text" />
+			{customPrompt}
 			<button 
-				className="positiveButtonClass" 
-				onClick={ () => {
-					const textBox = document.getElementById("createPlaylistTextbox");
-					deleteOrAddNewPlaylistToServer(textBox.value, "add");
-					removeAddPlaylistMenu();
-				} }> 
-				Add Playlist 
-			</button>
-			<button 
-				className="cancelButtonClass" 
-				onClick={ () => {removeAddPlaylistMenu()} }> 
+				className="screenPromptCancelButton" 
+				onClick={removeScreenPrompt}
+			> 
 				Cancel 
 			</button>
 		</div>,
-		document.getElementById('addPlaylistBoxContainer')
+		document.getElementById('screenPromptContainer')
 	);
 
 	addEscapeFeature();
-});
+}
+
+function NewPlaylistScreenPrompt(){
+	renderScreenPrompt(
+		<>
+			<div className="screenPromptText"> Create New Playlist </div>
+			<input id="createPlaylistTextbox" type="text" />
+			<button 
+				className="screenPromptPositiveButton" 
+				onClick={ () => {
+					const textBox = document.getElementById("createPlaylistTextbox");
+					deleteOrAddNewPlaylistToServer(textBox.value, "add");
+					removeScreenPrompt();
+				}}
+			> 
+				Add Playlist 
+			</button>
+		</>
+	);
+}
 
 
+export function DropPlaylistScreenPrompt(playlistName){
+	renderScreenPrompt(
+		<>
+			<span className="screenPromptText"> Are you sure you want to drop "{playlistName}"? </span>
+			<button 
+				className="screenPromptPositiveButton" 
+				onClick={ () => {
+					deleteOrAddNewPlaylistToServer(playlistName, "delete");
+					removeScreenPrompt();
+				}}
+			> 
+				Drop Playlist 
+			</button>
+		</>
+	);
+}
 
-export function removeAddPlaylistMenu(){
-	ReactDOM.unmountComponentAtNode(addPlaylistBoxContainer);
-	document.getElementById('addPlaylistBoxContainer').style.height = '0';
+
+export function DeleteSongScreenPrompt(songFileName){
+	const songName = removeFileExtension(songFileName);
+	renderScreenPrompt(
+		<>
+			<span className="screenPromptText"> Are you sure you want to delete the song "{songName}" from your account? </span>
+			<button 
+				className="screenPromptPositiveButton" 
+				onClick={ () => {
+					deleteSongFromDB(songFileName, songName);
+				}}
+			> 
+				Delete Song 
+			</button>
+		</>
+	);
+}
+
+
+export function removeScreenPrompt(){
+	ReactDOM.unmountComponentAtNode(screenPromptContainer);
+	document.getElementById('screenPromptContainer').style.height = '0';
 }
 
 
