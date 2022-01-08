@@ -57,18 +57,6 @@
 }
 
 
-.playlistCardLink
-{
-    display: grid;
-    justify-content: center;
-
-    height: inherit;
-
-    text-decoration: none;
-}
-
-
-
 .divSpacers{
     display: flex;
 
@@ -86,6 +74,4 @@
 
 .playlistPreviewTitle{
 	max-height: calc(100% - 16px);
-
-	color: white;
 }

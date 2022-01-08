@@ -5,7 +5,7 @@ import {resolvePlaylistNames, getPlaylistNamesFromDB,
 		deleteOrAddNewPlaylistToServer} from './contactServer.js';
 import {removeScreenPrompt, DropPlaylistScreenPrompt} from './globalEventListener.js';
 
-const URLforStaticFolder = 'http://127.0.0.1:5000/static';
+const iconsFolderPath = "http://127.0.0.1:5000/static/media/icons/";
 
 createPlaylistGrid();
 
@@ -23,8 +23,9 @@ export async function createPlaylistGrid(){
 	)
 }
 
-function CreatePlaylistCard(nameObject){
-	const playlistURL = `/playlists/${nameObject.name}`;
+
+function CreatePlaylistCard({name}){
+	const playlistURL = `/playlists/${name}`;
 	return(
 		<div className="playlistCard">
 			<div className="divSpacers" style={{justifyContent: "flex-end"}}>
@@ -32,14 +33,14 @@ function CreatePlaylistCard(nameObject){
 				<img 
 					className="playlistCardOptionsButton" 
 					style={{cursor: "pointer"}} 
-					src={`${URLforStaticFolder}/media/icons/options.png`}
-					onClick={() => DropPlaylistScreenPrompt(nameObject.name)}
+					src={`${iconsFolderPath}options.png`}
+					onClick={() => DropPlaylistScreenPrompt(name)}
+					onMouseEnter={e => e.target.src = `${iconsFolderPath}optionsHover.png`}
+					onMouseLeave={e => e.target.src = `${iconsFolderPath}options.png`}
 				/>
 			</div>
-			<a href={playlistURL} className="divSpacers playlistCardLink">
-				<div className="divSpacers" style={{justifyContent: "center"}}>
-					<span className="playlistPreviewTitle"> {nameObject.name} </span>
-				</div>
+			<a href={playlistURL} className="divSpacers link-text" style={{height: "100%"}}>
+				<span className="playlistPreviewTitle link-text"> {name} </span>
 			</a>
 		</div>
 	);

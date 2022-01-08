@@ -23,6 +23,26 @@ def generatePlaylistOntoPage(playlist):
 		addNewCoverImgToFS(songName, songData)
 		insertNewSongEntryInDatabase(songName, songData)
 
+
+	escapedPlaylistName = escape(playlist)
+
+	playlistNames = getPlaylistNamesFromDB()['PlaylistNames']
+	playlistNames.append("Last Added")
+	if(escapedPlaylistName not in playlistNames):
+		return renderNotFoundPage(escapedPlaylistName)
+
+	pointer.execute(f"""SELECT * FROM `{escapedPlaylistName}`""")
+	allSongInfos = pointer.fetchall()
+	if(request.path == "/playlists/Last Added"): # sort by using the date (most recent song goes to top). otherwise sort by song index
+		allSongInfos.sort(key=lambda songInfo: songInfo[5], reverse = True)
+	else:
+		allSongInfos.sort(key=lambda songInfo: songInfo[1], reverse = True)
+		for index, songInfo in enumerate(allSongInfos):
+			pointer.execute("SELECT * FROM `Last Added` WHERE fileName = %s", (songInfo[0], ))
+			allSongInfos[index] = list(pointer.fetchall()[0])
+			allSongInfos[index].append(songInfo[1]) #append indice of song in the playlist
+	
+
 	songFileNames = []
 	songTitles = []
 	songArtists = []
@@ -31,22 +51,6 @@ def generatePlaylistOntoPage(playlist):
 	songAlbums = []
 	songPlays = []
 	songIndices = []
-
-	escapedPlaylistName = escape(playlist)
-	pointer.execute(f"""SELECT * FROM `{escapedPlaylistName}`""")
-	allSongInfos = pointer.fetchall()
-	if(request.path == "/playlists/Last Added"): # sort by using the date (most recent song goes to top). otherwise sort by song index
-		allSongInfos.sort(key=lambda songInfo: songInfo[5], reverse = True)
-	else:
-		print(allSongInfos)
-		allSongInfos.sort(key=lambda songInfo: songInfo[1], reverse = True)
-		print(allSongInfos)
-		for index, songInfo in enumerate(allSongInfos):
-			pointer.execute("SELECT * FROM `Last Added` WHERE fileName = %s", (songInfo[0], ))
-			# Error: trying to find "undefined" from Last Added, but no such thing exists. Hence indexing the result is out of range
-			allSongInfos[index] = list(pointer.fetchall()[0])
-			allSongInfos[index].append(songInfo[1]) #append indice of song in the playlist
-	
 
 	for songInfo in allSongInfos:
 		songFileNames.append(songInfo[0])
@@ -95,7 +99,7 @@ def determineSongDurationText(songData):
 		minutes = int(songData.duration / 60)
 		seconds = int(songData.duration % 60)
 		if(seconds < 10):
-			seconds = f'0{str(int(songData.duration % 60))}'
+			seconds = f'0{seconds}'
 		return f'{minutes}:{seconds}'
 	return ''
 
@@ -103,16 +107,16 @@ def determineSongDurationText(songData):
 def addNewCoverImgToFS(songName, songData):
 	try:
 		coverPathFolder = 'C:/Users/markr/Desktop/Website/static/media/songCovers/'
-		coverPathNames = os.listdir(coverPathFolder)
+		coverNames = os.listdir(coverPathFolder)
 
 		songCoverName = f'{songName[:-4]}.jpeg'; #remove .mp3/.m4a extension, add .jpeg extension
 
-		if(songCoverName not in coverPathNames):
+		if(songCoverName not in coverNames):
 			coverImage_data = songData.get_image()
 			hasCoverImgData = (coverImage_data != None)
 			if(hasCoverImgData):
 				coverBytes = Image.open(BytesIO(coverImage_data))
-				coverBytes.save(f'{coverPathFolder}{songName[:-4]}.jpeg')
+				coverBytes.save(f'{coverPathFolder}{songCoverName}')
 	except UnidentifiedImageError:
 		print("""An UnidentifiedImageError has occurred (probably while trying to open coverImage_data). 
 				 Proceeding as if image data does not exist""")
@@ -269,6 +273,10 @@ def getPlaylistNamesFromDB():
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'media/icons/favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+
+@app.errorhandler(404)
+def renderNotFoundPage(e):
+	return render_template('notFound.html')
 
 
 def createInitialTables():

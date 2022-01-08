@@ -146,6 +146,8 @@ CSS formatting:
 {
     min-width: fit-content;
 
+    margin: 4px 4px 30px;
+
     color: white;
     font-size: xx-large;
     font-style: italic;
@@ -375,12 +377,33 @@ CSS formatting:
 .songDivider
 {
     height: 1px;
-    width: inherit;
 
     @include noMarginOrPadding;
 
     background-color: #414141;
 }
+
+
+
+
+
+.link-text{
+    justify-content: center;
+
+    height: fit-content;
+
+    color: white;
+    text-decoration: none;
+
+    &:active{
+        color: grey;
+    }
+
+    &:hover{
+        text-decoration: underline;
+    }   
+}
+
 
 /* m/p: x,y; vertical | horizontal */
 /* m/p: w,y,x,z; TRBL */

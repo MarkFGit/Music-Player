@@ -122,6 +122,7 @@ CSS formatting:
 
 .headerTitleAndButtons {
   min-width: fit-content;
+  margin: 4px 4px 30px;
   color: white;
   font-size: xx-large;
   font-style: italic;
@@ -297,10 +298,22 @@ CSS formatting:
 
 .songDivider {
   height: 1px;
-  width: inherit;
   margin: 0;
   padding: 0;
   background-color: #414141;
+}
+
+.link-text {
+  justify-content: center;
+  height: fit-content;
+  color: white;
+  text-decoration: none;
+}
+.link-text:active {
+  color: grey;
+}
+.link-text:hover {
+  text-decoration: underline;
 }
 
 /* m/p: x,y; vertical | horizontal */
@@ -359,13 +372,6 @@ CSS formatting:
   font-size: 140%;
 }
 
-.playlistCardLink {
-  display: grid;
-  justify-content: center;
-  height: inherit;
-  text-decoration: none;
-}
-
 .divSpacers {
   display: flex;
   margin: 0;
@@ -381,7 +387,6 @@ CSS formatting:
 
 .playlistPreviewTitle {
   max-height: calc(100% - 16px);
-  color: white;
 }
 /*!*********************************************************************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/lowerBarStyles.scss ***!
@@ -591,4 +596,42 @@ CSS formatting:
 }
 .screenPromptCancelButton:hover {
   background-color: #cccccc;
+}
+/*!*******************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/notFoundPage.scss ***!
+  \*******************************************************************************************************************/
+.notFoundBody {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  height: calc(100vh - 66px);
+  border: grey;
+  border-style: solid;
+  margin: 30px;
+  background-color: #0f0f0f;
+}
+
+.notFoundWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+}
+
+.not-found-main-text {
+  padding: 15px 50px;
+  text-decoration: underline;
+  text-decoration-color: #272727;
+  color: #818181;
+}
+
+.not-found-secondary-text {
+  padding: 45px 50px;
+  color: #b4b4b4;
+}
+
+.bottom-link {
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }

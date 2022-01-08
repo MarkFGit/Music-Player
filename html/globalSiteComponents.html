@@ -1,7 +1,7 @@
 {% if select == 'navbar' %}
 	<div class="screenPrompt" id="screenPromptContainer"> </div>
 	<div class="addSongToPlaylistPrompt" id="addSongToPlaylistPrompt"> </div>
-	<div id="successBoxContainer" class="successBoxContainer"></div>
+	<div class="successBoxContainer" id="successBoxContainer"></div>
 	<div class="topBar">
 		<div class="searchBar"> Search... </div>
 	</div>
@@ -11,7 +11,7 @@
 
 {% if select == 'sidePanel' %}
 	<div class="sidePanel">
-		<div class="panelButton" id="playlistsButton">
+		<div class="panelButton" id="playlistsButto">
 			<a href="/home/">
 				<img class="sidePanelIcon" id="homeImg" src="{{ url_for('static',filename='media/icons/home.png') }}">
 			</a>

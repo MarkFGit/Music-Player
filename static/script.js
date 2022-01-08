@@ -41,6 +41,7 @@ import './main.scss';
 import './homePage.scss';
 import './lowerBarStyles.scss';
 import './globalComponentStyles.scss';
+import './notFoundPage.scss';
 /* ************************************************ */
 
 import {removeScreenPrompt, renderScreenPrompt, 
@@ -218,8 +219,7 @@ function createPage(){
 }
 
 
-function Row(reactData){
-	const songCount = reactData.songCount;
+function Row({songCount}){
 	const songObject = new addSongObject(songCount);
 	let songDiv = null;
 	if(songCount < numOfPlaylistSongs){
