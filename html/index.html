@@ -7,15 +7,8 @@
 		defer 
 		id='scriptTag'
 		playlistName = '{{ playlistName }}'
-		songNames='{{ songNames|tojson }}' 
-		numOfSongs='{{ numOfSongs }}' 
-		image_data = '{{ image_data }}' 
-		songTitles = '{{ songTitles|tojson }}' 
-		songArtists = '{{ songArtists|tojson }}' 
-		songDurations = '{{ songDurations|tojson }}'
-		songAlbums = '{{ songAlbums|tojson }}'
-		songPlays = '{{ songPlays|tojson }}'
-		songIndices = '{{ songIndices|tojson }}'
+		numOfSongs='{{ numOfSongs }}'
+		songObjectList = '{{ songObjectList|tojson }}'
 		src="{{ url_for('static',filename='./dist/playlists.js') }}"
 		> 
 	</script>

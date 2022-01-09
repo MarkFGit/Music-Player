@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> Page Not Found! </title>
+	<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static', filename='./dist/bundle.css') }}">
+</head>
+
+<body class="notFoundBody">
+	<div class="notFoundWrapper">
+		<div>
+			<h1 class="not-found-main-text"> Page does not exist! </h1>
+			<h2 class="not-found-secondary-text">Either the URL specified does not exist or this feature has not yet been implemented.</h2>
+		</div>
+		<h2 class="bottom-link">
+			<a class="link-text" href='/home/'> Click here to go back home. </a>
+		</h2>
+	</div>
+</body>

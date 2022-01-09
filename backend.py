@@ -5,9 +5,22 @@ from PIL import Image, UnidentifiedImageError
 from io import BytesIO
 import mysql.connector
 from datetime import datetime
+import jsonpickle
 
 
 app = Flask(__name__, template_folder='html', static_folder='static')
+
+
+class songObject:
+	def __init__(self, songInfo):
+		self.fileName = songInfo[0]
+		self.title = songInfo[1]
+		self.duration = songInfo[2]
+		self.artist = songInfo[3]
+		self.album = songInfo[4]
+		self.plays = songInfo[6]
+		self.index = ""
+		self.date = ""
 
 
 @app.route("/playlists/<playlist>", methods=["POST","GET"])
@@ -41,41 +54,28 @@ def generatePlaylistOntoPage(playlist):
 			pointer.execute("SELECT * FROM `Last Added` WHERE fileName = %s", (songInfo[0], ))
 			allSongInfos[index] = list(pointer.fetchall()[0])
 			allSongInfos[index].append(songInfo[1]) #append indice of song in the playlist
-	
 
-	songFileNames = []
-	songTitles = []
-	songArtists = []
-	songAlbums = []
-	songDurations = []
-	songAlbums = []
-	songPlays = []
-	songIndices = []
+
+	songObjectList = []
+	isLastAddedPlaylist = (request.path == "/playlists/Last Added")
 
 	for songInfo in allSongInfos:
-		songFileNames.append(songInfo[0])
-		songTitles.append(songInfo[1])
-		songDurations.append(songInfo[2])
-		songArtists.append(songInfo[3])
-		songAlbums.append(songInfo[4])
-		songPlays.append(songInfo[6])
+		songObj = songObject(songInfo)
+		if(isLastAddedPlaylist):
+			pass # Will implement dates section here sometime in the future
+		else:
+			songObj.index = songInfo[7]
+		jsonSongObject = jsonpickle.encode(songObj)
+		songObjectList.append(jsonSongObject)
 
-	if(request.path != "/playlists/Last Added"):
-		for songInfo in allSongInfos:
-			songIndices.append(songInfo[7])
-
-	numOfSongs = len(songFileNames)
 
 	return render_template('index.html', playlistName = escapedPlaylistName,
-										 songNames = songFileNames, 
-										 numOfSongs = numOfSongs, 
-										 songTitles = songTitles, 
-										 songArtists = songArtists, 
-										 songDurations = songDurations, 
-										 songAlbums = songAlbums,
-										 songPlays = songPlays,
-										 songIndices = songIndices
+										 numOfSongs = len(songObjectList), 
+										 songObjectList = songObjectList
 										 )
+
+
+		
 
 
 def determineTitle(songData, songName):

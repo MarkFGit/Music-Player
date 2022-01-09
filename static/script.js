@@ -9,18 +9,6 @@ const blankPlayImgSrc = `${iconFolderPath}play.png`;
 const globalPlayingGifSrc = `${iconFolderPath}playing.gif`;
 
 
-const songNamesList = JSON.parse(document.getElementById('scriptTag').getAttribute('songNames'));
-const titleList = JSON.parse(document.getElementById('scriptTag').getAttribute('songTitles'));
-const artistList = JSON.parse(document.getElementById('scriptTag').getAttribute('songArtists'));
-const durationsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songDurations'));
-const albumsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songAlbums'));
-const playsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songPlays'));
-const indicesList = JSON.parse(document.getElementById('scriptTag').getAttribute('songIndices'));
-
-import {getPlaylistName, removeFileExtension} from './globals.js';
-const playlistName = getPlaylistName();
-
-
 const table = document.getElementById("songTable");
 const mainAudio = document.getElementById("mainAudio");
 
@@ -44,18 +32,23 @@ import './globalComponentStyles.scss';
 import './notFoundPage.scss';
 /* ************************************************ */
 
-import {removeScreenPrompt, renderScreenPrompt, 
-	DeleteSongScreenPrompt} from './globalEventListener.js';
+import {DeleteSongScreenPrompt} from './globalEventListener.js';
 
 import updateEventScriptSongNum, {prepareHeaderButtonListeners, 
 	   prepareFooterButtonListeners} from './eventScript.js';
 
 import dragOverHandler, {fileDropHandler, incrementPlayCount,
 		createNewPlaylistToServer, resolvePlaylistNames, 
-		addSongToPlaylistInDB, removeSongFromPlaylist/*, deleteSongFromDB*/} from './contactServer.js'
+		addSongToPlaylistInDB, removeSongFromPlaylist} from './contactServer.js'
 
 import getSongImage, {fillPlaylistPreviewImages, 
 	determineFooterPlayImgSrc} from './findImages.js';
+
+
+import {getPlaylistName, removeFileExtension, getSongObjectsList} from './globals.js';
+const playlistName = getPlaylistName();
+const songObjectsList = getSongObjectsList();
+
 
 export function clickSongBySongNum(songNum){
 	table.rows[songNum].firstElementChild.firstElementChild.click();
@@ -230,17 +223,17 @@ function Row({songCount}){
 		<tr className="songRowClass">
 			<td className="songContainer">
 				<img className="coverImg" getsongobject={songObject}></img>
-				<span className="songTitles"> {titleList[songCount-1]} </span>
+				<span className="songTitles"> {songObjectsList[songCount-1]['title']} </span>
 				<button 
 					className="songRowAddPlaylistButton" 
 					onClick={e => createSongOptionsDropDown(e, songObject)}
 				>
 					+
 				</button>
-				<span className="songDurationClass"> {durationsList[songCount-1]} </span>
-				<span className="songArtistOrAlbum"> {artistList[songCount-1]} </span>
-				<span className="songArtistOrAlbum"> {albumsList[songCount-1]} </span>
-				<span className="playsWidth"> {playsList[songCount-1]} </span>
+				<span className="songDurationClass"> {songObjectsList[songCount-1]['duration']} </span>
+				<span className="songArtistOrAlbum"> {songObjectsList[songCount-1]['artist']} </span>
+				<span className="songArtistOrAlbum"> {songObjectsList[songCount-1]['album']} </span>
+				<span className="playsWidth"> {songObjectsList[songCount-1]['plays']} </span>
 			</td>
 			{songDiv}
 		</tr>
@@ -353,10 +346,9 @@ async function createPlaylistNamesDropDown(e, songFileName){
 function addSongObject(songCount){
 	//way to reference the object itself in other functions. Probably a cleaner solution to this
 	this.getSongObject = this; 
-
-	this.songFileName = songNamesList[songCount-1];
+	this.songFileName = songObjectsList[songCount-1]['fileName'];
 	this.songNum = songCount;
-	this.songPlaylistIndex = indicesList[songCount-1];
+	this.songPlaylistIndex = songObjectsList[songCount-1]['index'];
 	this.isPlaying = false;
 }
 
@@ -379,7 +371,7 @@ function addSongImgEventListener(songCount){
 			playingTitleDiv.innerText = `Playing: ${songNameWithoutExtension}`;
 
 			const playingTimeLengthDiv = document.getElementById('playingTimeLength');
-			playingTimeLengthDiv.innerText = durationsList[songObject.songNum-1];
+			playingTimeLengthDiv.innerText = songObjectsList[songObject.songNum-1]['duration'];
 
 			table.rows[currentSongNum - 1].style = "background-color: #161616;";
 			

@@ -1,0 +1,45 @@
+@use 'globalVars' as *;
+
+.notFoundBody{
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+
+	height: calc(100vh - 66px);
+
+	border: grey;
+	border-style: solid;
+	margin: 30px;
+
+
+	background-color: $mainBgColor;
+}
+
+.notFoundWrapper{
+	display: flex;
+	flex-wrap: wrap;
+
+	@include noMarginOrPadding;
+}
+
+.not-found-main-text{
+	padding: 15px 50px;
+
+	text-decoration: underline;
+	text-decoration-color: #272727;
+
+	color: #818181;
+}
+
+.not-found-secondary-text{
+	padding: 45px 50px;
+
+	color: #b4b4b4;
+}
+
+.bottom-link{
+	display: flex;
+	justify-content: center;
+
+	width: 100%;
+}

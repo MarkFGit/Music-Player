@@ -1,4 +1,4 @@
-import {removeFileExtension} from './globals.js';
+import {removeFileExtension, getSongObjectsList} from './globals.js';
 
 const iconFolderPath = 'http://127.0.0.1:5000/static/media/icons/';
 const URLforStaticFolder = 'http://127.0.0.1:5000/static';
@@ -10,10 +10,10 @@ const lowerBarPlayHoverImgSrc = `${iconFolderPath}playHover.png`;
 const blankPlayImgSrc = `${iconFolderPath}noCoverImg.png`;
 
 const table = document.getElementById("songTable");
+const songObjectsList = getSongObjectsList();
 
 export default async function getSongImage(index){
-	const songNamesList = JSON.parse(document.getElementById('scriptTag').getAttribute('songNames'));
-	const currentSongName = removeFileExtension(songNamesList[index]);
+	const currentSongName = removeFileExtension(songObjectsList[index]['fileName']);
 	const songCoverPath = `${URLforStaticFolder}/media/songCovers/${currentSongName}.jpeg`;
 
 	return await fetch(songCoverPath)
