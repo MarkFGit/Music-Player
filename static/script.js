@@ -257,7 +257,6 @@ function removeAddSongPrompt(){
 
 
 function createSongOptionsDropDown(e, songObject){
-	const coverImgInRow = e.target.parentElement.querySelector('.coverImg');
 	addSongPromptElem.style = "width: 100vw; height: 100vh";
 	const buttonPos = e.target.getBoundingClientRect();
 	const stylePos = {

@@ -1,5 +1,5 @@
 import os
-from flask import Flask, redirect, url_for, render_template, send_from_directory, send_file, request, escape
+from flask import Flask, redirect, url_for, render_template, send_from_directory, send_file, request, escape, abort
 from tinytag import TinyTag
 from PIL import Image, UnidentifiedImageError
 from io import BytesIO
@@ -75,14 +75,11 @@ def generatePlaylistOntoPage(playlist):
 										 )
 
 
-		
-
 
 def determineTitle(songData, songName):
 	if(isinstance(songData.title, str)):
 		return songData.title
 	return songName[:-4]
-
 
 def determineArtist(songData):
 	if(isinstance(songData.artist, str)):
@@ -267,6 +264,17 @@ def getPlaylistNamesFromDB():
 			playlistNames.append(result[0])
 
 	return {"PlaylistNames": playlistNames}
+
+
+
+@app.route('/findImage', methods=["POST"])
+def findImageOnServer():
+	songCoverName = request.data.decode("utf-8")
+	songCoverNames = os.listdir("./static/media/songCovers/")
+	if(songCoverName in songCoverNames):
+		return "OK"
+	abort(400)
+
 
 
 @app.route('/favicon.ico')

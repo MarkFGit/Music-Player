@@ -7,31 +7,34 @@ const lowerBarPauseImgSrc = `${iconFolderPath}pause.png`;
 const lowerBarPauseHoverImgSrc = `${iconFolderPath}pauseHover.png`;
 const lowerBarPlayImgSrc = `${iconFolderPath}play.png`;
 const lowerBarPlayHoverImgSrc = `${iconFolderPath}playHover.png`;
-const blankPlayImgSrc = `${iconFolderPath}noCoverImg.png`;
+const noCoverImgSrc = `${iconFolderPath}noCoverImg.png`;
 
 const table = document.getElementById("songTable");
 const songObjectsList = getSongObjectsList();
 
 export default async function getSongImage(index){
 	const currentSongName = removeFileExtension(songObjectsList[index]['fileName']);
-	const songCoverPath = `${URLforStaticFolder}/media/songCovers/${currentSongName}.jpeg`;
+	const songCoverFileName = `${currentSongName}.jpeg`;
 
-	return await fetch(songCoverPath)
-		.then(response => {
-			const currentSongImg = table.rows[index].firstElementChild.firstElementChild;
-			if (response.ok) {
-				currentSongImg.setAttribute('src', songCoverPath);
-				return songCoverPath;
-			}
-			if(response.status === 404) {
-				currentSongImg.setAttribute('src', blankPlayImgSrc);
-			    return;
-			}
-			return console.error(`Find Image Error. Status of Error: ${response.status}`);
-		})
-	  	.catch(error => console.error('error is', error));
+	const findImgUrl = 'http://127.0.0.1:5000/findImage';
+	return await fetch(findImgUrl,{
+	    method: 'POST',
+	    body: songCoverFileName
+	})
+	.then(response => {
+		const currentSongImg = table.rows[index].firstElementChild.firstElementChild;
+		if(response.statusText === "OK"){
+			const coverFilePathInServer = `/static/media/songCovers/${songCoverFileName}`;
+			currentSongImg.setAttribute('src', coverFilePathInServer);
+			return coverFilePathInServer;
+		}
+		currentSongImg.setAttribute('src', noCoverImgSrc);
+		return;
+	})
+	.catch(error => {
+		console.error(`Find Image Error. Status of Error: ${response.status}`);
+	});
 }
-
 
 
 export async function fillPlaylistPreviewImages(){
