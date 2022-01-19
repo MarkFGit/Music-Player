@@ -1,7 +1,11 @@
 # Music-Player
   
-** A folder under the media folder named "songs" needs to be present in order to save store songs. Songs are stored locally on the machine. **
-Song covers are stored in the "songCovers" folder.
+
+### Requirements for this to run properly
+> A folder under the media folder named "songs" needs to be present in order to save store songs. Songs are stored locally on the machine.
+> A folder under the media folder named "songCovers" also needs to be present. Song covers are stored in the "songCovers" folder.
+> Python to run backend.py
+> A MySQL server to store playlist data
   
   
 ###### About this project
