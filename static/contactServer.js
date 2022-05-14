@@ -28,10 +28,10 @@ async function sendFileXHR(currentFile, resolve){
 	const form = new FormData();
 	const file = currentFile;
 	
+	// Checking if a file is of acceptable type should be done on the backend, not client-side.
 	if(isNotAcceptedFileUploadType(file.type)) return;
 
 	form.append("file", file);
-	form.append("name", file.name);
 
 	const xhr = new XMLHttpRequest();
 

@@ -7,6 +7,8 @@
 		defer 
 		id='scriptTag'
 		playlistName = '{{ playlistName }}'
+		playlistCreateDate = '{{ playlistCreateDate }}'
+		formattedTotalTime = '{{ formattedTotalTime }}'
 		numOfSongs='{{ numOfSongs }}'
 		songObjectList = '{{ songObjectList|tojson }}'
 		src="{{ url_for('static',filename='./dist/playlists.js') }}"
@@ -36,20 +38,31 @@
 						<h3 class="playlistTitle"> {{ playlistName }} </h3>
 						<img class="headerPlayIcon" id="headerPlayIconID" src="{{ url_for('static',filename='media/icons/play.png') }}"> </img>
 					</div>
-					<div class="buttonTextCombo">
-						<img class="headerSmallButton" id="headerShuffleIconID" src="{{ url_for('static',filename='/media/icons/shuffle.png') }}"></img>
-						<span class="headerSmallButtonText"> Shuffle </span>
+					<div class="playlist-buttons-and-metadata-wrapper">
+						<div class="playlist-buttons-container">
+							<img class="headerSmallButton" id="headerShuffleIconID" 
+								src="{{ url_for('static',filename='/media/icons/shuffle.png') }}">
+							</img>
+						</div>
+						<div class="playlist-metadata-text-container">
+							<span class="headerSmallButtonText"> {{ formattedTotalTime }} </span>
+							<span class="headerSmallButtonText"> Created: {{ playlistCreateDate }} </span>
+						</div>
 					</div>
 				</header>
 			</header>
-			<div class="songContent">
+			<div class="songTableContainer">
 				<audio id="mainAudio" src=""></audio>
-				<div class="songTableHeader">
-					<span style="width: 200%;"> Name </span>
-					<img class="durationImg" src="{{ url_for('static',filename='media/icons/duration.png') }}">
-					<span style="width: 100%;"> Artist </span>
-					<span style="width: 100%;"> Album </span>
-					<span class="playsWidth"> Plays </span>
+				<div class="songTableHeader" id="songTableHeader">
+					<span class = "large-field-container"> Name </span>
+					<div class = "imgFiller"> </div>
+					<img class="durationImg" src="{{ url_for('static',filename='/media/icons/duration.png') }}"></img>
+					<span class = "medium-field-container"> Artist </span>
+					<span class = "medium-field-container"> Album </span>
+					<span class = "small-field-container"> Plays </span>
+					{% if playlistName=='Last Added' %}
+						<span class="date-field-container"> Date Added </span>
+					{% endif %}
 				</div>
 				<table class="songTableClass" id="songTable">
 					<tbody id="tableBody"></tbody>

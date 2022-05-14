@@ -54,7 +54,7 @@ export async function fillPlaylistPreviewImages(){
 	}
 	
 	while(numOfFoundPreviewImages < maxNumOfPreviews){
-		document.getElementById(`coverPreview${numOfFoundPreviewImages}`).src = blankPlayImgSrc;
+		document.getElementById(`coverPreview${numOfFoundPreviewImages}`).src = noCoverImgSrc;
 		numOfFoundPreviewImages++;
 	}
 }

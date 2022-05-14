@@ -47,6 +47,7 @@ import getSongImage, {fillPlaylistPreviewImages,
 
 import {getPlaylistName, removeFileExtension, getSongObjectsList} from './globals.js';
 const playlistName = getPlaylistName();
+const isLastAddedPlaylist = (playlistName === "Last Added");
 const songObjectsList = getSongObjectsList();
 
 
@@ -212,28 +213,40 @@ function createPage(){
 }
 
 
+
 function Row({songCount}){
 	const songObject = new addSongObject(songCount);
+
+	const currentSongObject = songObjectsList[songCount-1];
+
 	let songDiv = null;
 	if(songCount < numOfPlaylistSongs){
 		songDiv = <div className="songDivider"></div>;
 	}
 
+	let dateSpan = null;
+	if(playlistName === "Last Added"){
+		dateSpan = <span className="date-field-container"> {currentSongObject['date']} </span>;
+	}
+
+	
+
 	return(
 		<tr className="songRowClass">
 			<td className="songContainer">
 				<img className="coverImg" getsongobject={songObject}></img>
-				<span className="songTitles"> {songObjectsList[songCount-1]['title']} </span>
+				<span className="large-field-container"> {currentSongObject['title']} </span>
 				<button 
 					className="songRowAddPlaylistButton" 
 					onClick={e => createSongOptionsDropDown(e, songObject)}
 				>
 					+
 				</button>
-				<span className="songDurationClass"> {songObjectsList[songCount-1]['duration']} </span>
-				<span className="songArtistOrAlbum"> {songObjectsList[songCount-1]['artist']} </span>
-				<span className="songArtistOrAlbum"> {songObjectsList[songCount-1]['album']} </span>
-				<span className="playsWidth"> {songObjectsList[songCount-1]['plays']} </span>
+				<span> {currentSongObject['duration']} </span>
+				<span className="medium-field-container"> {currentSongObject['artist']} </span>
+				<span className="medium-field-container"> {currentSongObject['album']} </span>
+				<span className="small-field-container"> {currentSongObject['plays']} </span>
+				{dateSpan}
 			</td>
 			{songDiv}
 		</tr>
@@ -267,7 +280,7 @@ function createSongOptionsDropDown(e, songObject){
 	const songPlaylistIndex = songObject.songPlaylistIndex;
 
 	let removeSongOption = null;
-	if(playlistName !== "Last Added"){
+	if(!isLastAddedPlaylist){
 		removeSongOption 
 		  = <span 
 				className="playlistSongOption" 

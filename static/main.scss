@@ -144,9 +144,11 @@ CSS formatting:
 
 .headerTitleAndButtons
 {
+    // This is to get title buttons centered to the playlistPreviewImages
+        // probably a better solution?
+    height: 170px;
+    // -------------------------------------------
     min-width: fit-content;
-
-    margin: 4px 4px 30px;
 
     color: white;
     font-size: xx-large;
@@ -162,27 +164,47 @@ CSS formatting:
 }
 
 
-.playlistTitle{
+.playlistTitle
+{
     max-height: 150px;
     max-width: 500px;
 
     @include ellipsesAfterThreeLines;
 }
 
-.headerPlayIcon{
+.headerPlayIcon
+{
     width: 50px;
 }
 
 
-.buttonTextCombo {
+.playlist-buttons-and-metadata-wrapper
+{
+    padding: 0;
+}
+
+.playlist-buttons-container
+{
     align-items: center;
     display: flex;
+
+    margin: 4px 4px 2px;
+}
+
+
+.playlist-metadata-text-container
+{
+    align-items: center;
+    display: grid;
+    grid-auto-flow: column;
+
+    margin: 2px 4px 4px;
 }
 
 
 .headerSmallButton
 {
-    width: 25px;
+    width: 85px;
 
     margin: 0;
 
@@ -194,15 +216,16 @@ CSS formatting:
 {
     margin: 0;
 
-    font-size: 14px;
-    font-style: normal;   
-    font-weight: 100;
+    width: fit-content;
 
+    color: #a3a3a3;
+    font-size: 14px;
+    font-style: normal;
 }
 
 
 
-.songContent
+.songTableContainer
 {
     min-width: fit-content;
     width: auto;
@@ -225,19 +248,29 @@ CSS formatting:
 {
     display: flex;
 
-    margin: 0 4px;
-    padding: 0 16px 0 52px;
+    min-height: 40px;
+
+    margin: 0 12px 0 4px;
+    padding: 0 4px;
 
     color: #979090;
     font-size: 16px;
 }
 
 
+.imgFiller
+{
+    margin: 0 20px;
+    padding: 0;
+}
+
 .durationImg
 {
-    width: 29.2px;
+    height: 30px;
+    width: 30px;
 
-    padding: 0 4px;
+    margin: 0 10px;
+    padding: 0;
 }
 
 
@@ -289,16 +322,6 @@ CSS formatting:
 
     overflow: hidden;
     white-space: nowrap;
-}
-
-
-.songTitles
-{
-    height: fit-content;
-    width: 200%;
-
-    text-overflow: ellipsis;
-    overflow: hidden;
 }
 
 
@@ -355,18 +378,44 @@ CSS formatting:
 }
 
 
-.songArtistOrAlbum
+@mixin playlistEntryContainer
 {
     height: fit-content;
-    width: 100%;
 
     text-overflow: ellipsis;
     overflow: hidden;
 }
 
-.playsWidth
+
+.large-field-container
 {
-    min-width: 40px;
+    @include playlistEntryContainer;
+
+    width: 200%;
+}
+
+
+.medium-field-container
+{
+    @include playlistEntryContainer;
+
+    width: 100%;
+}
+
+.small-field-container
+{
+    min-width: 60px;
+
+    padding: 4px 0;
+
+    text-align: center;
+}
+
+.date-field-container
+{
+    @include playlistEntryContainer;
+
+    min-width: 100px;
 
     padding: 4px 0;
 
@@ -407,4 +456,4 @@ CSS formatting:
 
 /* m/p: x,y; vertical | horizontal */
 /* m/p: w,y,x,z; TRBL */
-/* m/p: y,x,z; top | horizontal | bottom*/
+/* m/p: y,x,z; top | horizontal | bottom */
