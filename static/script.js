@@ -1,28 +1,4 @@
-const iconFolderPath = 'http://127.0.0.1:5000/static/media/icons/';
-const URLforStaticFolder = 'http://127.0.0.1:5000/static';
-
-const globalPauseImgSrc = `${iconFolderPath}pause.png`;
-const globalPauseHoverImgSrc = `${iconFolderPath}hoverPause.png`;
-const globalPlayImgSrc = `${iconFolderPath}playSong.png`;
-const globalPlayHoverImgSrc = `${iconFolderPath}hoverPlay.png`;
-const blankPlayImgSrc = `${iconFolderPath}play.png`;
-const globalPlayingGifSrc = `${iconFolderPath}playing.gif`;
-
-
-const table = document.getElementById("songTable");
-const mainAudio = document.getElementById("mainAudio");
-
-
-let lastSongNum = null;
-let draggingSong = false;
-
-window.dragOverHandler = dragOverHandler;
-window.fileDropHandler = fileDropHandler;
-window.createPage = createPage;
-window.mouseDown = mouseDown;
-
-const React = require('react');
-const ReactDOM = require('react-dom');
+// songNums/lastSongNum are 0 indexed
 
 /* import scss so webpack builds composite css file */
 import './main.scss';
@@ -38,17 +14,38 @@ import updateEventScriptSongNum, {prepareHeaderButtonListeners,
 	   prepareFooterButtonListeners} from './eventScript.js';
 
 import dragOverHandler, {fileDropHandler, incrementPlayCount,
-		createNewPlaylistToServer, resolvePlaylistNames, 
+		createNewPlaylistToServer, resolveCustomPlaylistNames, 
 		addSongToPlaylistInDB, removeSongFromPlaylist} from './contactServer.js'
 
-import getSongImage, {fillPlaylistPreviewImages, 
+import setSongImage, {getSongImage, fillPlaylistPreviewImages, 
 	determineFooterPlayImgSrc} from './findImages.js';
 
 
-import {getPlaylistName, removeFileExtension, getSongObjectsList} from './globals.js';
+import {getPlaylistName, removeFileExtension, addToSongObjectsList,
+		removeObjFromSongObjectsList, getSongObjectsList} from './globals.js';
+
+const iconFolderPath = 'http://127.0.0.1:5000/static/media/icons/';
+const staticFolderURL = 'http://127.0.0.1:5000/static';
+const globalPlayImgSrc = `${iconFolderPath}play.png`;
+const globalPlayingGifSrc = `${iconFolderPath}playing.gif`;
+
+
+const table = document.getElementById("songTable");
+const mainAudio = document.getElementById("mainAudio");
 const playlistName = getPlaylistName();
 const isLastAddedPlaylist = (playlistName === "Last Added");
-const songObjectsList = getSongObjectsList();
+
+
+const React = require('react');
+const ReactDOM = require('react-dom');
+
+let lastSongNum = null;
+let draggingSong = false;
+
+window.dragOverHandler = dragOverHandler;
+window.fileDropHandler = fileDropHandler;
+window.createPage = createPage;
+window.mouseDown = mouseDown;
 
 
 export function clickSongBySongNum(songNum){
@@ -62,6 +59,12 @@ export function getSongObjectBySongRow(songRow){
 	const songObject = Object.values(imgForRow)[1]['getsongobject'];
 	return songObject;
 }
+
+
+function getNextSongObject(lastSongNum){
+	return getSongObjectBySongRow(lastSongNum + 1);
+}
+
 
 export function getImgBySongRow(songRow){
 	return table.rows[songRow].firstElementChild.firstElementChild;
@@ -87,14 +90,18 @@ mainAudio.addEventListener('timeupdate', () => {
 	if(playingSongEndedNaturally){
 		seekBarProgress.style.width = '0%';
 
-		const currentSongObject = getSongObjectBySongRow(lastSongNum-1);
+		const currentSongObject = getSongObjectBySongRow(lastSongNum);
 		incrementPlayCount(currentSongObject);
-		const isLastPlaylistSong = (currentSongObject.songNum === table.rows.length);
-		if(isLastPlaylistSong){ 
-			revertPageToNoSong(currentSongObject);
+
+		const isLastPlaylistSong = (currentSongObject.songNum === table.rows.length-1);
+		if(isLastPlaylistSong){
+			currentSongObject.isPlaying = false;
+			setSongImage(lastSongNum);
+			revertPageToNoSong();
 			return;
 		}
-		const nextSongNum = lastSongNum;
+
+		const nextSongNum = lastSongNum + 1;
 		clickSongBySongNum(nextSongNum);
 	}
 });
@@ -115,17 +122,14 @@ function updatePlayingSongTimestamp(songPosition){
 
 
 
-function revertPageToNoSong(songObject){
-	songObject.isPlaying = false;
-
-	document.getElementById('footerPlayImg').src = determineFooterPlayImgSrc(songObject.isPlaying);
-	getSongImage(lastSongNum-1);
+function revertPageToNoSong(){
+	document.getElementById('footerPlayImg').src = globalPlayImgSrc;
 	document.getElementById('currentTimeStamp').innerText = '-:--';
 	document.getElementById('playingTitleID').innerText = 'Playing:';
 	document.getElementById('playingTimeLength').innerText = '-:--';
-	table.rows[songObject.songNum - 1].style = "background-color: ;";
+	table.rows[table.rows.length - 1].style = "background-color: ;";
 	mainAudio.src = "";
-	
+
 	updateSongNum(null);
 }
 
@@ -169,7 +173,7 @@ function stopDragElement() {
 	
 	draggingSong = false;
 
-	const currentSongSrc = getImgBySongRow(lastSongNum-1).src;
+	const currentSongSrc = getImgBySongRow(lastSongNum).src;
 	const pausedFromDragging = (currentSongSrc === globalPlayingGifSrc);
 	if(pausedFromDragging) mainAudio.play();
 }
@@ -187,25 +191,19 @@ function calculateDragWidth(){
 	seekBarProgress.style.width = `${(clickedWidth / seekBarWidth) * 100}%`;
 }
 
-
-
 const numOfPlaylistSongs = parseInt(document.getElementById('scriptTag').getAttribute('numOfSongs'));
 function createPage(){
 	const songNums = [...Array(numOfPlaylistSongs).keys()];
 	ReactDOM.render(
 		<>
 			{songNums.map((value, index) => {
-				return <Row key={index+1} songCount={index+1}/>
+				const returnItem = <Row key={index} songNum={index}/>;
+				setSongImage(index); // Song image src's will be set in Row func at a later point...
+				return returnItem;
 			})}
 		</>,
 		document.getElementById('tableBody')
 	);
-
-
-	for(let songCount = 1; songCount <= numOfPlaylistSongs; songCount++){
-		addSongImgEventListener(songCount);
-		getSongImage(songCount-1);
-	}
 
 	fillPlaylistPreviewImages();
 	prepareHeaderButtonListeners();
@@ -214,14 +212,25 @@ function createPage(){
 
 
 
-function Row({songCount}){
-	const songObject = new addSongObject(songCount);
+function Row({songNum}){
+	return(
+		<tr className = "songRowClass">
+			<RowContent songNum={songNum}/>
+		</tr>
+	);
+}
 
-	const currentSongObject = songObjectsList[songCount-1];
 
-	let songDiv = null;
-	if(songCount < numOfPlaylistSongs){
-		songDiv = <div className="songDivider"></div>;
+
+function RowContent({songNum}){
+	const songObject = new addSongObject(songNum);
+
+	const songObjectsList = getSongObjectsList();
+	const currentSongObject = songObjectsList[songNum];
+
+	let songDiv = <div className="songDivider"></div>;
+	if(songNum + 1 === numOfPlaylistSongs){ // songNum is 0 indexed, that's why +1 is needed
+		songDiv = null;
 	}
 
 	let dateSpan = null;
@@ -229,28 +238,112 @@ function Row({songCount}){
 		dateSpan = <span className="date-field-container"> {currentSongObject['date']} </span>;
 	}
 
-	
-
 	return(
-		<tr className="songRowClass">
-			<td className="songContainer">
-				<img className="coverImg" getsongobject={songObject}></img>
-				<span className="large-field-container"> {currentSongObject['title']} </span>
+		<>
+			<td className = "songContainer">
+				<img 
+					className = "coverImg" 
+					getsongobject = {songObject} 
+					onClick = {songImgEventListener}
+				>
+				</img>
+				<span className = "large-field-container"> {currentSongObject['title']} </span>
 				<button 
-					className="songRowAddPlaylistButton" 
+					className = "songRowAddPlaylistButton" 
 					onClick={e => createSongOptionsDropDown(e, songObject)}
 				>
 					+
 				</button>
 				<span> {currentSongObject['duration']} </span>
-				<span className="medium-field-container"> {currentSongObject['artist']} </span>
-				<span className="medium-field-container"> {currentSongObject['album']} </span>
-				<span className="small-field-container"> {currentSongObject['plays']} </span>
+				<span className = "medium-field-container"> {currentSongObject['artist']} </span>
+				<span className = "medium-field-container"> {currentSongObject['album']} </span>
+				<span className = "play small-field-container"> {currentSongObject['plays']} </span>
 				{dateSpan}
 			</td>
 			{songDiv}
-		</tr>
+		</>
 	);
+}
+
+
+
+// This is used when the page is already loaded, a song is dropped and added to the table
+export function updatePageForNewRow(newSongObj, newTotalTime){
+	document.getElementById("totalTimeText").innerText = newTotalTime;
+
+	addToSongObjectsList(newSongObj);
+	if(lastSongNum !== null){
+		updateSongNum(lastSongNum + 1);
+	}
+	
+	const newRow = table.insertRow(0);
+	newRow.className = "songRowClass";
+	ReactDOM.render(<RowContent songNum={0}/>, newRow);
+
+	updateTableSongNums();
+	setSongImage(0);
+	fillPlaylistPreviewImages();	
+}
+
+
+function updateTableSongNums(){
+	// Essentially, this just keeps the songNums in check after a new song is added 
+		// this will probably also be used when deleting a song
+	for(let newSongNum = 0; newSongNum < table.rows.length; newSongNum++){
+		getSongObjectBySongRow(newSongNum).songNum = newSongNum;
+	}
+}
+
+
+
+export function updatePageForDeletedRow(rowIndex, newTotalTime){
+	document.getElementById("totalTimeText").innerText = newTotalTime;
+
+	removeObjFromSongObjectsList(rowIndex);
+	table.deleteRow(rowIndex);
+	updateTableSongNums();
+	fillPlaylistPreviewImages();
+
+	if(lastSongNum === null){
+		return;
+	}
+	if(lastSongNum === rowIndex){
+		revertPageToNoSong();
+		return;
+	}
+	if(lastSongNum > rowIndex){
+		updateSongNum(lastSongNum - 1);
+	}
+}
+
+
+export function updatePageForDeletedSong(songFileName, newTotalTime){
+	document.getElementById("totalTimeText").innerText = newTotalTime;
+
+	let i = 0;
+	while(i < table.rows.length){
+		const currSongFileName = getSongObjectBySongRow(i).songFileName;
+		if(currSongFileName === songFileName){
+			removeObjFromSongObjectsList(i);
+			table.deleteRow(i);
+			if(lastSongNum === null){
+				continue;
+			}
+			if(lastSongNum > i){
+				updateSongNum(lastSongNum-1);
+				continue;
+			}
+			if(lastSongNum === i){
+				revertPageToNoSong();
+			}
+
+			i = 0;
+		}
+		i++;
+	}
+
+	updateTableSongNums();
+	fillPlaylistPreviewImages();
 }
 
 
@@ -263,7 +356,7 @@ addSongPromptElem.addEventListener('click', e => {
 });
 
 
-function removeAddSongPrompt(){
+export function removeAddSongPrompt(){
 	ReactDOM.unmountComponentAtNode(addSongPromptElem);
 	addSongPromptElem.style = "width: 0; height: 0";
 }
@@ -277,14 +370,19 @@ function createSongOptionsDropDown(e, songObject){
 		top: (buttonPos.y + 20) + 'px'
 	};
 	const songFileName = songObject.songFileName;
-	const songPlaylistIndex = songObject.songPlaylistIndex;
+	const indexInDB = songObject.songPlaylistIndex;
+	const indexInPage = songObject.songNum;
 
 	let removeSongOption = null;
 	if(!isLastAddedPlaylist){
 		removeSongOption 
 		  = <span 
 				className="playlistSongOption" 
-				onClick={() => removeSongFromPlaylist(songPlaylistIndex)}
+				onClick={() => {
+					removeSongFromPlaylist(indexInDB, indexInPage);
+					removeAddSongPrompt();
+					fillPlaylistPreviewImages();
+				}}
 			>
 				Remove song from playlist 
 			</span>;
@@ -318,7 +416,7 @@ function createSongOptionsDropDown(e, songObject){
 
 
 async function createPlaylistNamesDropDown(e, songFileName){
-	const playlistNames = await resolvePlaylistNames();
+	const playlistNames = await resolveCustomPlaylistNames();
 	const currentPlaylistIndex = playlistNames.indexOf(playlistName);
 	if(currentPlaylistIndex !== -1){
 		playlistNames.splice(currentPlaylistIndex, 1); //remove current playlist from playlists to choose from
@@ -356,61 +454,50 @@ async function createPlaylistNamesDropDown(e, songFileName){
 
 
 function addSongObject(songCount){
+	const songObjectsList = getSongObjectsList();
+
 	//way to reference the object itself in other functions. Probably a cleaner solution to this
 	this.getSongObject = this; 
-	this.songFileName = songObjectsList[songCount-1]['fileName'];
+	this.songFileName = songObjectsList[songCount]['fileName'];
 	this.songNum = songCount;
-	this.songPlaylistIndex = songObjectsList[songCount-1]['index'];
+	this.songPlaylistIndex = songObjectsList[songCount]['index'];
 	this.isPlaying = false;
 }
 
 
-function addSongImgEventListener(songCount){
-	const imgForRow = getImgBySongRow(songCount-1);
-	const songObject = getSongObjectBySongRow(songCount-1);
-	imgForRow.addEventListener('click', () => {
-		const currentSongNum = songObject.songNum;
-		if(lastSongNum !== currentSongNum){
-			if(lastSongNum !== null){ //revert previous song/row
-				getSongImage(lastSongNum-1);
-				songObject.isPlaying = false;
-				table.rows[lastSongNum-1].style = "";
-			}
-			mainAudio.src = `${URLforStaticFolder}/media/songs/${songObject.songFileName}`;
+function songImgEventListener(e){
+	const songObjectsList = getSongObjectsList();
 
-			const playingTitleDiv = document.getElementById('playingTitleID');
-			const songNameWithoutExtension = removeFileExtension(songObject.songFileName);
-			playingTitleDiv.innerText = `Playing: ${songNameWithoutExtension}`;
+	const songImg = e.target;
+	const songObject = Object.values(songImg)[1]['getsongobject'];
+	const currentSongNum = songObject.songNum;
 
-			const playingTimeLengthDiv = document.getElementById('playingTimeLength');
-			playingTimeLengthDiv.innerText = songObjectsList[songObject.songNum-1]['duration'];
-
-			table.rows[currentSongNum - 1].style = "background-color: #161616;";
-			
-			playlistScrollIfNeeded(currentSongNum);
+	const clickedOnAnotherSong = (lastSongNum !== currentSongNum);
+	if(clickedOnAnotherSong){
+		const songIsSelected = (lastSongNum !== null);
+		if(songIsSelected){ //revert previous song/row
+			setSongImage(lastSongNum);
+			songObject.isPlaying = false;
+			table.rows[lastSongNum].style = "";
 		}
+		mainAudio.src = `${staticFolderURL}/media/songs/${songObject.songFileName}`;
 
-		if(songObject.isPlaying) return pauseSong(songObject);
+		const playingTitleDiv = document.getElementById('playingTitleID');
+		const songNameWithoutExtension = removeFileExtension(songObject.songFileName);
+		playingTitleDiv.innerText = `Playing: ${songNameWithoutExtension}`;
 
-		updateSongNum(currentSongNum);
-		playNextSong(songObject);
-	});
-}
+		const playingTimeLengthDiv = document.getElementById('playingTimeLength');
+		playingTimeLengthDiv.innerText = songObjectsList[songObject.songNum]['duration'];
 
-
-function playlistScrollIfNeeded(currentSongNum){
-	const playlistContainer = document.getElementById('playlistContentContainer');
-	const playlistContainerCoords = playlistContainer.getBoundingClientRect();
-	const currentRowCoords = table.rows[currentSongNum - 1].getBoundingClientRect();
-
-	if(currentRowCoords.bottom > playlistContainerCoords.bottom){
-		table.rows[currentSongNum - 1].scrollIntoView(false);
-		return;
+		table.rows[currentSongNum].style = "background-color: #161616;";
+		
+		playlistScrollIfNeeded(currentSongNum);
 	}
 
-	if(currentRowCoords.top < playlistContainerCoords.top){
-		table.rows[currentSongNum - 1].scrollIntoView();
-	}
+	if(songObject.isPlaying) return pauseSong(songObject);
+
+	updateSongNum(currentSongNum);
+	playSong(songObject);
 }
 
 
@@ -421,7 +508,7 @@ function pauseSong(songObject){
 		playPromise.then(() => {
 			mainAudio.pause();
 			songObject.isPlaying = false;
-			getSongImage(songObject.songNum-1);
+			setSongImage(songObject.songNum);
 			document.getElementById('footerPlayImg').src = determineFooterPlayImgSrc(songObject.isPlaying);
 		})
 		.catch(error => {
@@ -431,11 +518,27 @@ function pauseSong(songObject){
 }
 
 
-function playNextSong(){
+function playSong(){
 	mainAudio.play();
-	const songObject = getSongObjectBySongRow(lastSongNum-1);
+	const songObject = getSongObjectBySongRow(lastSongNum);
 	songObject.isPlaying = true;
-	const imgForRow = getImgBySongRow(lastSongNum-1);
+	const imgForRow = getImgBySongRow(lastSongNum);
 	imgForRow.src = globalPlayingGifSrc;
 	document.getElementById('footerPlayImg').src = determineFooterPlayImgSrc(songObject.isPlaying);
+}
+
+
+function playlistScrollIfNeeded(currentSongNum){
+	const playlistContainer = document.getElementById('playlistContentContainer');
+	const playlistContainerCoords = playlistContainer.getBoundingClientRect();
+	const currentRowCoords = table.rows[currentSongNum].getBoundingClientRect();
+
+	if(currentRowCoords.bottom > playlistContainerCoords.bottom){
+		table.rows[currentSongNum].scrollIntoView(false);
+		return;
+	}
+
+	if(currentRowCoords.top < playlistContainerCoords.top){
+		table.rows[currentSongNum].scrollIntoView();
+	}
 }

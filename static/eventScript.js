@@ -33,7 +33,7 @@ export function prepareHeaderButtonListeners(){
 
 export function prepareFooterButtonListeners(){
 	document.getElementById("footerPrevImg").addEventListener('click', () => {
-		const previousSongNum = lastSongNum - 2;
+		const previousSongNum = lastSongNum - 1;
 		const canPlayPreviousSong = (lastSongNum !== null && previousSongNum >= 0);
 		if(canPlayPreviousSong) return clickSongBySongNum(previousSongNum);
 		console.error("Error: Cannot play previous song.");
@@ -41,13 +41,13 @@ export function prepareFooterButtonListeners(){
 
 	document.getElementById("footerPlayImg").addEventListener('click', () => {
 		if(lastSongNum === null) return (console.error("Error: Cannot play song when no song has been selected."));
-		const currentIDSongNum = lastSongNum - 1;
-		clickSongBySongNum(currentIDSongNum);
+		const currentSongNum = lastSongNum;
+		clickSongBySongNum(currentSongNum);
 	});
 
 	document.getElementById("footerNextImg").addEventListener('click', () => {
 		const canPlayPreviousSong = (lastSongNum !== null && lastSongNum >= 0);
-		const nextSongNum = lastSongNum;
+		const nextSongNum = lastSongNum + 1;
 		if(canPlayPreviousSong) return clickSongBySongNum(nextSongNum);
 		console.error("Error: Cannot play next song.");
 	});

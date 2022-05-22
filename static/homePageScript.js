@@ -1,7 +1,7 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
 
-import {resolvePlaylistNames, getPlaylistNamesFromDB,
+import {resolveCustomPlaylistNames,
 		deleteOrAddNewPlaylistToServer} from './contactServer.js';
 import {removeScreenPrompt, DropPlaylistScreenPrompt} from './globalEventListener.js';
 
@@ -11,7 +11,7 @@ createPlaylistGrid();
 
 export async function createPlaylistGrid(){
 	const names = ["Last Added"];
-	names.push(...await resolvePlaylistNames());
+	names.push(...await resolveCustomPlaylistNames());
 
 	ReactDOM.render(
 		<>

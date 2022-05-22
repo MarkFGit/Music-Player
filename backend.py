@@ -3,29 +3,57 @@
 	# This will be fixed later.
 
 
-import os
 from flask import Flask, redirect, url_for, render_template, send_from_directory, send_file, request, escape, abort
 from tinytag import TinyTag
 from PIL import Image, UnidentifiedImageError
 from io import BytesIO
 import mysql.connector
 from datetime import datetime
-import jsonpickle
+import jsonpickle 
+import os
 
 
 app = Flask(__name__, template_folder='html', static_folder='static')
 
 
-class songObject:
+class SongObject:
 	def __init__(self, songInfo):
 		self.fileName = songInfo[0]
 		self.title = songInfo[1]
 		self.duration = songInfo[2]
 		self.artist = songInfo[3]
 		self.album = songInfo[4]
-		self.date = "" # song objects will only specify dates if the "Last Added" playlist is being loaded
-		self.plays = songInfo[6]
-		self.index = "" # Indices will only be included when other, custom playlists are being loaded
+		self.plays = songInfo[5]
+
+	def __repr__(self):
+		return f"""SONG OBJECT INFO: ------------
+					File Name (songInfo[0]): {self.fileName}
+					Title (songInfo[1]): {self.title}
+					Duration (songInfo[2]): {self.duration}
+					Artist (songInfo[3]): {self.artist}
+					Album (songInfo[4]): {self.album}
+					Plays (songInfo[5]): {self.plays}"""
+
+
+class LastAddedSongObject(SongObject):
+	def __init__(self, songInfo):
+		SongObject.__init__(self, songInfo)
+		self.date = formatDate(songInfo[6])
+
+	def __repr__(self):
+		return f"""{SongObject.__repr__(self)}
+					Date (songInfo[6]): {self.date}"""
+
+
+class CustomPlaylistSongObject(SongObject):
+	def __init__(self, songInfo):
+		SongObject.__init__(self, songInfo)
+		self.index = songInfo[6]
+
+	def __repr__(self):
+		return f"""{SongObject.__repr__(self)}
+					Index (songInfo[6]): {self.index}"""
+
 
 
 @app.route("/playlists/<playlist>", methods=["POST","GET"])
@@ -42,6 +70,9 @@ def generatePlaylistOntoPage(playlist):
 		addNewCoverImgToFS(songName, songData)
 		insertNewSongEntryInDatabase(songName, songData)
 
+		return "OK"
+		# return?
+
 	playlistNames = getPlaylistNamesFromDB()["PlaylistNames"]
 	playlistNames.append("Last Added")
 	if(playlist not in playlistNames):
@@ -50,33 +81,40 @@ def generatePlaylistOntoPage(playlist):
 	isLastAddedPlaylist = (request.path == "/playlists/Last Added")
 	songObjectList = []
 	if(isLastAddedPlaylist):
-		pointer.execute(f"""SELECT * FROM `{playlist}` ORDER BY `Date Created` DESC""")
+		pointer.execute("""SELECT `File Name`, `Title`, `Formatted Song Time`,
+							`Artist`, `Album`, `Plays`, `Date Created`
+							FROM `Last Added` ORDER BY `Date Created` DESC""")
 		allSongInfos = pointer.fetchall()
 		for songInfo in allSongInfos:
-			songObj = songObject(songInfo)
-			songObj.date = formatDate(songInfo)
+			print(songInfo)
+			songObj = LastAddedSongObject(songInfo)
 			jsonSongObject = jsonpickle.encode(songObj)
 			songObjectList.append(jsonSongObject)
 	else:
-		pointer.execute(f"""SELECT * FROM `{playlist}` ORDER BY `Song Index` ASC""")
+		pointer.execute("""SELECT `File Name`, `Song Index` FROM `%s` 
+							ORDER BY `Song Index` ASC""" %playlist)
 		allSongInfos = pointer.fetchall()
 		for index, songInfo in enumerate(allSongInfos):
 			fileName = songInfo[0]
 			songIndex = songInfo[1]
 
-			pointer.execute("SELECT * FROM `Last Added` WHERE `File Name` = %s", (fileName, ))
-			allSongInfos[index] = list(pointer.fetchall()[0])
-			allSongInfos[index].append(songIndex)
+			pointer.execute("""SELECT `File Name`, `Title`, `Formatted Song Time`,
+								`Artist`, `Album`, `Plays` FROM `Last Added` 
+								WHERE `File Name` = %s""", (fileName, ))
+
+			newSongInfo = list(pointer.fetchall()[0])
+			newSongInfo.append(songIndex)
 		
-			songObj = songObject(allSongInfos[index])
-			songObj.index = songIndex
+			songObj = CustomPlaylistSongObject(newSongInfo)
+			print(songObj)
 			jsonSongObject = jsonpickle.encode(songObj)
 			songObjectList.append(jsonSongObject)
 
-	pointer.execute("SELECT * FROM `Playlist Metadata` WHERE `Table Name` = %s", (playlist, ))
+	pointer.execute("""SELECT `Date Created`, `Formatted Total Time`
+					 FROM `Playlist Metadata` WHERE `Table Name` = %s""", (playlist, ))
 	results = pointer.fetchall()[0]
-	playlistCreateDate = results[2].date()
-	formattedTotalTime = results[4]
+	playlistCreateDate = results[0].date()
+	formattedTotalTime = results[1]
 
 	return render_template('index.html', playlistName = playlist,
 										 playlistCreateDate = playlistCreateDate,
@@ -87,8 +125,8 @@ def generatePlaylistOntoPage(playlist):
 
 
 
-def formatDate(songInfo):
-	dateStr = str(songInfo[5].date())
+def formatDate(songDate):
+	dateStr = str(songDate.date())
 	yearMonthDay = dateStr.split("-")
 	concatYear = yearMonthDay[0][2:] # Take last 2 digits of year. Ex: Turn 2022 into 22
 	month = yearMonthDay[1]
@@ -192,6 +230,18 @@ def insertNewSongEntryInPlaylist():
 	db.commit()
 
 	return "OK"
+
+
+@app.route("/getNewSongInfo", methods=["POST"])
+def getNewSongInfoFromDB():
+	fileName = request.form.to_dict().get("fileName")
+	pointer.execute("""SELECT `File Name`, `Title`, `Formatted Song Time`, `Artist`, `Album`, `Plays`, `Date Created`
+						FROM `Last Added` WHERE `File Name` = %s""", (fileName,))
+	results = pointer.fetchall()[0]
+	songObj = LastAddedSongObject(results)
+	jsonSongObj = jsonpickle.encode(songObj)
+
+	return {"songObj": jsonSongObj}
 
 
 def changePlaylistTimeMetadata(songTime, playlistName, op):
@@ -304,7 +354,6 @@ def updatePlays():
 @app.route("/addPlaylist", methods=["POST"])
 def createPlaylist():
 	playlistName = request.form.to_dict().get("playlistName")
-
 	playlistNames = getPlaylistNamesFromDB()["PlaylistNames"]
 	if(playlistName in playlistNames):
 		return "ERROR: Playlist name already exists"
@@ -312,7 +361,8 @@ def createPlaylist():
 	if(len(playlistName) > 100):
 		return "ERROR: Playlist name cannot exceed 100 characters"
 
-	sql = """CREATE TABLE `%s` (`File Name` VARCHAR(100) NOT NULL, `Song Index` smallint UNSIGNED AUTO_INCREMENT KEY)""" %playlistName
+	sql = """CREATE TABLE `%s` (`File Name` VARCHAR(100) NOT NULL, 
+			`Song Index` smallint UNSIGNED AUTO_INCREMENT KEY)""" %playlistName
 	pointer.execute(sql)
 
 	pointer.execute("""INSERT INTO `Playlist Metadata` (`Table Name`, 
@@ -355,6 +405,17 @@ def getPlaylistNamesFromDB():
 	return {"PlaylistNames": playlistNames}
 
 
+@app.route("/getPlaylistTime", methods=["POST"])
+def getPlaylistTime():
+	tableName = request.form.to_dict().get("playlistName")
+	pointer.execute("""SELECT `Formatted Total Time` FROM `Playlist Metadata` 
+					WHERE `Table Name` = %s""", (tableName,))
+	totalTime = pointer.fetchall()[0]
+
+	return {"totalTime": totalTime}
+
+
+
 
 @app.route('/findImage', methods=["POST"])
 def findImageOnServer():
@@ -368,7 +429,8 @@ def findImageOnServer():
 
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'), 'media/icons/favicon.ico', mimetype='image/vnd.microsoft.icon')
+    return send_from_directory(os.path.join(app.root_path, 'static'), 
+    		'media/icons/favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 @app.errorhandler(404)
@@ -378,8 +440,10 @@ def renderNotFoundPage(e):
 
 def createInitialTables():
 	# Varchar 9 allows for **:**:** (H:M:S)
-	pointer.execute("""CREATE TABLE `Last Added` (`File Name` VARCHAR(200) PRIMARY KEY NOT NULL, 
-					Title VARCHAR(100), `Formatted Song Time` VARCHAR(9), `Song Time Seconds` smallint UNSIGNED,  Artist VARCHAR(100), 
+	pointer.execute("""CREATE TABLE `Last Added` 
+					(`File Name` VARCHAR(200) PRIMARY KEY NOT NULL, 
+					Title VARCHAR(100), `Formatted Song Time` VARCHAR(9), 
+					`Song Time Seconds` smallint UNSIGNED,  Artist VARCHAR(100), 
 					Album VARCHAR(50), `Date Created` datetime, plays smallint UNSIGNED)""")
 
 	# this table exists due to table names not saving caps, actualPlaylistName will retain the caps
@@ -387,8 +451,8 @@ def createInitialTables():
 	# MEDIUMINT - Max unsigned num can represent ~ 194 days in length
 		# SMALLINT - Max unsigned num can represent ~ 18 hours. <-- too small
 	pointer.execute("""CREATE TABLE `Playlist MetaData` (`Table Name` VARCHAR(100) PRIMARY KEY NOT NULL, 
-			`Actual Playlist Name` VARCHAR(100), `Date Created` datetime, `Total Seconds` mediumint UNSIGNED,
-			`Formatted Total Time` VARCHAR(12))""")
+						`Actual Playlist Name` VARCHAR(100), `Date Created` datetime, 
+						`Total Seconds` mediumint UNSIGNED, `Formatted Total Time` VARCHAR(12))""")
 	
 
 	pointer.execute("""INSERT INTO `Playlist MetaData` 

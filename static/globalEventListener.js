@@ -75,8 +75,9 @@ export function DropPlaylistScreenPrompt(playlistName){
 }
 
 
-export function DeleteSongScreenPrompt(songFileName){
+export async function DeleteSongScreenPrompt(songFileName){
 	const songName = removeFileExtension(songFileName);
+	const script_js = await require('./script.js');
 	renderScreenPrompt(
 		<>
 			<span className="screenPromptText"> Are you sure you want to delete the song "{songName}" from your account? </span>
@@ -84,6 +85,7 @@ export function DeleteSongScreenPrompt(songFileName){
 				className="screenPromptPositiveButton" 
 				onClick={ () => {
 					deleteSongFromDB(songFileName, songName);
+					removeScreenPrompt();
 				}}
 			> 
 				Delete Song 
