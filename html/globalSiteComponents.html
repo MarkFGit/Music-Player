@@ -1,7 +1,12 @@
-{% if select == 'navbar' %}
-	<div class="screenPrompt" id="screenPromptContainer"> </div>
-	<div class="addSongToPlaylistPrompt" id="addSongToPlaylistPrompt"> </div>
+{% if select == 'promptContainers' %}
+	<div class="screenPromptContainer" id="screenPromptContainer"> </div>
+	<div class="songOptionsPromptContainer" id="songOptionsPromptContainer"> </div>
 	<div class="successBoxContainer" id="successBoxContainer"></div>
+{% endif %}
+
+
+
+{% if select == 'navbar' %}
 	<div class="topBar">
 		<div class="searchBar"> Search... </div>
 	</div>

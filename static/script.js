@@ -8,26 +8,30 @@ import './globalComponentStyles.scss';
 import './notFoundPage.scss';
 /* ************************************************ */
 
-import {DeleteSongScreenPrompt} from './globalEventListener.js';
+import {DeleteSongScreenPrompt, renderScreenPrompt,
+		ScreenPromptCancelButton, removeScreenPrompt} from './globalEventListener.js';
 
 import updateEventScriptSongNum, {prepareHeaderButtonListeners, 
 	   prepareFooterButtonListeners} from './eventScript.js';
 
 import dragOverHandler, {fileDropHandler, incrementPlayCount,
 		createNewPlaylistToServer, resolveCustomPlaylistNames, 
-		addSongToPlaylistInDB, removeSongFromPlaylist} from './contactServer.js'
+		addSongToPlaylistInDB, removeSongFromPlaylist,
+		updateSongInfoInDB, getSongInfoFromDB} from './contactServer.js'
 
 import setSongImage, {getSongImage, fillPlaylistPreviewImages, 
-	determineFooterPlayImgSrc} from './findImages.js';
+	determineFooterPlayImgSrc, setSongImageByElem} from './findImages.js';
 
 
 import {getPlaylistName, removeFileExtension, addToSongObjectsList,
-		removeObjFromSongObjectsList, getSongObjectsList} from './globals.js';
+		removeObjFromSongObjectsList, getSongObjectsList,
+		getImgByRow, getSongObjectBySongRow, replaceObjInSongObjList} from './globals.js';
 
 const iconFolderPath = 'http://127.0.0.1:5000/static/media/icons/';
 const staticFolderURL = 'http://127.0.0.1:5000/static';
 const globalPlayImgSrc = `${iconFolderPath}play.png`;
 const globalPlayingGifSrc = `${iconFolderPath}playing.gif`;
+const noCoverImgSrc = `${iconFolderPath}noCoverImg.png`;
 
 
 const table = document.getElementById("songTable");
@@ -53,22 +57,10 @@ export function clickSongBySongNum(songNum){
 }
 
 
-export function getSongObjectBySongRow(songRow){
-	const currentRow = table.rows[songRow];
-	const imgForRow = currentRow.firstElementChild.firstElementChild;
-	const songObject = Object.values(imgForRow)[1]['getsongobject'];
-	return songObject;
-}
-
-
 function getNextSongObject(lastSongNum){
 	return getSongObjectBySongRow(lastSongNum + 1);
 }
 
-
-export function getImgBySongRow(songRow){
-	return table.rows[songRow].firstElementChild.firstElementChild;
-}
 
 export function getSongRow(songRow){
 	return table.rows[songRow].firstElementChild;
@@ -173,7 +165,7 @@ function stopDragElement() {
 	
 	draggingSong = false;
 
-	const currentSongSrc = getImgBySongRow(lastSongNum).src;
+	const currentSongSrc = getImgByRow(lastSongNum).src;
 	const pausedFromDragging = (currentSongSrc === globalPlayingGifSrc);
 	if(pausedFromDragging) mainAudio.play();
 }
@@ -229,7 +221,8 @@ function RowContent({songNum}){
 	const currentSongObject = songObjectsList[songNum];
 
 	let songDiv = <div className="songDivider"></div>;
-	if(songNum + 1 === numOfPlaylistSongs){ // songNum is 0 indexed, that's why +1 is needed
+	const isLastSong = (songNum + 1 === numOfPlaylistSongs);
+	if(isLastSong){
 		songDiv = null;
 	}
 
@@ -347,9 +340,8 @@ export function updatePageForDeletedSong(songFileName, newTotalTime){
 }
 
 
-
-const addSongPromptElem = document.getElementById("addSongToPlaylistPrompt");
-addSongPromptElem.addEventListener('click', e => {
+const songOptionsPromptContainer = document.getElementById("songOptionsPromptContainer")
+songOptionsPromptContainer.addEventListener('click', e => {
 	if(e.target.className === "addSongToPlaylistPrompt"){	
 		removeAddSongPrompt();
 	}
@@ -357,13 +349,11 @@ addSongPromptElem.addEventListener('click', e => {
 
 
 export function removeAddSongPrompt(){
-	ReactDOM.unmountComponentAtNode(addSongPromptElem);
-	addSongPromptElem.style = "width: 0; height: 0";
+	ReactDOM.unmountComponentAtNode(songOptionsPromptContainer);
 }
 
 
 function createSongOptionsDropDown(e, songObject){
-	addSongPromptElem.style = "width: 100vw; height: 100vh";
 	const buttonPos = e.target.getBoundingClientRect();
 	const stylePos = {
 		left: buttonPos.x + 'px',
@@ -388,29 +378,46 @@ function createSongOptionsDropDown(e, songObject){
 			</span>;
 	}
 
-	ReactDOM.render(
-		<div 
-			className="playlistDropDown" 
-			style={stylePos}
-		>
-			{removeSongOption}
-			<span 
-				className="playlistSongOption" 
-				onClick={() => {
-					DeleteSongScreenPrompt(songFileName);
+	let editSongOption = null;
+	if(isLastAddedPlaylist){
+		editSongOption
+		  = <span 
+				className="playlistSongOption"
+				onClick={e => {
 					removeAddSongPrompt();
+					renderEditSongWindow(e, songObject.songNum);
 				}}
-			> 
-				Delete song 
-			</span>
-			<span 
-				className="playlistSongOption" 
-				onClick={e => createPlaylistNamesDropDown(e, songFileName)}
-			> 
-				Add song to playlist
-			</span>
+			>
+				Edit Song Info
+			</span>;
+	}
+
+	ReactDOM.render(
+		<div className="addSongToPlaylistPrompt">
+			<div 
+				className="playlistDropDown" 
+				style={stylePos}
+			>
+				{removeSongOption}
+				<span 
+					className="playlistSongOption" 
+					onClick={() => {
+						removeAddSongPrompt();
+						DeleteSongScreenPrompt(songFileName);
+					}}
+				> 
+					Delete song 
+				</span>
+				<span 
+					className="playlistSongOption" 
+					onClick={e => createPlaylistNamesDropDown(e, songFileName)}
+				> 
+					Add song to playlist
+				</span>
+				{editSongOption}
+			</div>
 		</div>,
-		addSongPromptElem
+		songOptionsPromptContainer
 	);
 }
 
@@ -422,8 +429,6 @@ async function createPlaylistNamesDropDown(e, songFileName){
 		playlistNames.splice(currentPlaylistIndex, 1); //remove current playlist from playlists to choose from
 	}
 
-	addSongPromptElem.style = "width: 100vw; height: 100vh";
-
 	const optionsDropDown = e.target.parentElement;
 	const parentPos = optionsDropDown.getBoundingClientRect();
 	const stylePos = {
@@ -432,23 +437,25 @@ async function createPlaylistNamesDropDown(e, songFileName){
 	};
 
 	ReactDOM.render(
-		<div 
-			className="playlistDropDown" 
-			style={stylePos}
-		>
-			{playlistNames.map(name => {
-				return (
-					<span 
-						className="playlistSongOption"
-						key={name}
-						onClick={() => addSongToPlaylistInDB(songFileName, name)}
-					> 
-						{name} 
-					</span>
-				)
-			})}
+		<div className="addSongToPlaylistPrompt">
+			<div 
+				className="playlistDropDown" 
+				style={stylePos}
+			>
+				{playlistNames.map(name => {
+					return (
+						<span 
+							className="playlistSongOption"
+							key={name}
+							onClick={() => addSongToPlaylistInDB(songFileName, name)}
+						> 
+							{name} 
+						</span>
+					)
+				})}
+			</div>
 		</div>,
-		addSongPromptElem
+		songOptionsPromptContainer
 	);
 }
 
@@ -522,7 +529,7 @@ function playSong(){
 	mainAudio.play();
 	const songObject = getSongObjectBySongRow(lastSongNum);
 	songObject.isPlaying = true;
-	const imgForRow = getImgBySongRow(lastSongNum);
+	const imgForRow = getImgByRow(lastSongNum);
 	imgForRow.src = globalPlayingGifSrc;
 	document.getElementById('footerPlayImg').src = determineFooterPlayImgSrc(songObject.isPlaying);
 }
@@ -541,4 +548,141 @@ function playlistScrollIfNeeded(currentSongNum){
 	if(currentRowCoords.top < playlistContainerCoords.top){
 		table.rows[currentSongNum].scrollIntoView();
 	}
+}
+
+
+function renderEditSongWindow(e, songIndex){
+	const songObjectsList = getSongObjectsList();
+	const currSongObj = songObjectsList[songIndex];
+
+	renderScreenPrompt(
+		<>
+			<span style={{width: "100%"}}> Edit Song Info </span>
+			<input 
+				type="file" 
+				accept="image/*" 
+				id="img-upload" 
+				style={{display: "none"}}
+				onChange={() => {
+					const promptElem = document.getElementById("base-screen-prompt");
+					const newImgFile = promptElem.querySelector("#img-upload").files[0];
+					const previewImg = promptElem.querySelector("#edit-prompt-img");
+					const fr = new FileReader();
+					fr.onload = () => previewImg.src = fr.result;
+					fr.readAsDataURL(newImgFile);
+				}}
+			>
+			</input>
+			<label htmlFor="img-upload">
+				<span> Change Picture: </span>
+				<img 
+					id="edit-prompt-img"
+					className="coverImg"
+					/* will want some onHover effect in the future */
+				>
+				</img>
+			</label>
+			<div>
+				<span> Title: </span>
+				<InputBoxWithDefaultVal defaultVal={currSongObj["title"]}/>
+			</div>
+			<div>
+				<span> Artist: </span>
+				<InputBoxWithDefaultVal defaultVal={currSongObj["artist"]}/>
+			</div>
+			<div>
+				<span> Album: </span>
+				<InputBoxWithDefaultVal defaultVal={currSongObj["album"]}/>
+			</div>
+			<div>
+				<span> Date: </span>
+				<input className="generic-textbox" type="date"></input>
+			</div>
+			
+			<div>
+				<button 
+					className="screenPromptPositiveButton"
+					onClick={() => {
+						handleSongEdit(currSongObj["fileName"], songIndex);
+						removeScreenPrompt();
+					}}
+				>
+					Confirm
+				</button>
+				<ScreenPromptCancelButton/>
+			</div>
+		</>
+	);
+
+	const editPreviewImg = document.getElementById("edit-prompt-img");
+	setSongImageByElem(editPreviewImg, songIndex);
+}
+
+
+async function handleSongEdit(songFileName, songIndex){
+	/* gather data from all prompts, send it to backend to push to server. update local page*/
+	const promptElem = document.getElementById("base-screen-prompt");
+	const textBoxElems = promptElem.querySelectorAll(".generic-textbox");
+	const newInfo = {
+		newTitle: textBoxElems[0].value,
+		newArtist: textBoxElems[1].value,
+		newAlbum: textBoxElems[2].value,
+		newDate: textBoxElems[3].value,
+		newSongImg: null
+	};
+
+	const files = promptElem.querySelector("#img-upload").files;
+	// if no image is chosen, imgFile will be of length 0.
+	if(files.length === 1){
+		newInfo["newSongImg"] = files[0];
+	}
+
+	await updateSongInfoInDB(newInfo, songFileName);
+	const newSongObj = await getSongInfoFromDB(songFileName);
+
+	replaceObjInSongObjList(newSongObj, songIndex);
+
+	const currSongObj = getSongObjectBySongRow(songIndex);
+	if(!currSongObj.isPlaying){
+		setSongImage(songIndex);
+	}
+	const currRow = table.rows[songIndex].firstElementChild;
+	updateSongTitle(currRow, newSongObj["title"]);
+	updateSongArtist(currRow, newSongObj["artist"]);
+	updateSongAlbum(currRow, newSongObj["album"]);
+	updateSongDate(currRow, newSongObj["date"]);
+	fillPlaylistPreviewImages();
+}
+
+
+function updateSongTitle(currRow, newTitle){
+	const songTitle = currRow.querySelectorAll("*")[1];
+	songTitle.innerText = newTitle;
+}
+
+function updateSongArtist(currRow, newArtist){
+	const songArtist = currRow.querySelectorAll("*")[4];
+	songArtist.innerText = newArtist;
+}
+
+function updateSongAlbum(currRow, newAlbum){
+	const songAlbum = currRow.querySelectorAll("*")[5];
+	songAlbum.innerText = newAlbum;
+}
+
+function updateSongDate(currRow, newDate){
+	const songDate = currRow.querySelectorAll("*")[7];
+	songDate.innerText = newDate;
+}
+
+
+
+function InputBoxWithDefaultVal({defaultVal}){
+	return(
+		<input
+			className="generic-textbox"
+			type="text" 
+			defaultValue={defaultVal}>
+		</input>
+	);
 }

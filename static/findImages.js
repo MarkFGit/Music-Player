@@ -11,26 +11,38 @@ const noCoverImgSrc = `${iconFolderPath}noCoverImg.png`;
 
 const table = document.getElementById("songTable");
 
-export async function getSongImage(index){
+export function getSongImage(index){
 	const songObjectsList = getSongObjectsList();
 	const currentSongName = removeFileExtension(songObjectsList[index]['fileName']);
 	const songCoverFileName = `${currentSongName}.jpeg`;
 
-	return await fetch(
+	return fetch(
 		'/findImage',
 		{
 	    	method: 'POST',
 	    	body: songCoverFileName
 		}
 	)
-	.then(response => {	
-		if(response.statusText === "OK"){
-			return `/static/media/songCovers/${songCoverFileName}`;
+	.then(response => {
+		if(response.ok){
+			return response.json();
 		}
-		return noCoverImgSrc;
+		throw new Error(`Response from server failed with status ${response.status}.`);
+	})
+	.then(data => {
+		if(data["imageFound"] === false){
+			return noCoverImgSrc;
+		}
+		// last modification time prevents the browser from accessing cached data which is out of date
+			// i.e. updated images that are updated are not accessed through the cache for the first time
+		const lastModTime = data["lastModTime"];
+		return `/static/media/songCovers/${songCoverFileName}?${lastModTime}`;
 	})
 	.catch(error => {
-		console.error(`getSongImage received an error while trying to access ${songCoverFileName}. ${error}`);
+		console.error(`getSongImage received an error while trying to access ${songCoverFileName}. 
+						\nError: ${error}
+						\nProceeding as if no cover image exists.`);
+		return noCoverImgSrc;
 	});
 }
 
@@ -40,6 +52,13 @@ export default async function setSongImage(index){
 	const currentSongImg = table.rows[index].firstElementChild.firstElementChild;
 	currentSongImg.setAttribute('src', songImgSrc);
 }
+
+
+export async function setSongImageByElem(elem, index){
+	const songImgSrc = await getSongImage(index);
+	elem.setAttribute('src', songImgSrc);
+}
+
 
 
 export async function fillPlaylistPreviewImages(){

@@ -20,8 +20,15 @@ CSS formatting:
   font-family: sans-serif;
 }
 
+.songOptionsPromptContainer {
+  margin: 0;
+  padding: 0;
+}
+
 .addSongToPlaylistPrompt {
   position: absolute;
+  height: 100vh;
+  width: 100vw;
   margin: 0;
   padding: 0;
   color: whitesmoke;
@@ -582,11 +589,17 @@ CSS formatting:
   margin: 8px 0 0 0;
 }
 
-.screenPrompt {
+.screenPromptContainer {
+  margin: 0;
+  padding: 0;
+}
+
+.screen-prompt-blur {
   align-items: center;
   display: flex;
   justify-content: center;
   position: absolute;
+  height: 100vh;
   width: 100vw;
   margin: 0;
   padding: 0;
@@ -600,14 +613,14 @@ CSS formatting:
   font-size: large;
 }
 
-.playlistBox {
+.base-screen-prompt {
   align-content: center;
   align-items: center;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  height: 100px;
   width: 350px;
+  padding: 20px;
   background-image: linear-gradient(135deg, black, #212328);
   border-radius: 4px;
   box-shadow: 0 0 4px 0 #b3b3b3;
@@ -627,6 +640,11 @@ CSS formatting:
 }
 .screenPromptCancelButton:hover {
   background-color: #cccccc;
+}
+
+.generic-textbox {
+  width: 300px;
+  background-color: #909090;
 }
 /*!*******************************************************************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/notFoundPage.scss ***!

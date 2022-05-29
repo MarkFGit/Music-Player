@@ -73,14 +73,15 @@ export async function getNewSongData(fileName){
 
 
 
-async function sendFileXHR(currentFile, resolve){
-
-	const form = new FormData();
-	const file = currentFile;
+async function sendFileXHR(file, resolve){
+	if(file === null){
+		return;
+	}
 	
 	// Checking if a file is of acceptable type should be done on the backend, not client-side.
 	if(isNotAcceptedFileUploadType(file.type)) return;
 
+	const form = new FormData();
 	form.append("file", file);
 
 	const xhr = new XMLHttpRequest();
@@ -93,9 +94,7 @@ async function sendFileXHR(currentFile, resolve){
 		}
 	};
 
-	const playlistName = getPlaylistName();
-	const serverRoute = `/playlists/${playlistName}`;
-	xhr.open("POST", serverRoute, true);
+	xhr.open("POST", "/uploadSongFile", true);
 	xhr.send(form);
 }
 
@@ -255,4 +254,58 @@ async function getUpdatedPlaylistTime(playlistName){
 	
 	const results = await dataPromise;
 	return results['totalTime'];
+}
+
+
+
+export async function updateSongInfoInDB(newInfo, songFileName){
+	await new Promise(resolve => {
+		const form = new FormData();
+		form.append("newInfo", JSON.stringify(newInfo));
+		form.append("newSongImg", newInfo["newSongImg"]);
+		form.append("songFileName", songFileName);
+
+		const xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = () => {
+			const xhrIsDone = (xhr.readyState === 4);
+			if(xhrIsDone){
+				if(xhr.status === 200){
+					resolve();
+					return;
+				}
+				console.error(`Failed to update song info to server.
+							\nFailed with xhr status: ${xhr.status}`);
+				resolve();
+				return;
+			}
+		};
+		xhr.open("POST", "/updateSongInfo", true);
+	 	xhr.send(form);
+	});
+}
+
+
+export async function getSongInfoFromDB(songFileName){
+	const dataPromise = await new Promise(resolve => {
+		const form = new FormData();
+		form.append("songFileName", songFileName);
+
+		const xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = () => {
+			const xhrIsDone = (xhr.readyState === 4);
+			if(xhrIsDone){
+				if(xhr.status === 200){
+					resolve(JSON.parse(xhr.response));
+				}
+				else{
+					console.error(`Failed to get song info from server.
+								\nFailed with xhr status: ${xhr.status}`);
+				}
+			}
+		};
+		xhr.open("POST", "/getSongInfo", true);
+	 	xhr.send(form);
+	});
+	const songObj = JSON.parse(dataPromise["songObj"]);
+	return songObj;
 }

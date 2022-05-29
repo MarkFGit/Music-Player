@@ -16,6 +16,10 @@ import os
 app = Flask(__name__, template_folder='html', static_folder='static')
 
 
+class DateError(Exception):
+	"""Raised when datetime value is incorrect"""
+	pass
+
 class SongObject:
 	def __init__(self, songInfo):
 		self.fileName = songInfo[0]
@@ -58,20 +62,7 @@ class CustomPlaylistSongObject(SongObject):
 
 @app.route("/playlists/<playlist>", methods=["POST","GET"])
 def generatePlaylistOntoPage(playlist):
-	if(request.method == "POST"):
-		songFile = request.files['file']
-		songName = songFile.filename
-
-		songFile.save(f'static/media/songs/{songName}')
-
-		songFolder = f'C:/Users/markr/Desktop/Website/static/media/songs'
-		songData = TinyTag.get(f'{songFolder}/{songName}', image=True)
-
-		addNewCoverImgToFS(songName, songData)
-		insertNewSongEntryInDatabase(songName, songData)
-
-		return "OK"
-		# return?
+	print(os.path.join(app.root_path, 'static/'))
 
 	playlistNames = getPlaylistNamesFromDB()["PlaylistNames"]
 	playlistNames.append("Last Added")
@@ -86,7 +77,6 @@ def generatePlaylistOntoPage(playlist):
 							FROM `Last Added` ORDER BY `Date Created` DESC""")
 		allSongInfos = pointer.fetchall()
 		for songInfo in allSongInfos:
-			print(songInfo)
 			songObj = LastAddedSongObject(songInfo)
 			jsonSongObject = jsonpickle.encode(songObj)
 			songObjectList.append(jsonSongObject)
@@ -106,7 +96,6 @@ def generatePlaylistOntoPage(playlist):
 			newSongInfo.append(songIndex)
 		
 			songObj = CustomPlaylistSongObject(newSongInfo)
-			print(songObj)
 			jsonSongObject = jsonpickle.encode(songObj)
 			songObjectList.append(jsonSongObject)
 
@@ -172,9 +161,25 @@ def formatSongDurationText(songDuration):
 	return f'{minutes}:{seconds}'
 
 
+@app.route("/uploadSongFile", methods=["POST"])
+def uploadNewFile():
+	songFile = request.files['file']
+	songName = songFile.filename
+
+	songFile.save(f'static/media/songs/{songName}')
+
+	songFolder = os.path.join(app.root_path, 'static/media/songs')
+	songData = TinyTag.get(f'{songFolder}/{songName}', image=True)
+
+	addNewCoverImgToFS(songName, songData)
+	insertNewSongEntryInDatabase(songName, songData)
+
+	return "OK"
+
+
 def addNewCoverImgToFS(songName, songData):
 	try:
-		coverPathFolder = 'C:/Users/markr/Desktop/Website/static/media/songCovers'
+		coverPathFolder = os.path.join(app.root_path, 'static/media/songCovers')
 		songCoverName = f'{songName[:-4]}.jpeg'; #remove .mp3/.m4a extension, add .jpeg extension
 		songCoverPath = f'{coverPathFolder}/{songCoverName}'
 
@@ -191,6 +196,52 @@ def addNewCoverImgToFS(songName, songData):
 	except UnidentifiedImageError:
 		print("""An UnidentifiedImageError has occurred (probably while trying to open coverImage_data). 
 				 Proceeding as if image data does not exist""")
+
+
+@app.route("/updateSongInfo", methods=["POST"])
+def updateSongInfoFromUserEdit():
+	newInfo = jsonpickle.decode(request.form.to_dict().get("newInfo"))
+	songFileName = request.form.to_dict().get("songFileName")
+
+	if(newInfo["newSongImg"] != None):
+		newImgFile = request.files.to_dict().get("newSongImg")
+		songCoverName = f'{songFileName[:-4]}.jpeg' #remove .mp3/.m4a extension, add .jpeg extension
+
+		coverPathFolder = os.path.join(app.root_path, 'static/media/songCovers')
+		newImgFile.save(f'{coverPathFolder}/{songCoverName}')
+
+	if(newInfo["newDate"] != ""):
+		try:
+			pointer.execute("""UPDATE `Last Added` SET `Date Created` = %s WHERE 
+						`File Name` = %s""", (newInfo["newDate"], songFileName))
+			db.commit()
+		except mysql.connector.errors.DataError:
+			raise DateError(f"Unexpected date in function updateSongInfoFromUserEdit. Given Date: {newInfo['newDate']}")
+
+
+	pointer.execute("""UPDATE `Last Added` SET Title = %s, Artist = %s, 
+					Album = %s WHERE `File Name` = %s""",
+					(newInfo["newTitle"], newInfo["newArtist"], 
+					newInfo["newAlbum"], songFileName))
+	db.commit()
+
+	return "OK"
+
+	
+
+
+@app.route("/getSongInfo", methods=["POST"])
+def getSongObjInfo():
+	songFileName = request.form.to_dict().get("songFileName")
+
+	pointer.execute("""SELECT `File Name`, `Title`, `Formatted Song Time`,
+							`Artist`, `Album`, `Plays`, `Date Created`
+							FROM `Last Added` WHERE `File Name` = %s""", (songFileName, ))
+
+	songInfo = pointer.fetchall()[0]
+	songObj = jsonpickle.encode(LastAddedSongObject(songInfo))
+
+	return {"songObj": songObj}
 
 
 def insertNewSongEntryInDatabase(songName, songData):
@@ -421,9 +472,14 @@ def getPlaylistTime():
 def findImageOnServer():
 	songCoverName = request.data.decode("utf-8")
 	songCoverNames = os.listdir("./static/media/songCovers/")
-	if(songCoverName in songCoverNames):
-		return "OK"
-	abort(400)
+
+	lastModTime = 0
+
+	with os.scandir("./static/media/songCovers/") as dir_contents:
+		for entry in dir_contents:
+			if(entry.is_file() and entry.name == songCoverName):
+				return {"imageFound": True, "lastModTime": entry.stat().st_mtime}
+	return {"imageFound": False}
 
 
 

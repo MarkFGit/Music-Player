@@ -7,6 +7,9 @@
 </head>
 
 <body class="bodyClass" id="bodyID">
+	{% with select="promptContainers" %}
+		{% include "globalSiteComponents.html" %}
+	{% endwith %}
 	{% with select="navbar" %}
 		{% include "globalSiteComponents.html" %}
 	{% endwith %}

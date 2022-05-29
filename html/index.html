@@ -18,6 +18,9 @@
 
 
 <body class="bodyClass" id="bodyID" onload="createPage()" ondrop="fileDropHandler(event)" ondragover="dragOverHandler(event)">
+	{% with select="promptContainers" %}
+		{% include "globalSiteComponents.html" %}
+	{% endwith %}
 	{% with select="navbar" %}
 		{% include "globalSiteComponents.html" %}
 	{% endwith %}

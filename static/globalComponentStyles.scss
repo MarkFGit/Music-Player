@@ -69,13 +69,21 @@
 }
 
 
-.screenPrompt
+.screenPromptContainer
+{
+    @include noMarginOrPadding;
+}
+
+
+
+.screen-prompt-blur
 {
     align-items: center;
     display: flex;
     justify-content: center;
     position: absolute;
 
+    height: 100vh;
     width: 100vw;
 
     @include noMarginOrPadding;
@@ -95,7 +103,7 @@
 }
 
 
-.playlistBox
+.base-screen-prompt
 {
     align-content: center;
     align-items: center;
@@ -103,8 +111,9 @@
     flex-wrap: wrap;
     justify-content: center;
 
-    height: 100px;
     width: 350px;
+
+    padding: 20px;
 
     background-image: linear-gradient(135deg, black, #212328);
     border-radius: 4px;
@@ -131,4 +140,11 @@
     &:hover{
         background-color: #cccccc;
     }
+}
+
+
+.generic-textbox{
+    width: 300px;
+
+    background-color: #909090;
 }

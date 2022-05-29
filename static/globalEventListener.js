@@ -2,7 +2,12 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 import {deleteOrAddNewPlaylistToServer, resolvePlaylistNames,
 		deleteSongFromDB} from './contactServer.js';
-import {removeFileExtension} from './globals.js';
+import {removeFileExtension, getSongObjectsList, getImgByRow,
+		getSongObjectBySongRow} from './globals.js';
+
+
+const iconFolderPath = 'http://127.0.0.1:5000/static/media/icons/';
+const noCoverImgSrc = `${iconFolderPath}noCoverImg.png`;
 
 
 function addEscapeFeature(){
@@ -18,24 +23,30 @@ function addEscapeFeature(){
 document.getElementById('newPlaylistButton').addEventListener('click', NewPlaylistScreenPrompt);
 
 export function renderScreenPrompt(customPrompt){
-	document.getElementById('screenPromptContainer').style.height = '100vh';
-	document.getElementById('screenPromptContainer').style.position = 'fixed';
-	
 	ReactDOM.render(
-		<div className="playlistBox" id="playlistBox"> 
-			{customPrompt}
-			<button 
-				className="screenPromptCancelButton" 
-				onClick={removeScreenPrompt}
-			> 
-				Cancel 
-			</button>
+		<div className="screen-prompt-blur">
+			<div className="base-screen-prompt" id="base-screen-prompt">
+				{customPrompt}
+			</div>
 		</div>,
 		document.getElementById('screenPromptContainer')
 	);
 
 	addEscapeFeature();
 }
+
+
+export function ScreenPromptCancelButton(){
+	return(
+		<button 
+			className="screenPromptCancelButton" 
+			onClick={removeScreenPrompt}
+		> 
+			Cancel 
+		</button>
+	);
+}
+
 
 function NewPlaylistScreenPrompt(){
 	renderScreenPrompt(
@@ -52,6 +63,7 @@ function NewPlaylistScreenPrompt(){
 			> 
 				Add Playlist 
 			</button>
+			<ScreenPromptCancelButton/>
 		</>
 	);
 }
@@ -70,6 +82,7 @@ export function DropPlaylistScreenPrompt(playlistName){
 			> 
 				Drop Playlist 
 			</button>
+			<ScreenPromptCancelButton/>
 		</>
 	);
 }
@@ -90,6 +103,7 @@ export async function DeleteSongScreenPrompt(songFileName){
 			> 
 				Delete Song 
 			</button>
+			<ScreenPromptCancelButton/>
 		</>
 	);
 }
