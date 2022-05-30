@@ -27,8 +27,11 @@ import {getPlaylistName, removeFileExtension, addToSongObjectsList,
 		removeObjFromSongObjectsList, getSongObjectsList,
 		getImgByRow, getSongObjectBySongRow, replaceObjInSongObjList} from './globals.js';
 
-const iconFolderPath = 'http://127.0.0.1:5000/static/media/icons/';
-const staticFolderURL = 'http://127.0.0.1:5000/static';
+
+const websiteOrigin = window.location.origin;
+const staticFolderURL = `${websiteOrigin}/static`;
+const iconFolderPath = `${staticFolderURL}/media/icons/`;
+
 const globalPlayImgSrc = `${iconFolderPath}play.png`;
 const globalPlayingGifSrc = `${iconFolderPath}playing.gif`;
 const noCoverImgSrc = `${iconFolderPath}noCoverImg.png`;
@@ -119,6 +122,7 @@ function revertPageToNoSong(){
 	document.getElementById('currentTimeStamp').innerText = '-:--';
 	document.getElementById('playingTitleID').innerText = 'Playing:';
 	document.getElementById('playingTimeLength').innerText = '-:--';
+	seekBarProgress.style.width = '0%';
 	table.rows[table.rows.length - 1].style = "background-color: ;";
 	mainAudio.src = "";
 
@@ -128,7 +132,7 @@ function revertPageToNoSong(){
 
 
 function mouseDown(event) {
-	const noSelectedAudioSrc = `http://127.0.0.1:5000/playlists/${playlistName}`;
+	const noSelectedAudioSrc = `${websiteOrigin}/playlists/${playlistName}`;
 	if(mainAudio.src === noSelectedAudioSrc){
 		return console.error("Error: Cannot use seekbar when no song is selected.");
 	}

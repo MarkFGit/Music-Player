@@ -512,7 +512,8 @@ def createInitialTables():
 	
 
 	pointer.execute("""INSERT INTO `Playlist MetaData` 
-					(`Table Name`, `Actual Playlist Name`, `Date Created`, `Total Seconds`, `Formatted Total Time`) 
+					(`Table Name`, `Actual Playlist Name`, `Date Created`, 
+					`Playlist Duration Seconds`, `Formatted Total Time`) 
 					VALUES (%s, %s, %s, %s, %s)""",
 					('last added', 'Last Added', datetime.now(), 0, '00:00:00'))
 

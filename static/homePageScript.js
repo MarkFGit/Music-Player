@@ -5,7 +5,9 @@ import {resolveCustomPlaylistNames,
 		deleteOrAddNewPlaylistToServer} from './contactServer.js';
 import {removeScreenPrompt, DropPlaylistScreenPrompt} from './globalEventListener.js';
 
-const iconsFolderPath = "http://127.0.0.1:5000/static/media/icons/";
+const websiteOrigin = window.location.origin;
+const staticFolderURL = `${websiteOrigin}/static`;
+const iconFolderPath = `${staticFolderURL}/media/icons/`;
 
 createPlaylistGrid();
 
@@ -33,10 +35,10 @@ function CreatePlaylistCard({name}){
 				<img 
 					className="playlistCardOptionsButton" 
 					style={{cursor: "pointer"}} 
-					src={`${iconsFolderPath}options.png`}
+					src={`${iconFolderPath}options.png`}
 					onClick={() => DropPlaylistScreenPrompt(name)}
-					onMouseEnter={e => e.target.src = `${iconsFolderPath}optionsHover.png`}
-					onMouseLeave={e => e.target.src = `${iconsFolderPath}options.png`}
+					onMouseEnter={e => e.target.src = `${iconFolderPath}optionsHover.png`}
+					onMouseLeave={e => e.target.src = `${iconFolderPath}options.png`}
 				/>
 			</div>
 			<a href={playlistURL} className="divSpacers link-text" style={{height: "100%"}}>

@@ -7,7 +7,9 @@ export default function updateEventScriptSongNum(updatedSongNum){
 	lastSongNum = updatedSongNum;
 }
 
-const URLforIconsFolder = 'http://127.0.0.1:5000/static/media/icons';
+const websiteOrigin = window.location.origin;
+const staticFolderURL = `${websiteOrigin}/static`;
+const iconFolderPath = `${staticFolderURL}/media/icons`;
 
 export function prepareHeaderButtonListeners(){
 	const headerPlayIcon = document.getElementById('headerPlayIconID');
@@ -20,13 +22,13 @@ export function prepareHeaderButtonListeners(){
 
 	headerPlayIcon.addEventListener('mouseover', () => {
 		if(lastSongNum === null){
-			headerPlayIcon.src = `${URLforIconsFolder}/playHover.png`;
+			headerPlayIcon.src = `${iconFolderPath}/playHover.png`;
 			headerPlayIcon.style.cursor = 'pointer';
 		}
 	});
 
 	headerPlayIcon.addEventListener('mouseout', () => {
-		headerPlayIcon.src = `${URLforIconsFolder}/play.png`;
+		headerPlayIcon.src = `${iconFolderPath}/play.png`;
 		headerPlayIcon.style.cursor = 'default';
 	});
 }
@@ -56,7 +58,6 @@ export function prepareFooterButtonListeners(){
 }
 
 function addHoverToFooterImgs(){
-	const iconFolderPath = 'http://127.0.0.1:5000/static/media/icons';
 	const footerImgInfo = {
 		prev: {
 			id: 'footerPrevImg',

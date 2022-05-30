@@ -6,8 +6,8 @@ import {removeFileExtension, getSongObjectsList, getImgByRow,
 		getSongObjectBySongRow} from './globals.js';
 
 
-const iconFolderPath = 'http://127.0.0.1:5000/static/media/icons/';
-const noCoverImgSrc = `${iconFolderPath}noCoverImg.png`;
+const websiteOrigin = window.location.origin;
+const noCoverImgSrc = `${websiteOrigin}/static/media/icons/noCoverImg.png`;
 
 
 function addEscapeFeature(){
