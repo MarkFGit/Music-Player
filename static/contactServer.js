@@ -1,13 +1,9 @@
 // Notes:
 	// As the name suggests, this file is solely responsible for communicating with the backend
-	// At some point all xhr's will be replaced with fetch
 	// Circular imports will be removed in the future...
 
 import {getPlaylistName, isPlaylistPage} from './globals.js';
 import {renderCustomTextBox} from './globalEventListener.js';
-
-
-
 
 
 // dragOverHandler and fileDropHandler should really be in script.js
@@ -21,15 +17,11 @@ export async function fileDropHandler(e){
 	if(!e.dataTransfer.items) return;
 
 	const files = [...e.dataTransfer.items].map(item => item.getAsFile());
-	const newSongObjs = [];
 
 	for(const file of files){
-		const xhrPromise = new Promise(resolve => {
-			sendFileXHR(file, resolve);
-		});
-		await xhrPromise; //this await is necessary, otherwise the SQL server recieves to many requests and will crash.
+		await sendFile(file); //this await is necessary, otherwise the SQL server recieves to many requests and will crash.
 
-		const newSongObj = await getNewSongData(file.name);
+		const newSongObj = await getSongInfoFromDB(file.name);
 		const newTotalTime = await getUpdatedPlaylistTime(getPlaylistName());
 		const script_js = await require('./script.js');
 		script_js.updatePageForNewRow(newSongObj, newTotalTime);
@@ -38,42 +30,7 @@ export async function fileDropHandler(e){
 
 
 
-export async function getNewSongData(fileName){
-	const dataPromise = new Promise(resolve => {
-		if(!isPlaylistPage()){
-			return;
-		}
-
-		// Get song info from server
-		const xhr = new XMLHttpRequest();
-		const form = new FormData();
-		form.append("fileName", fileName);
-		form.append("playlistName", getPlaylistName());
-
-
-		xhr.onreadystatechange = () => {
-			const xhrIsDone = (xhr.readyState === 4);
-			if(xhrIsDone){
-				if(xhr.status === 200){
-					resolve(JSON.parse(xhr.response));
-				}
-				else{
-					console.error(`Failed to get song data`);
-				}
-			}
-		}
-
-		xhr.open("POST", "/getNewSongInfo", true);
-		xhr.send(form);
-	});
-
-	const results = await dataPromise;
-	return JSON.parse(results['songObj']);
-}
-
-
-
-async function sendFileXHR(file, resolve){
+async function sendFile(file){
 	if(file === null){
 		return;
 	}
@@ -84,18 +41,18 @@ async function sendFileXHR(file, resolve){
 	const form = new FormData();
 	form.append("file", file);
 
-	const xhr = new XMLHttpRequest();
-
-	xhr.onreadystatechange = () => { 
-		const xhrIsDone = (xhr.readyState === 4);
-		if(xhrIsDone){
-			if(xhr.status === 200) resolve();
-			else console.error(`Failed to add song. Failed with XHR status: ${xhr.status}`);
+	return fetch(
+		"/uploadSongFile",
+		{
+			method: "POST",
+			body: form,
 		}
-	};
-
-	xhr.open("POST", "/uploadSongFile", true);
-	xhr.send(form);
+	)
+	.then(response => {
+		if(!response.ok){
+			throw new Error(`Failed to upload song. Failed with status: ${response.status}`);
+		}
+	})
 }
 
 
@@ -111,103 +68,133 @@ function isNotAcceptedFileUploadType(fileType){
 
 
 export function incrementPlayCount(currentSongObject){
-	const form = new FormData();
-	form.append("songName", currentSongObject.songFileName);
-
-	const xhr = new XMLHttpRequest();
-	xhr.onreadystatechange = async () => {
-		if(xhr.readyState === 4 && xhr.status === 200){
-			const script_js = await require('./script.js');
-			const playsInRow = script_js.getSongRow(currentSongObject.songNum).querySelector('.play');
-			const currentPlayNum = parseInt(playsInRow.innerText);
-			playsInRow.innerText =  currentPlayNum + 1;
-		}	
-	};
-	xhr.open("POST", '/updatePlays', true);
-	xhr.send(form);
+	return fetch(
+		"/updatePlays",
+		{
+			method: "POST",
+			body: currentSongObject.songFileName
+		}
+	)
+	.then(async (response) => {
+		if(!response.ok){
+			throw new Error(`Failed to update play count. Failed with status: ${response.status}.`);
+		}
+		const script_js = await require('./script.js');
+		const playsInRow = script_js.getSongRow(currentSongObject.songNum).querySelector('.play');
+		const currentPlayNum = parseInt(playsInRow.innerText);
+		playsInRow.innerText =  currentPlayNum + 1;
+	})
+	.catch(error => {
+		console.error(`${error} Offending song file name: ${currentSongObject.songFileName}`)
+	})
 }
 
 
 export function deleteOrAddNewPlaylistToServer(playlistName, op){
-	const form = new FormData();
-	form.append("playlistName", playlistName);
+	let URL;
+	let successText;
+	let errorText;
+	if(op === "add"){
+		URL = "/addPlaylist";
+		successText = "Playlist added succesfully";
+		errorText = `Failed to add playlist: "${playlistName}".`
+	}
+	if(op === "delete"){
+		URL = "/deletePlaylist";
+		successText = "Playlist dropped succesfully";
+		errorText = `Failed to drop playlist: "${playlistName}".`
+	}
 
-	const xhr = new XMLHttpRequest();
-
-	xhr.onreadystatechange = async () => {
-		if(xhr.readyState === 4 && xhr.status === 200){
-			const isHomePage = (document.getElementById('playlistGrid') !== null);
-			if(isHomePage){
-				const homePageScript = await require('./homePageScript.js');
-				homePageScript.createPlaylistGrid();
-			}
-			
-			if(xhr.response !== "OK") return renderCustomTextBox(xhr.response);
-			if(op === "delete") return renderCustomTextBox("Playlist dropped succesfully");
-			if(op === "add") renderCustomTextBox("Playlist added succesfully");
+	return fetch(
+		URL,
+		{
+			method: "POST",
+			body: playlistName
 		}
-	};
-	
-	if(op === "add") xhr.open("POST", '/addPlaylist', true);
-	if(op === "delete") xhr.open("POST", '/deletePlaylist', true);
-	
-	xhr.send(form);
+	)
+	.then(async (response) => {
+		if(!response.ok){
+			throw new Error(`${errorText} Failed with status: ${response.status}`)
+		}
+
+		const isHomePage = (document.getElementById('playlistGrid') !== null);
+		if(isHomePage){
+			const homePageScript = await require('./homePageScript.js');
+			homePageScript.createPlaylistGrid();
+		}
+		
+		renderCustomTextBox(successText);
+	})
 }
 
 
-export async function resolveCustomPlaylistNames(){
-	const playlistPromise = new Promise(resolve => {
-		const xhr = new XMLHttpRequest();
-		xhr.onreadystatechange = () => {
-			if(xhr.readyState === 4 && xhr.status === 200){
-				resolve(JSON.parse(xhr.response));
-			}
-		};
-		xhr.open("POST", '/getPlaylists', true);
-		xhr.send();
-	});
 
-	const data = await playlistPromise;
-	return data["PlaylistNames"];
+export async function resolve_playlist_names(){
+	return await fetch(
+		"/getPlaylists",
+		{
+			method: "POST",
+		}
+	)
+	.then(response => {
+		if(response.ok){
+			return response.json()	
+		}
+		throw new Error("Failed to retrieve playlist names from server.")
+	})
+	.then(data => {
+		return data["PlaylistNames"]
+	})
 }
+
 
 
 export function addSongToPlaylistInDB(songFileName, playlistName){
 	const form = new FormData();
-
 	form.append('fileName', songFileName);
 	form.append('playlistName', playlistName);
 
-	const xhr = new XMLHttpRequest();
-	xhr.onreadystatechange = () => {
-		if(xhr.readyState === 4 && xhr.status === 200){
-			if(xhr.response !== "OK") return renderCustomTextBox(xhr.response);
-			renderCustomTextBox("Added to Playlist");
+	return fetch(
+		"/insertNewSong",
+		{
+			method: "POST",
+			body: form,
 		}
-	};
-
-	xhr.open("POST", '/insertNewSong', true);
-	xhr.send(form);
+	)
+	.then(response => {
+		if(!response.ok){
+			return renderCustomTextBox(`Failed to add song to playlist. Failed with status: ${response.status}`);
+		}
+		renderCustomTextBox("Added to Playlist");
+	})
 }
+
 
 
 export async function removeSongFromPlaylist(indexInDB, indexInPage){
 	const form = new FormData();
 	form.append('songPlaylistIndex', indexInDB);
-	form.append('playlistName', getPlaylistName());
+	const playlist_name = getPlaylistName();
+	form.append('playlistName', playlist_name);
 
-	const xhr = new XMLHttpRequest();
-	xhr.onreadystatechange = async () => {
-		if(xhr.readyState === 4 && xhr.status === 200){
-			if(xhr.response !== "OK") return renderCustomTextBox(xhr.response);
-
-			const script_js = await require('./script.js');
-			const newTotalTime = await getUpdatedPlaylistTime(getPlaylistName());
-			script_js.updatePageForDeletedRow(indexInPage, newTotalTime);
+	return await fetch(
+		"/removeSong",
+		{
+			method: "POST",
+			body: form,
 		}
-	};
-	xhr.open("POST", '/removeSong', true);
-	xhr.send(form);
+	)
+	.then(async (response) => {
+		if(!response.ok){
+			throw new Error("Failed to remove song from playlist.");
+		}
+		const script_js = await require('./script.js');
+		const newTotalTime = await getUpdatedPlaylistTime(getPlaylistName());
+		script_js.updatePageForDeletedRow(indexInPage, newTotalTime);
+	})
+	.catch(error => {
+		`${error} Current playlist name: ${playlist_name}. Index of song in DB: ${indexInDB}`
+	})
 }
 
 
@@ -216,96 +203,104 @@ export function deleteSongFromDB(songFileName, songName){
 	form.append('songFileName', songFileName);
 	form.append('songName', songName);
 
-	const xhr = new XMLHttpRequest();
-	xhr.onreadystatechange = async () => {
-		if(xhr.readyState === 4 && xhr.status === 200){
-			const script_js = await require('./script.js');
-			const newTotalTime = await getUpdatedPlaylistTime(getPlaylistName());
-			script_js.updatePageForDeletedSong(songFileName, newTotalTime);
+	return fetch(
+		"/deleteSong",
+		{
+			method: "POST",
+			body: form,
 		}
-	};
-
-	xhr.open("POST", '/deleteSong', true);
-	xhr.send(form);
+	)
+	.then(async (response) => {
+		if(!response.ok){
+			throw new Error(`An error was encounted while deleting a song. Failed with status ${response.status}.`)
+		}
+		const script_js = await require('./script.js');
+		const newTotalTime = await getUpdatedPlaylistTime(getPlaylistName());
+		script_js.updatePageForDeletedSong(songFileName, newTotalTime);
+	})
+	.catch(error => {
+		console.error(`${error} Offending song file name: ${songFileName}`)
+	})
 }
-
 
 
 async function getUpdatedPlaylistTime(playlistName){
-	const dataPromise = new Promise(resolve => {
-		const form = new FormData();
-		form.append("playlistName", playlistName);
-
-		const xhr = new XMLHttpRequest();
-		xhr.onreadystatechange = () => {
-			const xhrIsDone = (xhr.readyState === 4);
-			if(xhrIsDone){
-				if(xhr.status === 200){
-					resolve(JSON.parse(xhr.response));
-				}
-				else{
-					console.error(`Failed to get playlist time from server.`);
-				}
-			}
-		};
-		xhr.open("POST", "/getPlaylistTime", true);
-	 	xhr.send(form);
+	return await fetch(
+		"/getPlaylistTime",
+		{
+			method: "POST",
+			body: playlistName,
+		}
+	)
+	.then(response => {
+		if(response.ok){
+			return response.json();
+		}
+		throw new Error(`Failed to update playlist time. Failed with status: ${response.status}`);
+	})
+	.then(data => {
+		return data["totalTime"]
+	})
+	.catch(error => {
+		console.error(
+			`${error} \nRequested playlist name: ${playlistName}`
+		)
 	});
-	
-	const results = await dataPromise;
-	return results['totalTime'];
 }
 
 
+export async function updateSongInfoInDB(newInfo, song_img, songFileName){
+	const form = new FormData();
+	form.append("songFileName", songFileName);
+	form.append("newInfo", JSON.stringify(newInfo));
+	if(song_img !== null){
+		form.append("newSongImg", song_img, songFileName);
+	}
 
-export async function updateSongInfoInDB(newInfo, songFileName){
-	await new Promise(resolve => {
-		const form = new FormData();
-		form.append("newInfo", JSON.stringify(newInfo));
-		form.append("newSongImg", newInfo["newSongImg"]);
-		form.append("songFileName", songFileName);
-
-		const xhr = new XMLHttpRequest();
-		xhr.onreadystatechange = () => {
-			const xhrIsDone = (xhr.readyState === 4);
-			if(xhrIsDone){
-				if(xhr.status === 200){
-					resolve();
-					return;
-				}
-				console.error(`Failed to update song info to server.
-							\nFailed with xhr status: ${xhr.status}`);
-				resolve();
-				return;
-			}
-		};
-		xhr.open("POST", "/updateSongInfo", true);
-	 	xhr.send(form);
+	return fetch(
+		"/updateSongInfo",
+		{
+			method: "POST",
+			body: form
+		}
+	)
+	.then(response => {
+		if(!response.ok){
+			throw new Error(
+				`Failed to update song info from server. Failed with status: ${response.status}`
+			);
+		}
+	})
+	.catch(error => {
+		console.error(
+			`${error} \nRequested song file name: ${songFileName}`
+		);
 	});
 }
 
 
 export async function getSongInfoFromDB(songFileName){
-	const dataPromise = await new Promise(resolve => {
-		const form = new FormData();
-		form.append("songFileName", songFileName);
-
-		const xhr = new XMLHttpRequest();
-		xhr.onreadystatechange = () => {
-			const xhrIsDone = (xhr.readyState === 4);
-			if(xhrIsDone){
-				if(xhr.status === 200){
-					resolve(JSON.parse(xhr.response));
-				}
-				else{
-					console.error(`Failed to get song info from server.
-								\nFailed with xhr status: ${xhr.status}`);
-				}
-			}
-		};
-		xhr.open("POST", "/getSongInfo", true);
-	 	xhr.send(form);
+	return fetch(
+		"/getSongInfo",
+		{
+			method: "POST",
+			body: songFileName
+		}
+	)
+	.then(response => {
+		if(response.ok){
+			return response.json();
+		}
+		throw new Error(
+			`Failed to get song info from server with status: ${response.status}`
+		);
+	})
+	.then(data => {
+		return data["songObj"]
+	})
+	.catch(error => {
+		console.error(
+			`${error} \nRequested song file name: ${songFileName}`
+		);
 	});
-	const songObj = JSON.parse(dataPromise["songObj"]);
-	return songObj;
 }

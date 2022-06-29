@@ -15,7 +15,7 @@ import updateEventScriptSongNum, {prepareHeaderButtonListeners,
 	   prepareFooterButtonListeners} from './eventScript.js';
 
 import dragOverHandler, {fileDropHandler, incrementPlayCount,
-		createNewPlaylistToServer, resolveCustomPlaylistNames, 
+		createNewPlaylistToServer, resolve_playlist_names, 
 		addSongToPlaylistInDB, removeSongFromPlaylist,
 		updateSongInfoInDB, getSongInfoFromDB} from './contactServer.js'
 
@@ -427,7 +427,12 @@ function createSongOptionsDropDown(e, songObject){
 
 
 async function createPlaylistNamesDropDown(e, songFileName){
-	const playlistNames = await resolveCustomPlaylistNames();
+	const playlistNames = await resolve_playlist_names();
+	const index = playlistNames.indexOf("Last Added");
+	if(index > -1){
+		playlistNames.splice(index, 1);
+	}
+
 	const currentPlaylistIndex = playlistNames.indexOf(playlistName);
 	if(currentPlaylistIndex !== -1){
 		playlistNames.splice(currentPlaylistIndex, 1); //remove current playlist from playlists to choose from
@@ -632,16 +637,16 @@ async function handleSongEdit(songFileName, songIndex){
 		newArtist: textBoxElems[1].value,
 		newAlbum: textBoxElems[2].value,
 		newDate: textBoxElems[3].value,
-		newSongImg: null
 	};
 
 	const files = promptElem.querySelector("#img-upload").files;
 	// if no image is chosen, imgFile will be of length 0.
+	let song_img = null;
 	if(files.length === 1){
-		newInfo["newSongImg"] = files[0];
+		song_img = files[0];
 	}
 
-	await updateSongInfoInDB(newInfo, songFileName);
+	await updateSongInfoInDB(newInfo, song_img, songFileName);
 	const newSongObj = await getSongInfoFromDB(songFileName);
 
 	replaceObjInSongObjList(newSongObj, songIndex);
@@ -672,6 +677,12 @@ function updateSongArtist(currRow, newArtist){
 function updateSongAlbum(currRow, newAlbum){
 	const songAlbum = currRow.querySelectorAll("*")[5];
 	songAlbum.innerText = newAlbum;
+}
+
+
+function updateSongPlays(currRow, newPlays){
+	const songAlbum = currRow.querySelectorAll("*")[6];
+	songAlbum.innerText = newPlays;
 }
 
 function updateSongDate(currRow, newDate){

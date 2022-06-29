@@ -1,7 +1,7 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
 
-import {resolveCustomPlaylistNames,
+import {resolve_playlist_names,
 		deleteOrAddNewPlaylistToServer} from './contactServer.js';
 import {removeScreenPrompt, DropPlaylistScreenPrompt} from './globalEventListener.js';
 
@@ -12,13 +12,15 @@ const iconFolderPath = `${staticFolderURL}/media/icons/`;
 createPlaylistGrid();
 
 export async function createPlaylistGrid(){
-	const names = ["Last Added"];
-	names.push(...await resolveCustomPlaylistNames());
+	const names = await resolve_playlist_names();
 
 	ReactDOM.render(
 		<>
+			{<CreatePlaylistCard key={"Last Added"} name={"Last Added"}/>}
 			{names.map(name => {
-				return <CreatePlaylistCard key={name} name={name}/>
+				if(name !== "Last Added"){
+					return <CreatePlaylistCard key={name} name={name}/>
+				}
 			})}
 		</>, 
 		document.getElementById('playlistGrid')

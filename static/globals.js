@@ -14,8 +14,7 @@ export function isPlaylistPage(){
 
 let songObjectsList;
 if(isPlaylistPage()){
-	const songObjectsJSONList = JSON.parse(document.getElementById('scriptTag').getAttribute('songObjectList'));
-	songObjectsList = songObjectsJSONList.map(songObject => JSON.parse(songObject));
+	songObjectsList = JSON.parse(document.getElementById('scriptTag').getAttribute('songObjectList'));
 }
 
 export function getSongObjectsList(){

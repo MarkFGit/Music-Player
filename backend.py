@@ -3,24 +3,67 @@
 	# This will be fixed later.
 
 
-from flask import Flask, redirect, url_for, render_template, send_from_directory, send_file, request, escape, abort
+from click import DateTime
+from flask import Flask, render_template, send_from_directory, request, abort, jsonify
+from flask.json import jsonify
+from markupsafe import escape
+import mysql
 from tinytag import TinyTag
 from PIL import Image, UnidentifiedImageError
 from io import BytesIO
-import mysql.connector
 from datetime import datetime
-import jsonpickle 
+from dataclasses import dataclass
+from abc import ABC
+import mysql.connector
+import jsonpickle
 import os
 
 
-app = Flask(__name__, template_folder='html', static_folder='static')
+# Imports used to type variables ---------------------------------------------
+from flask.wrappers import Response
+
+from mysql.connector import MySQLConnection
+from mysql.connector.cursor import MySQLCursor
+from werkzeug.datastructures import FileStorage
+# ----------------------------------------------------------------------------
 
 
-class DateError(Exception):
-	"""Raised when datetime value is incorrect"""
+app = Flask(__name__, template_folder="html", static_folder="static")
+
+class BadPlaylistNameError(Exception):
+	""" Raised when a playlist name which does not exist is used. """
 	pass
 
-class SongObject:
+class NegativePlaylistTimeError(Exception):
+	""" Raised if playlist time is negative after decrementing playlist time. """
+	pass
+
+class DataBaseDataIntegrityError(Exception):
+	"""
+	Raised when selecting from a table returns zero results when it should return 1 or more results.
+	i.e. a violation of data integrity 
+	"""
+	pass
+
+
+class NoneException(Exception):
+	""" Raised when data sent from the client is None when it shouldn't be. """
+	pass
+
+
+
+
+@dataclass
+class Song(ABC):
+	"""Generic class used for specific song types to derive from"""
+
+	fileName: str
+	title: str
+	duration: str
+	artist: str
+	album: str
+	plays: int
+
 	def __init__(self, songInfo):
 		self.fileName = songInfo[0]
 		self.title = songInfo[1]
@@ -29,201 +72,257 @@ class SongObject:
 		self.album = songInfo[4]
 		self.plays = songInfo[5]
 
-	def __repr__(self):
-		return f"""SONG OBJECT INFO: ------------
-					File Name (songInfo[0]): {self.fileName}
-					Title (songInfo[1]): {self.title}
-					Duration (songInfo[2]): {self.duration}
-					Artist (songInfo[3]): {self.artist}
-					Album (songInfo[4]): {self.album}
-					Plays (songInfo[5]): {self.plays}"""
 
+@dataclass
+class LastAddedPlaylistSong(Song):
+	"""Stores info for any song rendered in the `Last Added` playlist."""
 
-class LastAddedSongObject(SongObject):
+	date: str
 	def __init__(self, songInfo):
-		SongObject.__init__(self, songInfo)
-		self.date = formatDate(songInfo[6])
-
-	def __repr__(self):
-		return f"""{SongObject.__repr__(self)}
-					Date (songInfo[6]): {self.date}"""
+		Song.__init__(self, songInfo)
+		self.date = format_date(songInfo[6])
 
 
-class CustomPlaylistSongObject(SongObject):
+@dataclass
+class CustomPlaylistSong(Song):
+	"""Stores info for any song rendered in a playlist which isn't `Last Added` """
+
+	index: int
 	def __init__(self, songInfo):
-		SongObject.__init__(self, songInfo)
+		Song.__init__(self, songInfo)
 		self.index = songInfo[6]
 
-	def __repr__(self):
-		return f"""{SongObject.__repr__(self)}
-					Index (songInfo[6]): {self.index}"""
 
+@app.route("/playlists/<playlist>", methods=["GET"])
+def send_playlist_info_to_client(playlist: str) -> str:
+	playlist = str(escape(playlist))
 
+	if(not does_playlist_exist(playlist)):
+		abort(404) # This will render the 'not found' page
 
-@app.route("/playlists/<playlist>", methods=["POST","GET"])
-def generatePlaylistOntoPage(playlist):
-	print(os.path.join(app.root_path, 'static/'))
+	is_last_added_playlist = (request.path == "/playlists/Last Added")
+	if(is_last_added_playlist):
+		DB_PTR.execute(
+			"""SELECT 
+			`File Name`, 
+			Title, 
+			`Formatted Song Time`, 
+			Artist, 
+			Album, 
+			Plays, 
+			`Date Created`
+			FROM `Last Added` ORDER BY `Date Created` DESC"""
+		)
 
-	playlistNames = getPlaylistNamesFromDB()["PlaylistNames"]
-	playlistNames.append("Last Added")
-	if(playlist not in playlistNames):
-		return renderNotFoundPage(playlist)
+		all_song_infos = DB_PTR.fetchall()
+		song_object_list = [jsonify(LastAddedPlaylistSong(song_info)).get_json() for song_info in all_song_infos]
 
-	isLastAddedPlaylist = (request.path == "/playlists/Last Added")
-	songObjectList = []
-	if(isLastAddedPlaylist):
-		pointer.execute("""SELECT `File Name`, `Title`, `Formatted Song Time`,
-							`Artist`, `Album`, `Plays`, `Date Created`
-							FROM `Last Added` ORDER BY `Date Created` DESC""")
-		allSongInfos = pointer.fetchall()
-		for songInfo in allSongInfos:
-			songObj = LastAddedSongObject(songInfo)
-			jsonSongObject = jsonpickle.encode(songObj)
-			songObjectList.append(jsonSongObject)
 	else:
-		pointer.execute("""SELECT `File Name`, `Song Index` FROM `%s` 
-							ORDER BY `Song Index` ASC""" %playlist)
-		allSongInfos = pointer.fetchall()
-		for index, songInfo in enumerate(allSongInfos):
-			fileName = songInfo[0]
-			songIndex = songInfo[1]
+		DB_PTR.execute(
+			"""SELECT
+			la_pl.`File Name`,
+			la_pl.Title,
+			la_pl.`Formatted Song Time`,
+			la_pl.Artist,
+			la_pl.Album,
+			la_pl.Plays,
+			custom_pl.`Song Index`
+			FROM `%s` AS custom_pl LEFT OUTER JOIN `Last Added` AS la_pl ON custom_pl.`File Name` = la_pl.`File Name`
+			ORDER BY custom_pl.`Song Index` ASC""" %playlist
+		)
 
-			pointer.execute("""SELECT `File Name`, `Title`, `Formatted Song Time`,
-								`Artist`, `Album`, `Plays` FROM `Last Added` 
-								WHERE `File Name` = %s""", (fileName, ))
+		all_song_infos = DB_PTR.fetchall()
+		song_object_list = [jsonify(CustomPlaylistSong(song_info)).get_json() for song_info in all_song_infos]
 
-			newSongInfo = list(pointer.fetchall()[0])
-			newSongInfo.append(songIndex)
-		
-			songObj = CustomPlaylistSongObject(newSongInfo)
-			jsonSongObject = jsonpickle.encode(songObj)
-			songObjectList.append(jsonSongObject)
+	DB_PTR.execute(
+		"""
+		SELECT 
+		`Date Created`, 
+		`Formatted Total Time`
+		FROM `Playlist Metadata` 
+		WHERE `Table Name` = %s
+		""", (playlist,)
+	)
 
-	pointer.execute("""SELECT `Date Created`, `Formatted Total Time`
-					 FROM `Playlist Metadata` WHERE `Table Name` = %s""", (playlist, ))
-	results = pointer.fetchall()[0]
-	playlistCreateDate = results[0].date()
-	formattedTotalTime = results[1]
+	results = DB_PTR.fetchall()[0]
+	playlist_create_date = format_date(results[0])
+	formatted_total_time = results[1]
 
-	return render_template('index.html', playlistName = playlist,
-										 playlistCreateDate = playlistCreateDate,
-										 formattedTotalTime = formattedTotalTime,
-										 numOfSongs = len(songObjectList), 
-										 songObjectList = songObjectList
-										 )
+	return render_template(
+		"index.html", 
+		playlistName = playlist,
+		playlistCreateDate = playlist_create_date,
+		formattedTotalTime = formatted_total_time,
+		numOfSongs = len(song_object_list), 
+		songObjectList = song_object_list
+	)
 
 
 
-def formatDate(songDate):
-	dateStr = str(songDate.date())
-	yearMonthDay = dateStr.split("-")
-	concatYear = yearMonthDay[0][2:] # Take last 2 digits of year. Ex: Turn 2022 into 22
-	month = yearMonthDay[1]
+def format_date(song_date: datetime) -> str:
+	date_str = str(song_date.date())
+	year_month_day = date_str.split("-")
+	concat_year = year_month_day[0][2:] # Take last 2 digits of year. Ex: Turn 2022 into 22
+	month = year_month_day[1]
 	if(month[0] == "0"): # Ex: turn January (which is "01") into just "1"
 		month = month[1]
-	day = yearMonthDay[2]
+	day = year_month_day[2]
 	if(day[0] == "0"): # Ex: turn the 9th (which is "09") into just "9"
 		day = day[1]
 
-	return f"{month}/{day}/{concatYear}"
+	return f"{month}/{day}/{concat_year}"
 
 
-def getTitle(songTitle, songName):
-	if(isinstance(songTitle, str)):
-		return songTitle
-	return songName[:-4]
+def get_title(song_title: str | None, song_name: str) -> str:
+	if(song_title is not None):
+		return song_title
+	return remove_file_extension(song_name)
 
-def getArtist(songArtist):
-	if(isinstance(songArtist, str)):
-		return songArtist
-	return ''
 
-def getAlbum(songAlbum):
-	if(isinstance(songAlbum, str)):
-		return songAlbum
-	return ''
+def format_song_duration_text(song_duration: int) -> str:
+	"""Takes a duration of song in seconds and returns that in **:**:** or **:** format"""
 
-def formatSongDurationText(songDuration):
-	if(not isinstance(songDuration, float) and not isinstance(songDuration, int)):
-		return ''
-
-	hours = int(songDuration / 3600)
-	remainingTime = songDuration - (hours * 3600)
-	minutes = int(remainingTime / 60)
-	seconds = int(remainingTime % 60)
+	hours = int(song_duration / 3600)
+	remaining_time = song_duration - (hours * 3600)
+	minutes = int(remaining_time / 60)
+	seconds = int(remaining_time % 60)
 
 	if(seconds < 10):
-		seconds = f'0{seconds}'
-	if(hours != 0):
-		if(minutes < 10):
-			minutes = f'0{minutes}'
-		return f'{hours}:{minutes}:{seconds}'
-	return f'{minutes}:{seconds}'
+		seconds = f"0{seconds}"
+	if(hours == 0):
+		return f"{minutes}:{seconds}"
+
+	if(minutes < 10):
+		minutes = f"0{minutes}"
+	return f"{hours}:{minutes}:{seconds}"
+
+
+def remove_file_extension(file_name: str) -> str:
+	file_extension_dot_pos = file_name.rindex(".")
+	return file_name[:file_extension_dot_pos]
 
 
 @app.route("/uploadSongFile", methods=["POST"])
-def uploadNewFile():
-	songFile = request.files['file']
-	songName = songFile.filename
+def upload_new_file() -> str:
+	song_file = request.files["file"]
+	song_name = song_file.filename
 
-	songFile.save(f'static/media/songs/{songName}')
+	if(song_name is None):
+		raise NoneException()
 
-	songFolder = os.path.join(app.root_path, 'static/media/songs')
-	songData = TinyTag.get(f'{songFolder}/{songName}', image=True)
+	song_file.save(f"static/media/songs/{song_name}")
 
-	addNewCoverImgToFS(songName, songData)
-	insertNewSongEntryInDatabase(songName, songData)
+	song_folder = os.path.join(app.root_path, "static/media/songs")
+	song_data: TinyTag = TinyTag.get(f"{song_folder}/{song_name}", image=True)
+	insert_song_entry_in_DB(song_name, song_data)
+
+	cover_image_data = song_data.get_image()
+	if(cover_image_data is not None):
+		save_cover_img_to_file_system(song_name, cover_image_data)
 
 	return "OK"
 
 
-def addNewCoverImgToFS(songName, songData):
+def save_cover_img_to_file_system(file_name: str, cover_image_data: bytes) -> None:
+	cover_path_folder = os.path.join(app.root_path, "static/media/songCovers")
+	song_cover_name = f"{remove_file_extension(file_name)}.jpeg"
+	song_cover_path = f"{cover_path_folder}/{song_cover_name}"
+
 	try:
-		coverPathFolder = os.path.join(app.root_path, 'static/media/songCovers')
-		songCoverName = f'{songName[:-4]}.jpeg'; #remove .mp3/.m4a extension, add .jpeg extension
-		songCoverPath = f'{coverPathFolder}/{songCoverName}'
-
-		# No need to add a new cover image if that cover image already exists
-		if(os.path.exists(songCoverPath)):
-			return
-
-		coverImage_data = songData.get_image()
-		if(coverImage_data == None):
-			return
-
-		coverBytes = Image.open(BytesIO(coverImage_data))
-		coverBytes.save(f'{coverPathFolder}/{songCoverName}')
+		coverBytes = Image.open(BytesIO(cover_image_data))
+		coverBytes.save(f"{cover_path_folder}/{song_cover_name}")
 	except UnidentifiedImageError:
-		print("""An UnidentifiedImageError has occurred (probably while trying to open coverImage_data). 
-				 Proceeding as if image data does not exist""")
+		print(
+			f"""
+			An UnidentifiedImageError has occurred (probably while trying to open cover_image_data). 
+			Proceeding as if image data does not exist.
+			Offending song file name: {file_name}
+			"""
+		)
+
+def insert_song_entry_in_DB(song_name: str, song_data: TinyTag) -> None:
+	song_title = get_title(song_data.title, song_name)
+
+	if(song_data.duration is None):
+		raise NoneException()
+
+	formatted_duration = format_song_duration_text(song_data.duration)
+
+	DB_PTR.execute(
+		"""INSERT INTO `last added` 
+		(
+			`File Name`, 
+			Title, 
+			`Formatted Song Time`, 
+			Artist, 
+			Album, 
+			`Date Created`, 
+			Plays, 
+			`Song Time Seconds`
+		) 
+		VALUES (%s,%s,%s,%s,%s,%s,%s,%s)""", 
+		(song_name, song_title, formatted_duration, song_data.artist, song_data.album, datetime.now(), 0, song_data.duration)
+	)
+	DB.commit()
+
+	change_playlist_time_metadata(song_data.duration, "last added", True)
+
+
+def change_playlist_time_metadata(song_time: float, playlist_name: str, isIncrement: bool) -> None:
+	song_time = round(song_time)
+
+	DB_PTR.execute(
+		"SELECT `Total Seconds` FROM `Playlist Metadata` WHERE `Table Name` = %s", (playlist_name,)
+	)
+	total_time: int = DB_PTR.fetchall()[0][0]
+	
+	if(isIncrement):
+		total_time += song_time
+	else:
+		total_time -= song_time
+		if(total_time < 0):
+			raise NegativePlaylistTimeError(
+				f"ERROR: total playlist time is now {total_time}. This value should not have become negative, but it is."
+			)
+
+	duration_text = format_song_duration_text(total_time)
+
+	DB_PTR.execute(
+		"""
+		UPDATE `Playlist Metadata` 
+		SET `Total Seconds` = %s, `Formatted Total Time` = %s 
+		WHERE `Table Name` = %s
+		""", (total_time, duration_text, playlist_name)
+	)
+
+	DB.commit()
+
 
 
 @app.route("/updateSongInfo", methods=["POST"])
-def updateSongInfoFromUserEdit():
-	newInfo = jsonpickle.decode(request.form.to_dict().get("newInfo"))
-	songFileName = request.form.to_dict().get("songFileName")
+def update_song_info_from_user_edit() -> str:
+	song_file_name = request.form.to_dict()["songFileName"]
 
-	if(newInfo["newSongImg"] != None):
-		newImgFile = request.files.to_dict().get("newSongImg")
-		songCoverName = f'{songFileName[:-4]}.jpeg' #remove .mp3/.m4a extension, add .jpeg extension
+	new_img_file = request.files.to_dict().get("newSongImg")
+	if(new_img_file is not None):
+		save_cover_img_to_file_system(song_file_name, new_img_file.stream.read())
 
-		coverPathFolder = os.path.join(app.root_path, 'static/media/songCovers')
-		newImgFile.save(f'{coverPathFolder}/{songCoverName}')
-
-	if(newInfo["newDate"] != ""):
-		try:
-			pointer.execute("""UPDATE `Last Added` SET `Date Created` = %s WHERE 
-						`File Name` = %s""", (newInfo["newDate"], songFileName))
-			db.commit()
-		except mysql.connector.errors.DataError:
-			raise DateError(f"Unexpected date in function updateSongInfoFromUserEdit. Given Date: {newInfo['newDate']}")
+	new_info: dict[str, DateTime | str] = jsonpickle.decode(request.form.to_dict()["newInfo"])
+	if(new_info["newDate"] != ""):
+		DB_PTR.execute(
+			"UPDATE `Last Added` SET `Date Created` = %s WHERE `File Name` = %s", (new_info["newDate"], song_file_name)
+		)
+		DB.commit()
 
 
-	pointer.execute("""UPDATE `Last Added` SET Title = %s, Artist = %s, 
-					Album = %s WHERE `File Name` = %s""",
-					(newInfo["newTitle"], newInfo["newArtist"], 
-					newInfo["newAlbum"], songFileName))
-	db.commit()
+	DB_PTR.execute(
+		"""
+		UPDATE `Last Added` 
+		SET Title = %s, Artist = %s, Album = %s 
+		WHERE `File Name` = %s
+		""", (new_info["newTitle"], new_info["newArtist"], new_info["newAlbum"], song_file_name)
+	)
+	DB.commit()
 
 	return "OK"
 
@@ -231,309 +330,301 @@ def updateSongInfoFromUserEdit():
 
 
 @app.route("/getSongInfo", methods=["POST"])
-def getSongObjInfo():
-	songFileName = request.form.to_dict().get("songFileName")
+def get_song_obj_info() -> dict:
+	song_file_name = request.data.decode("utf-8")
 
-	pointer.execute("""SELECT `File Name`, `Title`, `Formatted Song Time`,
-							`Artist`, `Album`, `Plays`, `Date Created`
-							FROM `Last Added` WHERE `File Name` = %s""", (songFileName, ))
+	DB_PTR.execute(
+		"""SELECT 
+		`File Name`, 
+		Title, 
+		`Formatted Song Time`,
+		Artist, 
+		Album, 
+		Plays, 
+		`Date Created`
+		FROM `Last Added` WHERE `File Name` = %s""", (song_file_name,)
+	)
 
-	songInfo = pointer.fetchall()[0]
-	songObj = jsonpickle.encode(LastAddedSongObject(songInfo))
+	song_info = DB_PTR.fetchall()[0]
+	song_obj = jsonify(LastAddedPlaylistSong(*song_info)).get_json()
 
-	return {"songObj": songObj}
-
-
-def insertNewSongEntryInDatabase(songName, songData):
-	songTitle = getTitle(songData.title, songName)
-	formattedSongDuration = formatSongDurationText(songData.duration)
-	songArtist = getArtist(songData.artist)
-	songAlbum = getAlbum(songData.album)
-
-	pointer.execute("""INSERT INTO `last added` (`File Name`, Title, `Formatted Song Time`, 
-					Artist, Album, `Date Created`, Plays, `Song Time Seconds`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)""", 
-					(songName, songTitle, formattedSongDuration, songArtist, songAlbum, datetime.now(), 0, songData.duration))
-
-	changePlaylistTimeMetadata(songData.duration, 'last added', 'increment')
-	db.commit()
+	return {"songObj": song_obj}
 
 
 
 @app.route("/insertNewSong", methods=["POST"])
-def insertNewSongEntryInPlaylist():
-	fileName = request.form.to_dict().get("fileName")
-	playlistName = request.form.to_dict().get("playlistName")
+def insert_song_into_custom_playlist() -> str:
+	playlist_name = request.form.to_dict()["playlistName"]
+	if(not does_playlist_exist(playlist_name)):
+		raise BadPlaylistNameError(f"ERROR: Bad playlist name. Given playlist name: {playlist_name}")
 
-	allPlaylistNames = getPlaylistNamesFromDB()["PlaylistNames"]
-	if(playlistName not in allPlaylistNames):
-		print("ERROR, bad playlist name")
-		print(f"playlist name is {playlistName}")
-		print(f"playlist list is {allPlaylistNames}")
-		return
-
-	sql = f"""INSERT INTO `{playlistName}` (`File Name`) VALUES ("{fileName}")"""
-	pointer.execute(sql)
-
-	pointer.execute("SELECT `Song Time Seconds` FROM `Last Added` WHERE `File Name` = %s", (fileName, ))
-	songTime = pointer.fetchall()[0][0]
-
-	changePlaylistTimeMetadata(songTime, playlistName, 'increment')
-	db.commit()
+	file_name = request.form.to_dict()["fileName"]
+	DB_PTR.execute(f"INSERT INTO `{playlist_name}` (`File Name`) VALUES (%s)", (file_name,))
+	
+	change_playlist_time_metadata(get_time_of_song(file_name), playlist_name, True)
+	DB.commit()
 
 	return "OK"
 
 
-@app.route("/getNewSongInfo", methods=["POST"])
-def getNewSongInfoFromDB():
-	fileName = request.form.to_dict().get("fileName")
-	pointer.execute("""SELECT `File Name`, `Title`, `Formatted Song Time`, `Artist`, `Album`, `Plays`, `Date Created`
-						FROM `Last Added` WHERE `File Name` = %s""", (fileName,))
-	results = pointer.fetchall()[0]
-	songObj = LastAddedSongObject(results)
-	jsonSongObj = jsonpickle.encode(songObj)
+def does_playlist_exist(playlist_name: str) -> bool:
+	DB_PTR.execute(
+		"SELECT 1 FROM `Playlist Metadata` WHERE `Actual Playlist Name` = %s", (playlist_name,)
+	)
 
-	return {"songObj": jsonSongObj}
+	if(len(DB_PTR.fetchall()) == 0):
+		return False
+	return True
 
 
-def changePlaylistTimeMetadata(songTime, playlistName, op):
-	pointer.execute("SELECT `Playlist Duration Seconds` FROM `Playlist Metadata` WHERE `Table Name` = %s", (playlistName, ))
-	totalTime = pointer.fetchall()[0][0]
-	if(op.lower() == 'increment'):
-		totalTime += songTime
-	elif(op.lower() == 'decrement'):
-		totalTime -= songTime
-		# This case should never happen if everything is correct.
-		if(totalTime < 0):
-			print(f'ERROR: total playlist time is now {totalTime}. This value should not have become negative, but it is.')
-	else:
-		abort(404) # This should never happen!
-
-	durationText = formatSongDurationText(totalTime)
-
-	pointer.execute("""UPDATE `Playlist Metadata` SET `Playlist Duration Seconds` = %s, 
-					`Formatted Total Time` = %s WHERE `Table Name` = %s""", 
-					(totalTime, durationText, playlistName))
-	db.commit()
-
-
+def get_time_of_song(file_name: str) -> int:
+	DB_PTR.execute("SELECT `Song Time Seconds` FROM `Last Added` WHERE `File Name` = %s", (file_name,))
+	return DB_PTR.fetchall()[0][0]
 
 
 @app.route("/removeSong", methods=["POST"])
-def removeSongFromPlaylist():
-	songIndex = request.form.to_dict().get("songPlaylistIndex")
-	playlistName = request.form.to_dict().get("playlistName")
+def remove_song_from_playlist() -> str:
+	song_index = request.form.to_dict()["songPlaylistIndex"]
+	playlist_name = request.form.to_dict()["playlistName"]
 
-	pointer.execute(f"SELECT `File Name` FROM `{playlistName}` WHERE `Song Index` = %s", (songIndex, ))
-	queryResults = pointer.fetchall()
-	if(len(queryResults) == 0):
-		print(f"Requested song index remove is {songIndex}")
-		print("""Bad input! Song must not exist in playlist. Either the user
-				sent bad data or something is wrong with the data""")
-		return
+	DB_PTR.execute(f"SELECT `File Name` FROM `{playlist_name}` WHERE `Song Index` = %s", (song_index,))
+	results = DB_PTR.fetchall()
+	if(len(results) == 0):
+		raise DataBaseDataIntegrityError(
+			f"Attempted to remove a song at an index which does not exist. Requested song index remove is {song_index}"
+		)
 
-	fileName = queryResults[0][0]
+	file_name = results[0][0]
+	song_time = get_time_of_song(file_name)
+	change_playlist_time_metadata(song_time, playlist_name, False)
 
-	pointer.execute("""SELECT `Song Time Seconds` FROM `Last Added` WHERE `File Name` = %s""", (fileName, ))
-	songTime = pointer.fetchall()[0][0]
-	changePlaylistTimeMetadata(songTime, playlistName, 'decrement')
-
-	pointer.execute(f"DELETE FROM `{playlistName}` WHERE `Song Index` = %s", (songIndex, ))
-	db.commit()
+	DB_PTR.execute(f"DELETE FROM `{playlist_name}` WHERE `Song Index` = %s", (song_index,))
+	DB.commit()
 
 	return "OK"
-
 
 
 @app.route("/deleteSong", methods=["POST"])
-def deleteSongFromDB():
-	songFileName = request.form.to_dict().get("songFileName")
-	songName = request.form.to_dict().get("songName")
-
-	pointer.execute("SELECT `Song Time Seconds` FROM `Last Added` WHERE `File Name` = %s", (songFileName, ))
-	songTime = pointer.fetchall()[0][0]
-
-	changePlaylistTimeMetadata(songTime, 'Last Added', 'decrement')
-
-	pointer.execute("DELETE FROM `Last Added` WHERE `File Name` = %s", (songFileName, ))
-	playlistNames = getPlaylistNamesFromDB()["PlaylistNames"]
-	db.commit()
-
-	for playlistName in playlistNames:
-		pointer.execute(f"DELETE FROM `{playlistName}` WHERE `File Name` = %s", (songFileName, ))
-		db.commit()
-
-		numOfDeletedSongs = pointer.rowcount
-
-		decrementedPlaylistTime = numOfDeletedSongs * songTime
-		changePlaylistTimeMetadata(decrementedPlaylistTime, playlistName, 'decrement')
-
-	deleteAssociatedSongFiles(songFileName, songName)
-
-	return "OK"
+def delete_song_from_DB() -> str:
+	song_file_name = request.form.to_dict()["songFileName"]
+	DB_PTR.execute("SELECT 1 FROM `Last Added` WHERE `File Name` = %s", (song_file_name,))
+	results = DB_PTR.fetchall()
+	if(len(results) == 0):
+		raise DataBaseDataIntegrityError(
+			f"Attempted to delete a song which does not exist. Requested song deletion is {song_file_name}"
+		)
 
 
-def deleteAssociatedSongFiles(songFileName, songName):
-	songFilePath = f"./static/media/songs/{songFileName}"
-	songCoverFilePath = f"./static/media/songCovers/{songName}.jpeg"
+	song_time = get_time_of_song(song_file_name)
 
-	if(os.path.exists(songFilePath)):
-		os.remove(songFilePath)
-	if(os.path.exists(songCoverFilePath)):
-		os.remove(songCoverFilePath)
+
+	playlist_names = get_playlist_names_from_DB()["PlaylistNames"]
+	for playlist in playlist_names:
+		DB_PTR.execute(f"DELETE FROM `{playlist}` WHERE `File Name` = %s", (song_file_name,))
+		DB.commit()
+
+		num_of_deleted_songs = DB_PTR.rowcount
+		if(num_of_deleted_songs > 0):
+			playlist_decrement_time = num_of_deleted_songs * song_time
+			change_playlist_time_metadata(playlist_decrement_time, playlist, False)
+
+	song_name = request.form.to_dict()["songName"]
+	delete_associated_song_files(song_file_name, song_name)
 
 	return "OK"
 
 
+def delete_associated_song_files(song_file_name: str, song_name: str) -> None:
+	song_file_path = f"./static/media/songs/{song_file_name}"
+	song_cover_file_path = f"./static/media/songCovers/{song_name}.jpeg"
 
-@app.route("/home/")
-def home():
-	return render_template('home.html')
+	assert(os.path.exists(song_file_path))
+	os.remove(song_file_path)
 
+	if(os.path.exists(song_cover_file_path)):
+		os.remove(song_cover_file_path)
 
-@app.route("/updatePlays", methods=["POST"])
-def updatePlays():
-	songName =  request.form.to_dict().get("songName")
-	pointer.execute("SELECT Plays FROM `last added` WHERE `File Name` = %s", (songName, ))
-	result = pointer.fetchall()
-	newPlayValue = result[0][0] + 1
-	pointer.execute("UPDATE `last added` SET Plays = %s WHERE `File Name` = %s", (newPlayValue, songName))
-	db.commit()
-
-	return "OK"
 
 
 @app.route("/addPlaylist", methods=["POST"])
-def createPlaylist():
-	playlistName = request.form.to_dict().get("playlistName")
-	playlistNames = getPlaylistNamesFromDB()["PlaylistNames"]
-	if(playlistName in playlistNames):
-		return "ERROR: Playlist name already exists"
+def create_playlist() -> str:
+	playlist_name = request.data.decode("utf-8")
+	playlist_names = get_playlist_names_from_DB()["PlaylistNames"]
 
-	if(len(playlistName) > 100):
-		return "ERROR: Playlist name cannot exceed 100 characters"
+	if(playlist_name in playlist_names):
+		raise BadPlaylistNameError(f"ERROR: Playlist name `{playlist_name}` already exists")
+	if(len(playlist_name) > 100):
+		raise BadPlaylistNameError(f"ERROR: Playlist name `{playlist_name}` cannot exceed 100 characters")
+ 
+	DB_PTR.execute(
+		"""CREATE TABLE `%s` (`File Name` VARCHAR(100) NOT NULL, 
+		`Song Index` smallint UNSIGNED AUTO_INCREMENT KEY)""" %playlist_name
+	)
 
-	sql = """CREATE TABLE `%s` (`File Name` VARCHAR(100) NOT NULL, 
-			`Song Index` smallint UNSIGNED AUTO_INCREMENT KEY)""" %playlistName
-	pointer.execute(sql)
-
-	pointer.execute("""INSERT INTO `Playlist Metadata` (`Table Name`, 
-					`Actual Playlist Name`, `Date Created`, `Playlist Duration Seconds`, 
-					`Formatted Total Time`) VALUES (%s, %s, %s, %s, %s)""", 
-					(playlistName.lower(), playlistName, datetime.now(), 0, "00:00:00"))
-	db.commit()
+	DB_PTR.execute(
+		"""
+		INSERT INTO `Playlist Metadata` 
+		(`Table Name`, `Actual Playlist Name`, `Date Created`, `Total Seconds`, `Formatted Total Time`) 
+		VALUES (%s, %s, %s, %s, %s)
+		""", (playlist_name.lower(), playlist_name, datetime.now(), 0, "00:00:00")
+	)
+	DB.commit()
 	
 	return "OK"
 
 
 @app.route("/deletePlaylist", methods=["POST"])
-def deletePlaylist():
-	playlistName = request.form.to_dict().get("playlistName")
+def delete_playlist() -> str:
+	playlist_name = request.data.decode("utf-8")
 
-	if(playlistName.lower() == "last added"):
-		return "ERROR: Cannot drop Last Added playlist"
+	if(playlist_name.lower() == "last added"):
+		raise BadPlaylistNameError("ERROR: Cannot drop Last Added playlist")
 
+	DB_PTR.execute("""DROP TABLE `%s`""" %playlist_name)
 
-	sql = """DROP TABLE `%s`""" %playlistName
-	pointer.execute(sql)
+	DB_PTR.execute(
+		"DELETE FROM `Playlist Metadata` WHERE `Table Name` = %s", (playlist_name,)
+	)
 
-	pointer.execute("DELETE FROM `Playlist Metadata` WHERE `Table Name` = %s", (playlistName, ))
-
-	db.commit()
+	DB.commit()
 
 	return "OK"
 
 
+
+@app.route("/updatePlays", methods=["POST"])
+def increment_plays_count() -> str:
+	song_name =  request.data.decode("utf-8")
+
+	DB_PTR.execute("SELECT Plays FROM `last added` WHERE `File Name` = %s", (song_name,)) 
+	new_play_value = DB_PTR.fetchall()[0][0] + 1
+	DB_PTR.execute(
+		"UPDATE `last added` SET Plays = %s WHERE `File Name` = %s", (new_play_value, song_name)
+	)
+
+	DB.commit()
+
+	return "OK"	
+
+
 @app.route("/getPlaylists", methods=["POST"])
-def getPlaylistNamesFromDB():
-	pointer.execute("SELECT `Actual Playlist Name` FROM `Playlist Metadata`")
-	results = pointer.fetchall()
+def get_playlist_names_from_DB() -> dict[str, list[str]]:
+	DB_PTR.execute("SELECT `Actual Playlist Name` FROM `Playlist Metadata`")
 
-	playlistNames = []
-	for result in results:
-		if (result[0] != "Last Added"):
-			playlistNames.append(result[0])
+	playlist_names: list[str] = [playlist_name[0] for playlist_name in DB_PTR.fetchall()]
 
-	return {"PlaylistNames": playlistNames}
+	return {"PlaylistNames": playlist_names}
 
 
 @app.route("/getPlaylistTime", methods=["POST"])
-def getPlaylistTime():
-	tableName = request.form.to_dict().get("playlistName")
-	pointer.execute("""SELECT `Formatted Total Time` FROM `Playlist Metadata` 
-					WHERE `Table Name` = %s""", (tableName,))
-	totalTime = pointer.fetchall()[0]
+def get_formatted_playlist_time() -> dict[str, str]:
+	table_name = request.data.decode("utf-8")
+	DB_PTR.execute(
+		"SELECT `Formatted Total Time` FROM `Playlist Metadata` WHERE `Table Name` = %s", (table_name,)
+	)
 
-	return {"totalTime": totalTime}
-
-
+	return {"totalTime": DB_PTR.fetchall()[0]}
 
 
-@app.route('/findImage', methods=["POST"])
-def findImageOnServer():
-	songCoverName = request.data.decode("utf-8")
-	songCoverNames = os.listdir("./static/media/songCovers/")
+@app.route("/findImage", methods=["POST"])
+def find_image_on_server() -> dict:
+	song_cover_name = request.data.decode("utf-8")
+	song_cover_path = f"./static/media/songCovers/{song_cover_name}"
 
-	lastModTime = 0
-
-	with os.scandir("./static/media/songCovers/") as dir_contents:
-		for entry in dir_contents:
-			if(entry.is_file() and entry.name == songCoverName):
-				return {"imageFound": True, "lastModTime": entry.stat().st_mtime}
+	if(os.path.exists(song_cover_path)):
+		return {"imageFound": True, "lastModTime": os.path.getmtime(song_cover_path)}
 	return {"imageFound": False}
 
 
 
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'), 
-    		'media/icons/favicon.ico', mimetype='image/vnd.microsoft.icon')
+@app.route("/favicon.ico")
+def favicon() -> Response:
+    return send_from_directory(
+    	os.path.join(app.root_path, "static"), 
+    	"media/icons/favicon.ico", 
+    	mimetype="image/vnd.microsoft.icon"
+    )
+
+
+@app.route("/home/")
+def home() -> str:
+	return render_template("home.html")
 
 
 @app.errorhandler(404)
-def renderNotFoundPage(e):
-	return render_template('notFound.html')
+def render_not_found_page(_) -> str:
+	return render_template("notFound.html")
 
 
-def createInitialTables():
+def create_initial_tables() -> None:
 	# Varchar 9 allows for **:**:** (H:M:S)
-	pointer.execute("""CREATE TABLE `Last Added` 
-					(`File Name` VARCHAR(200) PRIMARY KEY NOT NULL, 
-					Title VARCHAR(100), `Formatted Song Time` VARCHAR(9), 
-					`Song Time Seconds` smallint UNSIGNED,  Artist VARCHAR(100), 
-					Album VARCHAR(50), `Date Created` datetime, plays smallint UNSIGNED)""")
+
+	DB_PTR.execute(
+		"""
+		CREATE TABLE `Last Added` 
+		(
+			`File Name` VARCHAR(200) PRIMARY KEY NOT NULL, 
+			Title VARCHAR(100), 
+			`Formatted Song Time` VARCHAR(9), 
+			`Song Time Seconds` smallint UNSIGNED,  
+			Artist VARCHAR(100), 
+			Album VARCHAR(50), 
+			`Date Created` datetime, 
+			plays smallint UNSIGNED
+		)
+		"""
+	)
 
 	# this table exists due to table names not saving caps, actualPlaylistName will retain the caps
 		# As well as storing other information about the playlists
 	# MEDIUMINT - Max unsigned num can represent ~ 194 days in length
 		# SMALLINT - Max unsigned num can represent ~ 18 hours. <-- too small
-	pointer.execute("""CREATE TABLE `Playlist MetaData` (`Table Name` VARCHAR(100) PRIMARY KEY NOT NULL, 
-						`Actual Playlist Name` VARCHAR(100), `Date Created` datetime, 
-						`Total Seconds` mediumint UNSIGNED, `Formatted Total Time` VARCHAR(12))""")
+	DB_PTR.execute(
+		"""CREATE TABLE `Playlist MetaData` 
+		(
+			`Table Name` VARCHAR(100) PRIMARY KEY NOT NULL, 
+			`Actual Playlist Name` VARCHAR(100), 
+			`Date Created` DATETIME, 
+			`Total Seconds` mediumint UNSIGNED, 
+			`Formatted Total Time` VARCHAR(12)
+		)
+		"""
+	)
 	
 
-	pointer.execute("""INSERT INTO `Playlist MetaData` 
-					(`Table Name`, `Actual Playlist Name`, `Date Created`, 
-					`Playlist Duration Seconds`, `Formatted Total Time`) 
-					VALUES (%s, %s, %s, %s, %s)""",
-					('last added', 'Last Added', datetime.now(), 0, '00:00:00'))
+	DB_PTR.execute(
+		"""INSERT INTO `Playlist MetaData` 
+		(
+			`Table Name`,
+			`Actual Playlist Name`,
+			`Date Created`,
+			`Total Seconds`,
+			`Formatted Total Time`
+		) 
+		VALUES (%s, %s, %s, %s, %s)""",
+		("last added", "Last Added", datetime.now(), 0, "00:00:00")
+	)
 
-	db.commit()
-
-	return "SUCCESS"
+	DB.commit()
+	return
 
 
 if __name__ == "__main__":
-	db = mysql.connector.connect(
+	DB: MySQLConnection = mysql.connector.connect(
 		host="localhost",
 		user="root",
 		passwd="database",
-		database="testDB"
+		database="testdb"
 	)
 
-	pointer = db.cursor(buffered = True)
+	DB_PTR: MySQLCursor = DB.cursor(buffered=True)
 
-	pointer.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'testdb'") #Select all tables in testdb
-	if (len(pointer.fetchall()) == 0):
-		createInitialTables()
+	# Select all tables in testdb
+	DB_PTR.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'testdb'") 
+	if (len(DB_PTR.fetchall()) == 0):
+		create_initial_tables()
 
 	app.run(debug=True)
+
+
+	# DB_PTR.execute("""ALTER TABLE `Playlist Metadata` RENAME COLUMN `Playlist Duration Seconds` TO `Total Seconds`""")

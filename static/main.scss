@@ -292,6 +292,8 @@ CSS formatting:
 
     @include noMarginOrPadding;
 
+    image-rendering: pixelated;
+
     cursor: pointer;
     object-fit: cover;
 }

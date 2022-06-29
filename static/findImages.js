@@ -37,9 +37,11 @@ export async function getSongImage(index){
 		return `/static/media/songCovers/${songCoverFileName}?${lastModTime}`;
 	})
 	.catch(error => {
-		console.error(`getSongImage received an error while trying to access ${songCoverFileName}. 
-						\nError: ${error}
-						\nProceeding as if no cover image exists.`);
+		console.error(
+			`getSongImage received an error while trying to access ${songCoverFileName}. 
+			\n${error}
+			\nProceeding as if no cover image exists.`
+		);
 		return noCoverImgSrc;
 	});
 }
