@@ -5,6 +5,7 @@
 from flask import Flask, render_template, send_from_directory
 from datetime import datetime
 import os
+from multiprocessing import Process
 
 # Imports used to type variables ---------------------------------------------
 from flask.wrappers import Response
@@ -14,6 +15,9 @@ from flask.wrappers import Response
 from g import get_db_conn, get_db_cursor
 from playlist import playlist_routes
 from song import song_routes
+
+import backend_env
+from helper_scripts.backup_db import start_db_backup_process
 # ----------------------------------------------------------------------------
 
 
@@ -100,6 +104,10 @@ def create_init_tables_if_needed() -> None:
 
 
 if __name__ == "__main__":
+
+	Process(target=start_db_backup_process, args=(backend_env.DB_NAME,)).start()
+
 	create_init_tables_if_needed()
 
-	app.run(port=5000, debug=True)
+	app.run(port=backend_env.PORT, debug=backend_env.DEBUG_OPTION)
+	

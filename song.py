@@ -9,7 +9,7 @@ from PIL import Image, UnidentifiedImageError
 from io import BytesIO
 import jsonpickle
 import os
-
+import sys
 
 # Imports used to type variables ---------------------------------------------
 from datetime import datetime
@@ -17,7 +17,7 @@ from datetime import datetime
 
 
 # Imports from local scripts -------------------------------------------------
-from g import get_db_conn, get_db_cursor, remove_file_extension, format_date, DataBaseDataIntegrityError, _db
+from g import get_db_conn, get_db_cursor, remove_file_extension, format_date, DataBaseDataIntegrityError
 # ----------------------------------------------------------------------------
 
 
@@ -153,7 +153,7 @@ def update_song_info_from_user_edit() -> str:
 @song_routes.route("/findImage", methods=["POST"])
 def find_image_on_server() -> dict:
 	song_cover_name = request.data.decode("utf-8")
-	song_cover_path = f"./static/media/songCovers/{song_cover_name}"
+	song_cover_path = os.path.join(song_routes.root_path, f"static/media/songCovers/{song_cover_name}")
 
 	if(os.path.exists(song_cover_path)):
 		return {"imageFound": True, "lastModTime": os.path.getmtime(song_cover_path)}

@@ -4,12 +4,16 @@
 
 import mysql.connector
 
-
 # Imports used to type variables ---------------------------------------------
 from mysql.connector import MySQLConnection
 from mysql.connector.cursor import MySQLCursor
 
 from datetime import datetime
+# ----------------------------------------------------------------------------
+
+
+# Imports from local scripts -------------------------------------------------
+import backend_env
 # ----------------------------------------------------------------------------
 
 
@@ -32,7 +36,7 @@ _db: MySQLConnection = mysql.connector.connect(
 	host="localhost",
 	user="root",
 	passwd="database",
-	database="testdb"
+	database=backend_env.DB_NAME
 )
 
 
@@ -49,19 +53,17 @@ def get_db_cursor() -> MySQLCursor:
 
 
 def format_date(song_date: datetime) -> str:
-	"""Takes in a date and returns it in mm/dd/YY format"""
+	"""Takes in a date and returns it in mm/dd/YY format without any leading zeros in both month and day"""
 
 	date_str = str(song_date.date())
-	year_month_day = date_str.split("-")
-	concat_year = year_month_day[0][2:] # Take last 2 digits of year. Ex: Turn 2022 into 22
-	month = year_month_day[1]
+	year, month, day = date_str.split("-")
+	year = year[2:] # Take last 2 digits of year. Ex: Turn 2022 into 22
 	if(month[0] == "0"): # Ex: turn January (which is "01") into just "1"
 		month = month[1]
-	day = year_month_day[2]
 	if(day[0] == "0"): # Ex: turn the 9th (which is "09") into just "9"
 		day = day[1]
 
-	return f"{month}/{day}/{concat_year}"
+	return f"{month}/{day}/{year}"
 
 
 def remove_file_extension(file_name: str) -> str:
