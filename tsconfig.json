@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist/",        // path to output directory
+        "sourceMap": true,          // allow sourcemap support
+        "strictNullChecks": false,   // enable strict null checks as a best practice
+        // ^^^^^^^^^^ Set this to true when the final refactoring is being done...
+        "module": "es6",            // specify module code generation
+        "jsx": "react",             // use typescript to transpile jsx to js
+        "target": "es6",            // specify ECMAScript target version
+        "allowJs": true,            // allow a partial TypeScript and JavaScript codebase
+        "downlevelIteration": true,
+    },
+    "include": [
+        "./static/"
+    ]
+}
+
+
+// Start adding the new files and push! (remove this comment)

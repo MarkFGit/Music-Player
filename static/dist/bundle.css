@@ -1,377 +1,138 @@
-/*!***********************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/main.scss ***!
-  \***********************************************************************************************************/
-/* 
-CSS formatting:
-    - positional formatting - ex: display, position
-    - sizing ---------------- ex: width, height, font-sizing
-    - layout ---------------- ex: margin, padding
-    - color, fonts, cosmetic
- with each category alphabetized
-*/
-#bodyID {
-  margin: 0;
-  padding: 0;
-}
+/*!***********************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/scss/_globalVars.scss ***!
+  \***********************************************************************************************************************/
 
-.bodyClass * {
-  margin: 4px;
-  padding: 4px;
+/*!*********************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/scss/globalComponentStyles.scss ***!
+  \*********************************************************************************************************************************/
+.topBar {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  height: 60px;
+  width: 100%;
+  border-width: 0 0 5px 0;
+  background-color: #000000;
+  border-image: linear-gradient(to bottom, rgba(255, 0, 0, 0), rgba(66, 66, 66, 0.5)) 100;
+  border-style: solid;
   font-family: sans-serif;
 }
 
-.songOptionsPromptContainer {
-  margin: 0;
-  padding: 0;
+.searchBar {
+  align-items: center;
+  display: flex;
+  height: 30px;
+  width: 400px;
+  padding: 4px;
+  background-color: #2a2a2a;
+  border-radius: 2px;
 }
 
-.addSongToPlaylistPrompt {
+.sidePanel {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: inherit;
+  width: 70px;
+  background-color: transparent;
+}
+
+.panelButton {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  cursor: pointer;
+}
+
+.sidePanelIcon {
+  width: 40px;
+  margin: 8px 0 0 0;
+  padding: 4px;
+}
+
+.screen-prompt-blur {
+  align-items: center;
+  display: flex;
+  justify-content: center;
   position: absolute;
   height: 100vh;
   width: 100vw;
-  margin: 0;
-  padding: 0;
-  color: whitesmoke;
+  background-color: rgba(110, 110, 120, 0.4);
+  color: #908f8f;
   z-index: 1;
 }
 
-.playlistContentContainer {
-  overflow: auto;
-  position: relative;
-  height: calc(100vh - 65px - 108px);
-  width: 100vw;
-  margin: 0;
-  padding: 0;
-  background-color: #0f0f0f;
-  background-position: center;
-}
-.playlistContentContainer::-webkit-scrollbar {
-  max-height: 13px;
-  width: 13px;
-}
-.playlistContentContainer::-webkit-scrollbar-thumb {
-  background: grey;
-  border-radius: 50px;
-}
-.playlistContentContainer::-webkit-scrollbar-thumb:hover {
-  background: #9c9c9c;
-}
-.playlistContentContainer::-webkit-scrollbar-track {
-  background-color: #444444;
-}
-
-.successBoxContainer {
-  bottom: 108px;
-  display: flex;
-  position: fixed;
-  right: 13px;
-  z-index: 1;
-}
-
-@keyframes fade {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-.successBox {
+.base-screen-prompt {
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+  align-content: center;
   align-items: center;
-  display: flex;
-  justify-content: center;
-  height: 50px;
-  width: 160px;
-  background-color: #3f3f3f;
-  background-image: linear-gradient(135deg, #474747, #26272a);
-  box-shadow: 0 0 4px 0 #474747;
-  animation: fade 8s linear;
-}
-
-.addToPlaylistSuccessMessage {
-  display: flex;
-  text-align: center;
-  font-weight: 700;
-}
-
-.contentContainer {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-.playlistHeader {
-  align-items: center;
-  display: flex;
-  justify-content: left;
-  height: 180px;
-  min-width: fit-content;
-  margin: 40px 80px;
-  background-color: transparent;
-}
-
-.playlistPreviewImages {
   display: flex;
   flex-wrap: wrap;
-  height: 160px;
-  min-width: 160px;
-  width: 160px;
-  padding: 0;
-}
-
-.coverPreviewImg {
-  height: 80px;
-  width: 80px;
-  margin: 0;
-  padding: 0;
-  object-fit: cover;
-}
-
-.headerTitleAndButtons {
-  height: 170px;
-  min-width: fit-content;
-  color: white;
-  font-size: xx-large;
-  font-style: italic;
-  font-weight: 700;
-}
-
-.headerTitleAndPlay {
-  align-items: center;
-  display: flex;
-}
-
-.playlistTitle {
-  max-height: 150px;
-  max-width: 500px;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  overflow: hidden;
-}
-
-.headerPlayIcon {
-  width: 50px;
-}
-
-.playlist-buttons-and-metadata-wrapper {
-  padding: 0;
-}
-
-.playlist-buttons-container {
-  align-items: center;
-  display: flex;
-  margin: 4px 4px 2px;
-}
-
-.playlist-metadata-text-container {
-  align-items: center;
-  display: grid;
-  grid-auto-flow: column;
-  margin: 2px 4px 4px;
-}
-
-.headerSmallButton {
-  width: 85px;
-  margin: 0;
-  cursor: pointer;
-}
-
-.headerSmallButtonText {
-  margin: 0;
-  width: fit-content;
-  color: #a3a3a3;
-  font-size: 14px;
-  font-style: normal;
-}
-
-.songTableContainer {
-  min-width: fit-content;
-  width: auto;
-  border: 4px;
-  margin: 0 80px 50px 80px;
-  padding: 15px 25px 5px 25px;
-  background-color: #070707;
-  border-color: #070707;
-  border-radius: 2px;
-  border-style: solid;
-  box-shadow: 0 0 4px 0 #b3b3b3;
-  color: #c3c3c3;
-  font-size: 15px;
-}
-
-.songTableHeader {
-  display: flex;
-  min-height: 40px;
-  margin: 0 12px 0 4px;
-  padding: 0 4px;
-  color: #979090;
-  font-weight: bold;
-  font-size: 16px;
-}
-
-.imgFiller {
-  margin: 0 20px;
-  padding: 0;
-}
-
-.durationImg {
-  height: 30px;
-  width: 30px;
-  margin: 0 10px;
-  padding: 0;
-}
-
-.coverImg {
-  height: 40px;
-  width: 40px;
-  margin: 0;
-  padding: 0;
-  image-rendering: pixelated;
-  cursor: pointer;
-  object-fit: cover;
-}
-
-.songTableClass {
-  width: calc(100% - 8px);
-}
-
-.songRowClass {
-  overflow: hidden;
-}
-.songRowClass:hover {
-  background-color: #161616;
-}
-.songRowClass:hover .songRowAddPlaylistButton {
-  display: block;
-  cursor: pointer;
-}
-.songRowClass:hover .songRowAddPlaylistButton:active {
-  color: whitesmoke;
-}
-
-.songContainer {
-  align-items: center;
-  display: flex;
-  height: 40px;
-  margin: 1px;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.songRowAddPlaylistButton {
-  display: none;
-  padding: 2px;
-  background-color: transparent;
-  border: 0;
-  color: grey;
-  font-size: large;
-  font-weight: 700;
-}
-
-.playlistDropDown {
-  display: grid;
-  overflow: auto;
-  position: absolute;
-  max-height: 200px;
-  padding: 6px 4px;
-  background-color: #1f1f21;
-  box-shadow: 0 0 2px 2px #c0c0c0;
-}
-.playlistDropDown::-webkit-scrollbar {
-  max-height: 13px;
-  width: 13px;
-}
-.playlistDropDown::-webkit-scrollbar-thumb {
-  background: grey;
-  border-radius: 50px;
-}
-.playlistDropDown::-webkit-scrollbar-thumb:hover {
-  background: #9c9c9c;
-}
-.playlistDropDown::-webkit-scrollbar-track {
-  background-color: #444444;
-}
-
-.playlistSongOption {
-  margin: 1px;
-  border-radius: 5px;
-  border-color: #2b2b2e;
-  cursor: pointer;
-}
-.playlistSongOption:hover {
-  background-color: #424242;
-}
-.playlistSongOption:active {
-  background-color: #9a9a9a;
-}
-
-.large-field-container {
-  height: fit-content;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  width: 200%;
-}
-
-.medium-field-container {
-  height: fit-content;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  width: 100%;
-}
-
-.small-field-container {
-  min-width: 60px;
-  padding: 4px 0;
-  text-align: center;
-}
-
-.date-field-container {
-  height: fit-content;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  min-width: 100px;
-  padding: 4px 0;
-  text-align: center;
-}
-
-.songDivider {
-  height: 1px;
-  margin: 0;
-  padding: 0;
-  background-color: #414141;
-}
-
-.link-text {
   justify-content: center;
-  height: fit-content;
-  color: white;
-  text-decoration: none;
-}
-.link-text:active {
-  color: grey;
-}
-.link-text:hover {
-  text-decoration: underline;
+  width: 350px;
+  padding: 20px;
+  background-image: linear-gradient(135deg, black, #212328);
+  border-radius: 4px;
+  box-shadow: 0 0 4px 0 #b3b3b3;
 }
 
-/* m/p: x,y; vertical | horizontal */
-/* m/p: w,y,x,z; TRBL */
-/* m/p: y,x,z; top | horizontal | bottom */
-/*!***************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/homePage.scss ***!
-  \***************************************************************************************************************/
+.screenPromptText {
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+  width: 100%;
+  font-size: large;
+}
+
+.screenPromptPositiveButton {
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+  background-color: white;
+  border-radius: 2px;
+}
+.screenPromptPositiveButton:hover {
+  background-color: #b6b9d9;
+}
+
+.screenPromptCancelButton {
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+  background-color: #9f9f9f;
+  border-radius: 2px;
+}
+.screenPromptCancelButton:hover {
+  background-color: #cccccc;
+}
+
+.generic-textbox {
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+  width: 300px;
+  background-color: #909090;
+}
+
+.small-generic-textbox {
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+  background-color: #909090;
+}
+/*!********************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/scss/homePage.scss ***!
+  \********************************************************************************************************************/
 .homePageBackground {
   min-height: calc(100vh - 65px);
-  margin: 0;
-  padding: 0;
   background-color: #0f0f0f;
 }
 
 .playlistGridContainer {
   height: calc(100vh - 65px);
-  margin: 0;
-  padding: 0;
+  font-family: sans-serif;
   overflow: auto;
 }
 .playlistGridContainer::-webkit-scrollbar {
@@ -396,12 +157,14 @@ CSS formatting:
   grid-template-columns: repeat(auto-fill, 264px);
   justify-content: center;
   min-width: 266px;
-  margin: 0;
   padding: 40px 80px;
   overflow: auto;
 }
 
 .playlistCard {
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
   display: flex;
   flex-direction: column;
   height: 150px;
@@ -413,32 +176,28 @@ CSS formatting:
 
 .divSpacers {
   display: flex;
-  margin: 0;
-  padding: 0;
 }
 
 .playlistCardOptionsButton {
   height: 30px;
   width: 30px;
-  margin: 0;
-  padding: 0;
 }
 
 .playlistPreviewTitle {
   max-height: calc(100% - 16px);
 }
-/*!*********************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/lowerBarStyles.scss ***!
-  \*********************************************************************************************************************/
+/*!**************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/scss/lowerBarStyles.scss ***!
+  \**************************************************************************************************************************/
 .lowerBar {
   height: 100px;
   width: calc(100vw - 20px);
   border-width: 8px 0 0 0;
-  margin: 0;
   padding: 0 10px;
   background-color: #000;
   border-image: linear-gradient(to top, rgba(255, 0, 0, 0), rgba(66, 66, 66, 0.5)) 100;
   border-style: solid;
+  font-family: sans-serif;
 }
 
 .seekBar {
@@ -456,8 +215,6 @@ CSS formatting:
 .seekBarProgress {
   height: 7px;
   width: 0;
-  margin: 0;
-  padding: 0;
   background-color: royalblue;
   border-radius: 100px;
 }
@@ -466,38 +223,41 @@ CSS formatting:
   height: 80px;
   width: 80px;
   margin: 0 -35px;
-  padding: 0 0;
   background: white;
   border: 2px solid #000;
   border-radius: 100px;
   transform: scale(0.2, 0.2);
 }
 
-.lowerBarButtonsWrapper {
+.lowerBarTextAndButtonsWrapper {
   display: flex;
   margin: 0 5px;
-  padding: 0;
+  font-size: 12px;
   justify-content: center;
 }
 
 .currentTimeAndTitle {
   float: left;
   flex-grow: 1;
-  width: 10%;
-  margin: 0;
+  width: 40%;
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+  padding-bottom: 0;
   padding-top: 0;
   color: #cecece;
-  /* very light grey */
 }
 
 .lowerBarSmallText {
-  font-size: 12px;
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+  margin: 4px 0;
 }
 
 .playingTitle {
   height: 35px;
-  margin: 0 0 0 4px;
-  padding: 0 0 0 4px;
+  padding: 4px;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -505,26 +265,25 @@ CSS formatting:
   font-size: 15px;
 }
 
-.threeButtonContainer {
+.lowerBarButtonsWrapper {
   align-items: center;
-  display: flex;
-  /* gap? */
+  display: flex; /* gap? */
   justify-content: center;
   flex-grow: 2;
-  width: fit-content;
+  width: 20%;
   margin: auto;
-  padding: 0;
 }
 
 .mainImg {
   width: 60px;
-  margin: 0;
-  padding: 0;
   cursor: pointer;
 }
 
 .smallImg {
   width: 30px;
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
   cursor: pointer;
 }
 
@@ -532,124 +291,394 @@ CSS formatting:
   flex-grow: 1;
   float: right;
   text-align: right;
-  width: 10%;
+  width: 40%;
+  margin: 4px;
   margin-top: 0;
   margin-bottom: 0;
   color: #cecece;
-  /* very light grey */
 }
-/*!****************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/globalComponentStyles.scss ***!
-  \****************************************************************************************************************************/
-.topBar {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  height: 60px;
-  width: 100%;
-  border-width: 0 0 5px 0;
+/*!****************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/scss/main.scss ***!
+  \****************************************************************************************************************/
+.body {
   margin: 0;
-  padding: 0;
-  background-color: #000000;
-  border-image: linear-gradient(to bottom, rgba(255, 0, 0, 0), rgba(66, 66, 66, 0.5)) 100;
-  border-style: solid;
 }
 
-.searchBar {
-  align-items: center;
-  display: flex;
-  height: 30px;
-  width: 400px;
-  margin: 0;
-  background-color: #2a2a2a;
-  border-radius: 2px;
+.generic-attrs {
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
 }
 
-.sidePanel {
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  height: inherit;
-  width: 70px;
-  margin: 0;
-  padding: 0;
-  background-color: transparent;
-}
-
-.panelButton {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin: 0;
-  padding: 0;
-  cursor: pointer;
-}
-
-.sidePanelIcon {
-  width: 40px;
-  margin: 8px 0 0 0;
-}
-
-.screenPromptContainer {
-  margin: 0;
-  padding: 0;
-}
-
-.screen-prompt-blur {
-  align-items: center;
-  display: flex;
-  justify-content: center;
+.song-drop-down-invisible-background {
   position: absolute;
   height: 100vh;
   width: 100vw;
-  margin: 0;
-  padding: 0;
-  background-color: rgba(110, 110, 120, 0.4);
-  color: #908f8f;
+  color: whitesmoke;
   z-index: 1;
 }
 
-.screenPromptText {
-  width: 100%;
-  font-size: large;
+.song-drop-down {
+  display: grid;
+  overflow: auto;
+  position: absolute;
+  max-height: 200px;
+  margin: 4px;
+  padding: 6px 4px;
+  background-color: #1f1f21;
+  box-shadow: 0 0 2px 2px #c0c0c0;
+}
+.song-drop-down::-webkit-scrollbar {
+  max-height: 13px;
+  width: 13px;
+}
+.song-drop-down::-webkit-scrollbar-thumb {
+  background: grey;
+  border-radius: 50px;
+}
+.song-drop-down::-webkit-scrollbar-thumb:hover {
+  background: #9c9c9c;
+}
+.song-drop-down::-webkit-scrollbar-track {
+  background-color: #444444;
 }
 
-.base-screen-prompt {
-  align-content: center;
+.playlistContentContainer {
+  overflow: auto;
+  position: relative;
+  height: calc(100vh - 65px - 108px);
+  width: 100vw;
+  background-color: #0f0f0f;
+  background-position: center;
+}
+.playlistContentContainer::-webkit-scrollbar {
+  max-height: 13px;
+  width: 13px;
+}
+.playlistContentContainer::-webkit-scrollbar-thumb {
+  background: grey;
+  border-radius: 50px;
+}
+.playlistContentContainer::-webkit-scrollbar-thumb:hover {
+  background: #9c9c9c;
+}
+.playlistContentContainer::-webkit-scrollbar-track {
+  background-color: #444444;
+}
+
+.successBoxContainer {
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+  bottom: 108px;
+  display: flex;
+  position: fixed;
+  right: 13px;
+  z-index: 1;
+}
+
+@keyframes fade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.successBox {
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
   align-items: center;
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
-  width: 350px;
-  padding: 20px;
-  background-image: linear-gradient(135deg, black, #212328);
-  border-radius: 4px;
+  height: 50px;
+  width: 160px;
+  background-color: #3f3f3f;
+  background-image: linear-gradient(135deg, #474747, #26272a);
+  box-shadow: 0 0 4px 0 #474747;
+  animation: fade 8s linear;
+}
+
+.addToPlaylistSuccessMessage {
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+  display: flex;
+  text-align: center;
+  font-weight: 700;
+}
+
+.contentContainer {
+  width: 100%;
+}
+
+.playlistHeader {
+  align-items: center;
+  display: flex;
+  justify-content: left;
+  height: 180px;
+  min-width: fit-content;
+  margin: 40px 80px;
+  padding: 4px;
+  background-color: transparent;
+  font-family: sans-serif;
+}
+
+.playlistPreviewImages {
+  display: flex;
+  flex-wrap: wrap;
+  height: 160px;
+  min-width: 160px;
+  width: 160px;
+  margin: 4px;
+  padding: 0;
+}
+
+.coverPreviewImg {
+  height: 80px;
+  width: 80px;
+  object-fit: cover;
+}
+
+.headerTitleAndButtons {
+  height: 170px;
+  min-width: fit-content;
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+  color: white;
+  font-size: xx-large;
+  font-style: italic;
+  font-weight: 700;
+}
+
+.headerTitleAndPlay {
+  align-items: center;
+  display: flex;
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+}
+
+.playlistTitle {
+  max-height: 150px;
+  max-width: 500px;
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.headerPlayIcon {
+  width: 50px;
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+}
+
+.playlist-buttons-and-metadata-wrapper {
+  margin: 4px;
+}
+
+.playlist-buttons-container {
+  align-items: center;
+  display: flex;
+  margin: 4px 4px 2px;
+  padding: 4px;
+}
+
+.playlist-metadata-text-container {
+  align-items: center;
+  display: grid;
+  grid-auto-flow: column;
+  margin: 2px 4px 4px;
+  padding: 4px;
+  font-family: sans-serif;
+}
+
+.headerSmallButton {
+  width: 85px;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.headerSmallButtonText {
+  width: fit-content;
+  padding: 4px;
+  color: #a3a3a3;
+  font-size: 14px;
+  font-style: normal;
+  font-family: sans-serif;
+}
+
+.songTableContainer {
+  min-width: fit-content;
+  width: auto;
+  border: 4px;
+  margin: 0 80px 50px 80px;
+  padding: 15px 25px 5px 25px;
+  background-color: #070707;
+  border-color: #070707;
+  border-radius: 2px;
+  border-style: solid;
   box-shadow: 0 0 4px 0 #b3b3b3;
+  color: #c3c3c3;
+  font-size: 15px;
+  font-family: sans-serif;
 }
 
-.screenPromptPositiveButton {
-  background-color: white;
-  border-radius: 2px;
-}
-.screenPromptPositiveButton:hover {
-  background-color: #b6b9d9;
-}
-
-.screenPromptCancelButton {
-  background-color: #9f9f9f;
-  border-radius: 2px;
-}
-.screenPromptCancelButton:hover {
-  background-color: #cccccc;
+.songTableHeader {
+  display: flex;
+  min-height: 40px;
+  margin: 0 12px 0 4px;
+  padding: 0 4px;
+  color: #979090;
+  font-weight: bold;
+  font-size: 16px;
 }
 
-.generic-textbox {
-  width: 300px;
-  background-color: #909090;
+.imgFiller {
+  margin: 0 20px;
 }
-/*!*******************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/notFoundPage.scss ***!
-  \*******************************************************************************************************************/
+
+.durationImg {
+  height: 30px;
+  width: 30px;
+  margin: 0 10px;
+}
+
+.coverImg {
+  height: 40px;
+  width: 40px;
+  image-rendering: pixelated;
+  cursor: pointer;
+  object-fit: cover;
+}
+
+.songTableClass {
+  width: calc(100% - 8px);
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+}
+
+.songRowClass {
+  overflow: hidden;
+}
+.songRowClass:hover {
+  background-color: #161616;
+}
+.songRowClass:hover .songRowAddPlaylistButton {
+  display: block;
+  cursor: pointer;
+}
+.songRowClass:hover .songRowAddPlaylistButton:active {
+  color: whitesmoke;
+}
+
+.songContainer {
+  align-items: center;
+  display: flex;
+  height: 40px;
+  margin: 1px;
+  padding: 4px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.songRowAddPlaylistButton {
+  display: none;
+  margin: 4px;
+  padding: 2px;
+  background-color: transparent;
+  border: 0;
+  color: grey;
+  font-size: large;
+  font-weight: 700;
+}
+
+.song-option {
+  margin: 1px;
+  padding: 4px;
+  border-color: #2b2b2e;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: sans-serif;
+}
+.song-option:hover {
+  background-color: #424242;
+}
+.song-option:active {
+  background-color: #9a9a9a;
+}
+
+.large-field-container {
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+  height: fit-content;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 200%;
+}
+
+.medium-field-container {
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+  height: fit-content;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 100%;
+}
+
+.small-field-container {
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+  height: fit-content;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  min-width: 60px;
+  padding: 4px 0;
+  text-align: center;
+}
+
+.date-field-container {
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+  height: fit-content;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  min-width: 100px;
+  text-align: center;
+}
+
+.songDivider {
+  height: 1px;
+  background-color: #414141;
+}
+
+.link-text {
+  justify-content: center;
+  height: fit-content;
+  color: white;
+  text-decoration: none;
+}
+.link-text:active {
+  color: grey;
+}
+.link-text:hover {
+  text-decoration: underline;
+}
+/*!************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/scss/notFoundPage.scss ***!
+  \************************************************************************************************************************/
 .notFoundBody {
   display: flex;
   flex-wrap: wrap;
@@ -659,13 +688,12 @@ CSS formatting:
   border-style: solid;
   margin: 30px;
   background-color: #0f0f0f;
+  font-family: sans-serif;
 }
 
 .notFoundWrapper {
   display: flex;
   flex-wrap: wrap;
-  margin: 0;
-  padding: 0;
 }
 
 .not-found-main-text {
@@ -685,3 +713,5 @@ CSS formatting:
   justify-content: center;
   width: 100%;
 }
+
+/*# sourceMappingURL=bundle.css.map*/

@@ -5,8 +5,6 @@
 {
     min-height: calc(100vh - #{$topBarTotalHeight});
 
-    @include noMarginOrPadding;
-
     background-color: $mainBgColor;
 }
 
@@ -15,8 +13,7 @@
 {
     height: calc(100vh - #{$topBarTotalHeight});
 
-    @include noMarginOrPadding;
-
+    @include normal-text-font;
     overflow: auto;
 
     &::-webkit-scrollbar
@@ -36,7 +33,6 @@
     
     min-width: 266px;
 
-    margin: 0;
     padding: 40px 80px;
 
     overflow: auto;
@@ -45,6 +41,8 @@
 
 .playlistCard
 {
+    @include all-norms;
+
     display: flex;
     flex-direction: column;
 
@@ -59,16 +57,12 @@
 
 .divSpacers{
     display: flex;
-
-    @include noMarginOrPadding;
 }
 
 
 .playlistCardOptionsButton{
     height: 30px;
     width: 30px;
-
-    @include noMarginOrPadding;
 }
 
 

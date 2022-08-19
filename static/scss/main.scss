@@ -1,45 +1,54 @@
-/* 
-CSS formatting:
-    - positional formatting - ex: display, position
-    - sizing ---------------- ex: width, height, font-sizing
-    - layout ---------------- ex: margin, padding
-    - color, fonts, cosmetic
- with each category alphabetized
-*/
+ 
+// CSS formatting:
+//     - positional formatting - ex: display, position
+//     - sizing ---------------- ex: width, height, font-sizing
+//     - layout ---------------- ex: margin, padding
+//     - color, fonts, cosmetic
+//  with each category alphabetized
 
-@use'globalVars' as *;
 
-#bodyID
-{
-    @include noMarginOrPadding;
+@use 'globalVars' as *;
+
+
+.body{
+    margin: 0;
 }
 
-.bodyClass *
-{
-    margin: 4px;
-    padding: 4px;
-
-    font-family: sans-serif;
+.generic-attrs{
+    @include all-norms;
 }
 
 
-.songOptionsPromptContainer
-{
-    @include noMarginOrPadding;
-}
-
-
-.addSongToPlaylistPrompt
+.song-drop-down-invisible-background
 {
     position: absolute;
 
     height: 100vh;
     width: 100vw;
 
-    @include noMarginOrPadding;
-
     color: whitesmoke;
     z-index: 1;
+}
+
+
+.song-drop-down
+{
+    display: grid;
+    overflow: auto;
+    position: absolute;
+
+    max-height: 200px;
+
+    @include normal-margin;
+    padding: 6px 4px;
+
+    background-color: #1f1f21;
+    box-shadow: $dropDownGlow;
+
+    &::-webkit-scrollbar
+    {
+        @include scrollBar;
+    }
 }
 
 
@@ -50,8 +59,6 @@ CSS formatting:
 
     height: calc(100vh - #{$topBarTotalHeight} - #{$bottomBarTotalHeight});
     width: 100vw;
-
-    @include noMarginOrPadding;
 
     background-color: $mainBgColor;
     background-position: center;
@@ -64,6 +71,8 @@ CSS formatting:
 
 
 .successBoxContainer{
+    @include all-norms;
+
     bottom: $bottomBarTotalHeight;
     display: flex;
     position: fixed;
@@ -80,6 +89,8 @@ CSS formatting:
 
 
 .successBox{
+    @include all-norms;
+
     align-items: center;
     display: flex;
     justify-content: center;
@@ -97,6 +108,8 @@ CSS formatting:
 
 
 .addToPlaylistSuccessMessage{
+    @include all-norms;
+
     display: flex;
     text-align: center;
 
@@ -108,8 +121,6 @@ CSS formatting:
 .contentContainer
 {
     width: 100%;
-
-    @include noMarginOrPadding;
 }
 
 
@@ -123,8 +134,10 @@ CSS formatting:
     min-width: fit-content;
 
     margin: 40px 80px;
+    @include normal-padding;
 
     background-color: transparent;
+    @include normal-text-font;
 }
 
 
@@ -137,6 +150,7 @@ CSS formatting:
     min-width: 160px;
     width: 160px;
 
+    @include normal-margin;
     padding: 0;
 }
 
@@ -145,8 +159,6 @@ CSS formatting:
 {
     height: 80px;
     width: 80px;
-
-    @include noMarginOrPadding;
 
     object-fit: cover;
 }
@@ -160,6 +172,8 @@ CSS formatting:
     // -------------------------------------------
     min-width: fit-content;
 
+    @include all-norms;
+
     color: white;
     font-size: xx-large;
     font-style: italic;
@@ -171,6 +185,8 @@ CSS formatting:
 {
     align-items: center;
     display: flex;
+
+    @include all-norms;
 }
 
 
@@ -179,18 +195,22 @@ CSS formatting:
     max-height: 150px;
     max-width: 500px;
 
+    @include all-norms;
+
     @include ellipsesAfterThreeLines;
 }
 
 .headerPlayIcon
 {
     width: 50px;
+
+    @include all-norms;
 }
 
 
 .playlist-buttons-and-metadata-wrapper
 {
-    padding: 0;
+    @include normal-margin;
 }
 
 .playlist-buttons-container
@@ -199,6 +219,7 @@ CSS formatting:
     display: flex;
 
     margin: 4px 4px 2px;
+    @include normal-padding;
 }
 
 
@@ -209,6 +230,9 @@ CSS formatting:
     grid-auto-flow: column;
 
     margin: 2px 4px 4px;
+    @include normal-padding;
+
+    @include normal-text-font;
 }
 
 
@@ -216,7 +240,7 @@ CSS formatting:
 {
     width: 85px;
 
-    margin: 0;
+    @include normal-padding;
 
     cursor: pointer;
 }
@@ -224,13 +248,14 @@ CSS formatting:
 
 .headerSmallButtonText
 {
-    margin: 0;
-
     width: fit-content;
+
+    @include normal-padding;
 
     color: #a3a3a3;
     font-size: 14px;
     font-style: normal;
+    @include normal-text-font;
 }
 
 
@@ -251,6 +276,7 @@ CSS formatting:
     box-shadow: $contentGlow;
     color: #c3c3c3;
     font-size: 15px;
+    @include normal-text-font;
 }
 
 
@@ -272,7 +298,6 @@ CSS formatting:
 .imgFiller
 {
     margin: 0 20px;
-    padding: 0;
 }
 
 .durationImg
@@ -281,7 +306,6 @@ CSS formatting:
     width: 30px;
 
     margin: 0 10px;
-    padding: 0;
 }
 
 
@@ -289,8 +313,6 @@ CSS formatting:
 {
     height: 40px;
     width: 40px;
-
-    @include noMarginOrPadding;
 
     image-rendering: pixelated;
 
@@ -302,6 +324,8 @@ CSS formatting:
 .songTableClass
 {
     width: calc(100% - 8px);
+
+    @include all-norms;
 }
 
 
@@ -332,6 +356,7 @@ CSS formatting:
     height: 40px;
 
     margin: 1px;
+    @include normal-padding;
 
     overflow: hidden;
     white-space: nowrap;
@@ -342,6 +367,7 @@ CSS formatting:
 {
     display: none;
 
+    @include normal-margin;
     padding: 2px;
 
     background-color: transparent;
@@ -352,34 +378,16 @@ CSS formatting:
 }
 
 
-.playlistDropDown
-{
-    display: grid;
-    overflow: auto;
-    position: absolute;
 
-    max-height: 200px;
-
-    padding: 6px 4px;
-
-    background-color: #1f1f21;
-    box-shadow: $dropDownGlow;
-
-    &::-webkit-scrollbar
-    {
-        @include scrollBar;
-    }
-}
-
-
-.playlistSongOption
+.song-option
 {
     margin: 1px;
-
-    border-radius: 5px;
+    @include normal-padding;
 
     border-color: #2b2b2e;
+    border-radius: 5px;
     cursor: pointer;
+    @include normal-text-font;
 
     &:hover{
         background-color: #424242;  
@@ -391,8 +399,10 @@ CSS formatting:
 }
 
 
-@mixin playlistEntryContainer
+@mixin playlistFieldContainer
 {
+    @include all-norms;
+
     height: fit-content;
 
     text-overflow: ellipsis;
@@ -402,7 +412,7 @@ CSS formatting:
 
 .large-field-container
 {
-    @include playlistEntryContainer;
+    @include playlistFieldContainer;
 
     width: 200%;
 }
@@ -410,13 +420,15 @@ CSS formatting:
 
 .medium-field-container
 {
-    @include playlistEntryContainer;
+    @include playlistFieldContainer;
 
     width: 100%;
 }
 
 .small-field-container
 {
+    @include playlistFieldContainer;
+
     min-width: 60px;
 
     padding: 4px 0;
@@ -426,11 +438,9 @@ CSS formatting:
 
 .date-field-container
 {
-    @include playlistEntryContainer;
+    @include playlistFieldContainer;
 
     min-width: 100px;
-
-    padding: 4px 0;
 
     text-align: center;
 }
@@ -439,8 +449,6 @@ CSS formatting:
 .songDivider
 {
     height: 1px;
-
-    @include noMarginOrPadding;
 
     background-color: #414141;
 }
@@ -467,6 +475,6 @@ CSS formatting:
 }
 
 
-/* m/p: x,y; vertical | horizontal */
-/* m/p: w,y,x,z; TRBL */
-/* m/p: y,x,z; top | horizontal | bottom */
+// /* m/p: x,y; vertical | horizontal */
+//  m/p: w,y,x,z; TRBL 
+// /* m/p: y,x,z; top | horizontal | bottom 

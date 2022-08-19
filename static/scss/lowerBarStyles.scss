@@ -1,4 +1,6 @@
-@use 'globalVars';
+@use 'globalVars' as *;
+
+$text-color: #cecece;
 
 .lowerBar
 {
@@ -6,12 +8,12 @@
     width: calc(100vw - 20px);
 
     border-width: 8px 0 0 0;
-    margin: 0;
     padding: 0 10px;
 
     background-color: #000;
     border-image: linear-gradient(to top, rgba(255,0,0,0), rgba(66, 66, 66, .5)) 100;
     border-style: solid;
+    @include normal-text-font;
 }
 
 
@@ -36,8 +38,6 @@
 {
     height: 7px;
     width: 0;
-    
-    @include globalVars.noMarginOrPadding;
 
     background-color: royalblue;
     border-radius: 100px;
@@ -50,7 +50,6 @@
     width: 80px;
 
     margin: 0 -35px;
-    padding: 0 0;
 
     background: white;
     border: 2px solid #000;
@@ -58,13 +57,13 @@
     transform: scale(.2, .2);
 }
 
-.lowerBarButtonsWrapper
+.lowerBarTextAndButtonsWrapper
 {
     display: flex;
 
     margin: 0 5px;
-    padding: 0;
 
+    font-size: 12px;
     justify-content: center;
 }
 
@@ -73,48 +72,46 @@
     float: left;
 
     flex-grow: 1;
-    width: 10%;
+    width: 40%;
 
-    margin: 0;
+    @include all-norms;
+    padding-bottom: 0;
     padding-top: 0;
 
-    color: #cecece; /* very light grey */
+    color: $text-color;;
 }
 
 .lowerBarSmallText
 {
-    font-size: 12px;
+    @include all-norms;
+    margin: 4px 0;
 }
 
 .playingTitle
 {
     height: 35px;
 
-    margin: 0 0 0 4px;
-    padding: 0 0 0 4px;
+    @include normal-padding;
 
-    @include globalVars.ellipsesAfterTwoLines;
+    @include ellipsesAfterTwoLines;
     font-size: 15px;
 }
 
-.threeButtonContainer
+.lowerBarButtonsWrapper
 {
     align-items: center;
     display: flex; /* gap? */
     justify-content: center;
 
     flex-grow: 2;
-    width: fit-content;
+    width: 20%;
 
-    margin: auto;
-    padding: 0;   
+    margin: auto;   
 }
 
 .mainImg
 {
     width: 60px;
-
-    @include globalVars.noMarginOrPadding;
 
     cursor: pointer;
 }
@@ -122,6 +119,8 @@
 .smallImg
 {
     width: 30px;
+
+    @include all-norms;
 
     cursor: pointer;
 }
@@ -134,10 +133,11 @@
     float: right;
     text-align: right;
 
-    width: 10%;
+    width: 40%;
 
+    @include normal-margin;
     margin-top: 0;
     margin-bottom: 0;
 
-    color: #cecece; /* very light grey */  
+    color: $text-color;  
 }

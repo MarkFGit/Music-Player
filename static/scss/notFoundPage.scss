@@ -11,15 +11,13 @@
 	border-style: solid;
 	margin: 30px;
 
-
 	background-color: $mainBgColor;
+	@include normal-text-font;
 }
 
 .notFoundWrapper{
 	display: flex;
 	flex-wrap: wrap;
-
-	@include noMarginOrPadding;
 }
 
 .not-found-main-text{

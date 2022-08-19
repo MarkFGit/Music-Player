@@ -58,10 +58,10 @@ class LastAddedPlaylistSong(Song):
 class CustomPlaylistSong(Song):
 	"""Stores info for any song rendered in a playlist which isn't `Last Added` """
 
-	index: int
+	dbIndex: int
 	def __init__(self, songInfo):
 		Song.__init__(self, songInfo)
-		self.index = songInfo[6]
+		self.dbIndex = songInfo[6]
 
 
 def get_title(song_title: str | None, song_name: str) -> str:

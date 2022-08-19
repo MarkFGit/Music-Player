@@ -4,6 +4,26 @@
     padding: 0;
 }
 
+@mixin all-norms{
+    @include normal-margin;
+    @include normal-padding;
+    @include normal-text-font;
+}
+
+@mixin normal-margin
+{
+    margin: 4px;
+}
+
+@mixin normal-padding
+{
+    padding: 4px;
+}
+
+@mixin normal-text-font{
+    font-family: sans-serif;
+}
+
 
 @mixin ellipsesAfterTwoLines
 {
