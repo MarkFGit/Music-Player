@@ -1,6 +1,6 @@
 @use 'globalVars' as *;
 
-.topBar
+.top-bar
 {
     align-items: center;
     display: flex;
@@ -18,7 +18,7 @@
 }
 
 
-.searchBar
+.search-bar
 {
     align-items: center;
     display: flex;
@@ -33,35 +33,42 @@
 }
 
 
-.sidePanel
+.side-panel
 {
-    display: flex;
+    display: grid;
     flex-direction: column;
+    justify-content: center;
     position: fixed;
 
-    height: inherit;
+    height: 300px;
     width: 70px;
+
+    margin: 20px 0;
 
     background-color: transparent;
 }
 
 
-.panelButton
+.panel-button-container
 {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
+}
+
+
+.panel-button
+{
+    height: 40px;
+    width: 40px;
 
     cursor: pointer;
 }
 
 
-.sidePanelIcon
+.side-panel-icon
 {
     width: 40px;
-
-    margin: 8px 0 0 0;
-    @include normal-padding;
 }
 
 
@@ -101,7 +108,7 @@
 }
 
 
-.screenPromptText
+.screen-prompt-text
 {
     @include all-norms;
 
@@ -110,7 +117,7 @@
     font-size: large;
 }
 
-.screenPromptPositiveButton
+.screen-prompt-positive-button
 {
     @include all-norms;
 
@@ -123,7 +130,7 @@
 }
 
 
-.screenPromptCancelButton
+.screen-prompt-cancel-button
 {
     @include all-norms;
 
@@ -136,7 +143,8 @@
 }
 
 
-.generic-textbox{
+.generic-textbox
+{
     @include all-norms;
 
     width: 300px;
@@ -145,8 +153,79 @@
 }
 
 
-.small-generic-textbox{
+.small-generic-textbox
+{
     @include all-norms;
 
     background-color: #909090;
+}
+
+
+.notification-box-container
+{
+    @include all-norms;
+
+    bottom: $bottomBarTotalHeight;
+    display: flex;
+    position: fixed;
+    right: 13px;
+
+    z-index: 1;
+}
+
+
+.notification-box
+{
+    @include all-norms;
+
+    align-items: center;
+    display: flex;
+    justify-content: center;
+
+    height: 50px;
+    width: 160px;
+
+    background-color: #3f3f3f;
+    background-image: linear-gradient(135deg, #474747, #26272a);
+    box-shadow: 0 0 4px 0 #474747;
+
+    animation: fade 8s linear;
+}
+
+.notification-text
+{
+    @include all-norms;
+
+    display: flex;
+    text-align: center;
+
+    font-weight: 700;
+}
+
+
+@keyframes fade
+{
+    from{opacity: 1;}
+    to {opacity: 0;}
+}
+
+
+
+.link-text
+{
+    justify-content: center;
+
+    height: fit-content;
+
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+
+    &:active{
+        color: grey;
+    }
+
+    &:hover{
+        text-decoration: underline;
+    }   
 }

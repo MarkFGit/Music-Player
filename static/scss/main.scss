@@ -10,7 +10,7 @@
 @use 'globalVars' as *;
 
 
-.body{
+body{
     margin: 0;
 }
 
@@ -19,40 +19,7 @@
 }
 
 
-.song-drop-down-invisible-background
-{
-    position: absolute;
-
-    height: 100vh;
-    width: 100vw;
-
-    color: whitesmoke;
-    z-index: 1;
-}
-
-
-.song-drop-down
-{
-    display: grid;
-    overflow: auto;
-    position: absolute;
-
-    max-height: 200px;
-
-    @include normal-margin;
-    padding: 6px 4px;
-
-    background-color: #1f1f21;
-    box-shadow: $dropDownGlow;
-
-    &::-webkit-scrollbar
-    {
-        @include scrollBar;
-    }
-}
-
-
-.playlistContentContainer
+.playlist-content-container
 {
     overflow: auto;
     position: relative;
@@ -65,66 +32,19 @@
 
     &::-webkit-scrollbar
     {
-        @include scrollBar;
+        @include scroll-bar;
     }
 }
 
 
-.successBoxContainer{
-    @include all-norms;
 
-    bottom: $bottomBarTotalHeight;
-    display: flex;
-    position: fixed;
-    right: 13px;
-
-    z-index: 1;
-}
-
-
-@keyframes fade{
-    from{opacity:1;}
-    to {opacity: 0;}
-}
-
-
-.successBox{
-    @include all-norms;
-
-    align-items: center;
-    display: flex;
-    justify-content: center;
-
-    height: 50px;
-    width: 160px;
-
-    background-color: #3f3f3f;
-    background-image: linear-gradient(135deg, #474747, #26272a);
-    box-shadow: 0 0 4px 0 #474747;
-
-    animation: fade 8s linear;
-}
-
-
-
-.addToPlaylistSuccessMessage{
-    @include all-norms;
-
-    display: flex;
-    text-align: center;
-
-    font-weight: 700;
-}
-
-
-
-.contentContainer
+.content-container
 {
     width: 100%;
 }
 
 
-.playlistHeader
+.playlist-header
 {
     align-items: center;
     display: flex;
@@ -141,7 +61,7 @@
 }
 
 
-.playlistPreviewImages
+.playlist-preview-images
 {
     display: flex;
     flex-wrap: wrap;
@@ -151,11 +71,10 @@
     width: 160px;
 
     @include normal-margin;
-    padding: 0;
 }
 
 
-.coverPreviewImg
+.cover-preview-img
 {
     height: 80px;
     width: 80px;
@@ -164,7 +83,7 @@
 }
 
 
-.headerTitleAndButtons
+.header-title-and-buttons
 {
     // This is to get title buttons centered to the playlistPreviewImages
         // probably a better solution?
@@ -181,7 +100,7 @@
 }
 
 
-.headerTitleAndPlay
+.header-title-and-play
 {
     align-items: center;
     display: flex;
@@ -190,17 +109,17 @@
 }
 
 
-.playlistTitle
+.playlist-title
 {
     max-height: 150px;
     max-width: 500px;
 
     @include all-norms;
 
-    @include ellipsesAfterThreeLines;
+    @include ellipses-after-three-lines;
 }
 
-.headerPlayIcon
+.header-play-icon
 {
     width: 50px;
 
@@ -236,7 +155,7 @@
 }
 
 
-.headerSmallButton
+.header-small-button
 {
     width: 85px;
 
@@ -246,7 +165,7 @@
 }
 
 
-.headerSmallButtonText
+.header-small-text
 {
     width: fit-content;
 
@@ -260,219 +179,7 @@
 
 
 
-.songTableContainer
-{
-    min-width: fit-content;
-    width: auto;
 
-    border: 4px;
-    margin: 0 80px 50px 80px;
-    padding: 15px 25px 5px 25px;
-
-    background-color: $playlistBgColor;
-    border-color: $playlistBgColor;
-    border-radius: 2px;
-    border-style: solid;
-    box-shadow: $contentGlow;
-    color: #c3c3c3;
-    font-size: 15px;
-    @include normal-text-font;
-}
-
-
-.songTableHeader
-{
-    display: flex;
-
-    min-height: 40px;
-
-    margin: 0 12px 0 4px;
-    padding: 0 4px;
-
-    color: #979090;
-    font-weight: bold;
-    font-size: 16px;
-}
-
-
-.imgFiller
-{
-    margin: 0 20px;
-}
-
-.durationImg
-{
-    height: 30px;
-    width: 30px;
-
-    margin: 0 10px;
-}
-
-
-.coverImg
-{
-    height: 40px;
-    width: 40px;
-
-    image-rendering: pixelated;
-
-    cursor: pointer;
-    object-fit: cover;
-}
-
-
-.songTableClass
-{
-    width: calc(100% - 8px);
-
-    @include all-norms;
-}
-
-
-.songRowClass
-{
-    overflow: hidden;
-
-    &:hover{
-        background-color: #161616;
-        .songRowAddPlaylistButton{
-            display: block;
-
-            cursor: pointer;
-
-            &:active{
-                color: whitesmoke;
-            }
-        }
-    }
-}
-
-
-.songContainer
-{
-    align-items: center;
-    display: flex;
-
-    height: 40px;
-
-    margin: 1px;
-    @include normal-padding;
-
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-
-.songRowAddPlaylistButton
-{
-    display: none;
-
-    @include normal-margin;
-    padding: 2px;
-
-    background-color: transparent;
-    border: 0;
-    color: grey;
-    font-size: large;
-    font-weight: 700;
-}
-
-
-
-.song-option
-{
-    margin: 1px;
-    @include normal-padding;
-
-    border-color: #2b2b2e;
-    border-radius: 5px;
-    cursor: pointer;
-    @include normal-text-font;
-
-    &:hover{
-        background-color: #424242;  
-    }
-
-    &:active{
-        background-color: #9a9a9a;
-    }
-}
-
-
-@mixin playlistFieldContainer
-{
-    @include all-norms;
-
-    height: fit-content;
-
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
-
-
-.large-field-container
-{
-    @include playlistFieldContainer;
-
-    width: 200%;
-}
-
-
-.medium-field-container
-{
-    @include playlistFieldContainer;
-
-    width: 100%;
-}
-
-.small-field-container
-{
-    @include playlistFieldContainer;
-
-    min-width: 60px;
-
-    padding: 4px 0;
-
-    text-align: center;
-}
-
-.date-field-container
-{
-    @include playlistFieldContainer;
-
-    min-width: 100px;
-
-    text-align: center;
-}
-
-
-.songDivider
-{
-    height: 1px;
-
-    background-color: #414141;
-}
-
-
-
-
-
-.link-text{
-    justify-content: center;
-
-    height: fit-content;
-
-    color: white;
-    text-decoration: none;
-
-    &:active{
-        color: grey;
-    }
-
-    &:hover{
-        text-decoration: underline;
-    }   
-}
 
 
 // /* m/p: x,y; vertical | horizontal */

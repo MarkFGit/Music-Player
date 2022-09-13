@@ -1,40 +1,32 @@
 {% if select == 'promptContainers' %}
-	<div class="screenPromptContainer" id="screenPromptContainer"> </div>
-	<div class="songOptionsPromptContainer" id="songOptionsPromptContainer"> </div>
-	<div class="successBoxContainer" id="successBoxContainer"></div>
+	<div id="screen-prompt-container"> </div>
+	<div id="song-options-prompt-container"> </div>
+	<div class="notification-box-container" id="notification-box-container"></div>
 {% endif %}
 
 
 
 {% if select == 'navbar' %}
-	<div class="topBar">
-		<div class="searchBar"> Search... </div>
+	<div class="top-bar">
+		<div class="search-bar"> Search... </div>
 	</div>
 {% endif %}
 
 
 
 {% if select == 'sidePanel' %}
-	<div class="sidePanel">
-		<div class="panelButton" id="playlistsButto">
-			<a href="/home/">
-				<img class="sidePanelIcon" id="homeImg" src="{{ url_for('static',filename='media/icons/home.png') }}">
-			</a>
-		</div>
-		<div class="panelButton" id="artistsButton">
-			<a href="/artists/"> 
-				<img class="sidePanelIcon" id="artistImg" src="{{ url_for('static',filename='media/icons/artists.png') }}">
-			</a>
-		</div>
-		<div class="panelButton" id="recentsButton">
-			<a href="/recents/">
-				<img class="sidePanelIcon" id="recentImg" src="{{ url_for('static',filename='media/icons/recents.png') }}">
-			</a>
-		</div>
-		<div class="panelButton" id="newPlaylistButton">
-			<div>
-				<img class="sidePanelIcon" id="addPlaylistImg" src="{{ url_for('static',filename='media/icons/addPlaylist.png') }}">
-			</div>
+	<div class="side-panel">
+		<a class="panel-button" href="/home/">
+			<img class="side-panel-icon" src="{{ url_for('static',filename='media/icons/home.png') }}">
+		</a>
+		<a class="panel-button" href="/artists/"> 
+			<img class="side-panel-icon" src="{{ url_for('static',filename='media/icons/artists.png') }}">
+		</a>
+		<a class="panel-button" href="/recents/">
+			<img class="side-panel-icon" src="{{ url_for('static',filename='media/icons/recents.png') }}">
+		</a>
+		<div class="panel-button" id="new-playlist-button">
+			<img class="side-panel-icon" src="{{ url_for('static',filename='media/icons/addPlaylist.png') }}">
 		</div>
 	</div>
 {% endif %}

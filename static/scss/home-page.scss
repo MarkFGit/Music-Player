@@ -1,7 +1,7 @@
 @use 'globalVars' as *;
 
 
-.homePageBackground
+.home-page-background
 {
     min-height: calc(100vh - #{$topBarTotalHeight});
 
@@ -9,7 +9,7 @@
 }
 
 
-.playlistGridContainer
+.playlist-grid-container
 {
     height: calc(100vh - #{$topBarTotalHeight});
 
@@ -18,12 +18,12 @@
 
     &::-webkit-scrollbar
     {
-        @include scrollBar;
+        @include scroll-bar;
     }
 }
 
 
-.playlistGrid
+.playlist-grid
 {
     align-content: start;
     display: grid;
@@ -39,7 +39,7 @@
 }
 
 
-.playlistCard
+.playlist-card
 {
     @include all-norms;
 
@@ -55,17 +55,26 @@
 }
 
 
-.divSpacers{
+.playlist-card-options-button{
     display: flex;
-}
+    margin-left: auto;
 
-
-.playlistCardOptionsButton{
     height: 30px;
     width: 30px;
+
+    cursor: pointer;
 }
 
 
-.playlistPreviewTitle{
-	max-height: calc(100% - 16px);
+.playlist-preview-title{
+    display: flex;
+    justify-content: center;
+
+    height: 100%;
+    width: 100%;
+}
+
+.link-color
+{
+    color: white;
 }

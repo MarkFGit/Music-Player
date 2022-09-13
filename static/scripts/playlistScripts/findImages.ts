@@ -1,3 +1,6 @@
+/* This file is used for general image stuff. Checking to see if an image exists or 
+setting images. This file is should be refactored in the future. */
+
 import { IMG_PATHS, removeFileExtension, getImgElemByID, checkElemIsImgElem, } from './../globals';
 import { table, getSongObjectByRowNum, } from './playlistGlobals'
 
@@ -40,7 +43,7 @@ export async function getSongImage(index: number): Promise<string> {
 }
 
 
-export default async function setSongImageByRowNum(index: number): Promise<void> {
+export async function setSongImageByRowNum(index: number): Promise<void> {
 	const songImgSrc = await getSongImage(index);
 	const elem = table.rows[index].firstElementChild.firstElementChild;
 	const currentSongImg = checkElemIsImgElem(elem);
@@ -56,7 +59,7 @@ export async function fillPlaylistPreviewImages(): Promise<void> {
 	for(let index = 0; index < numOfPlaylistSongs; index++){
 		const currentCoverSrc = await getSongImage(index);
 		if(currentCoverSrc !== IMG_PATHS.noCoverImgSrc){
-			getImgElemByID(`coverPreview${numOfFoundPreviewImages}`).src = currentCoverSrc;
+			getImgElemByID(`cover-preview-${numOfFoundPreviewImages}`).src = currentCoverSrc;
 			numOfFoundPreviewImages++;
 		}
 		if(numOfFoundPreviewImages === maxNumOfPreviews){
@@ -65,21 +68,24 @@ export async function fillPlaylistPreviewImages(): Promise<void> {
 	}
 	
 	while(numOfFoundPreviewImages < maxNumOfPreviews){
-		getImgElemByID(`coverPreview${numOfFoundPreviewImages}`).src = IMG_PATHS.noCoverImgSrc;
+		getImgElemByID(`cover-preview-${numOfFoundPreviewImages}`).src = IMG_PATHS.noCoverImgSrc;
 		numOfFoundPreviewImages++;
 	}
 }
 
 
 export function determineFooterPlayImgSrc(songIsPlaying: boolean): string {
-	const footerImgElement = getImgElemByID('footerPlayImg');
+	const footerImgElement = getImgElemByID("footer-play-img");
+	const currSrc = footerImgElement.src;
+
 	if(songIsPlaying){
-		if(footerImgElement.src === IMG_PATHS.lowerBarPlayHoverImgSrc){
+		// the second condition here occurs when hovering over the main play button while a song is finishing
+		if(currSrc === IMG_PATHS.lowerBarPlayHoverImgSrc || currSrc === IMG_PATHS.lowerBarPauseHoverImgSrc){
 			return IMG_PATHS.lowerBarPauseHoverImgSrc;
 		}
 		return IMG_PATHS.lowerBarPauseImgSrc;
 	}
-	if(footerImgElement.src === IMG_PATHS.lowerBarPauseHoverImgSrc){
+	if(currSrc === IMG_PATHS.lowerBarPauseHoverImgSrc){
 		return IMG_PATHS.lowerBarPlayHoverImgSrc;
 	}
 	return IMG_PATHS.globalPlayImgSrc;

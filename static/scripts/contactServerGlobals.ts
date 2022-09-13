@@ -2,8 +2,15 @@
 import { renderCustomTextBox, } from "./renderCustomTextBox";
 
 
+/** Sends a clean error message to the user, sends all the details to the console.*/
+export function handleServerError(technicalErrorMsg: string, userErrorMsg: string): void {
+	renderCustomTextBox(userErrorMsg);
+	console.error(`${technicalErrorMsg} ${userErrorMsg}`);
+}
+
+
 /** Retrieves all playlist names from the DB. */
-export async function resolve_playlist_names(){
+export async function resolve_playlist_names(): Promise<string[]> {
 	return await fetch(
 		"/getPlaylists",
 		{
@@ -14,15 +21,18 @@ export async function resolve_playlist_names(){
 		if(response.ok){
 			return response.json()	
 		}
-		throw new Error("Failed to retrieve playlist names from server.")
+		throw new Error(`Failed with status: ${response.status}.`);
 	})
 	.then(data => {
 		return data["PlaylistNames"]
 	})
+	.catch(error => {
+		handleServerError(error, "Failed to retrieve playlist names from server.")
+	})
 }
 
 
-export async function addNewPlaylist(playlistName: string){
+export async function addNewPlaylist(playlistName: string): Promise<void> {
 	return fetch(
 		"/addPlaylist",
 		{
@@ -33,15 +43,16 @@ export async function addNewPlaylist(playlistName: string){
 	.then(response => {
 		if(response.ok){
 			renderCustomTextBox("Playlist added successfully.");
+			return;
 		}
-		else{
-			renderCustomTextBox(`Failed to add playlist: "${playlistName}"`);
-			throw new Error(`Failed to add playlist: "${playlistName}". Failed with status: ${response.status}`);
-		}
+		throw new Error(`Failed with status: ${response.status}.`);
+	})
+	.catch(error => {
+		handleServerError(error, `Failed to add playlist: "${playlistName}"`)
 	})
 }
 
-export async function deletePlaylist(playlistName: string){
+export async function deletePlaylist(playlistName: string): Promise<void> {
 	return fetch(
 		"/deletePlaylist",
 		{
@@ -52,10 +63,11 @@ export async function deletePlaylist(playlistName: string){
 	.then(response => {
 		if(response.ok){
 			renderCustomTextBox("Playlist dropped successfully.");
+			return;
 		}
-		else{
-			renderCustomTextBox(`Failed to drop playlist: "${playlistName}"`);
-			throw new Error(`Failed to drop playlist: "${playlistName}". Failed with status: ${response.status}`);
-		}
+		throw new Error(`Failed with status: ${response.status}.`);
+	})
+	.catch(error => {
+		handleServerError(error, `Failed to drop playlist: "${playlistName}".`);
 	})
 }

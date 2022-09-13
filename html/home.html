@@ -6,7 +6,7 @@
 	<script defer src="{{ url_for('static', filename='./dist/home.js') }}"> </script>
 </head>
 
-<body class="bodyClass" id="bodyID">
+<body class="body">
 	{% with select="promptContainers" %}
 		{% include "globalSiteComponents.html" %}
 	{% endwith %}
@@ -14,12 +14,12 @@
 		{% include "globalSiteComponents.html" %}
 	{% endwith %}
 
-	<div class="homePageBackground">
-		<div class="playlistGridContainer">
+	<div class="home-page-background">
+		<div class="playlist-grid-container">
 			{% with select="sidePanel" %}
 				{% include "globalSiteComponents.html" %}
 			{% endwith %}
-			<div class="playlistGrid" id="playlistGrid"> </div>
+			<div class="playlist-grid" id="playlist-grid"> </div>
 		</div>
 	</div>
 </body>

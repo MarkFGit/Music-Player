@@ -1,0 +1,53 @@
+@use 'globalVars' as *;
+
+.song-drop-down-invisible-background
+{
+    position: absolute;
+
+    height: 100vh;
+    width: 100vw;
+
+    color: whitesmoke;
+    z-index: 1;
+}
+
+
+.song-drop-down
+{
+    display: grid;
+    overflow: auto;
+    position: absolute;
+
+    max-height: 200px;
+
+    @include normal-margin;
+    padding: 6px 4px;
+
+    background-color: #1f1f21;
+    box-shadow: $dropDownGlow;
+
+    &::-webkit-scrollbar
+    {
+        @include scroll-bar;
+    }
+}
+
+
+.song-option
+{
+    margin: 1px;
+    @include normal-padding;
+
+    border-color: #2b2b2e;
+    border-radius: 5px;
+    cursor: pointer;
+    @include normal-text-font;
+
+    &:hover{
+        background-color: #424242;  
+    }
+
+    &:active{
+        background-color: #9a9a9a;
+    }
+}

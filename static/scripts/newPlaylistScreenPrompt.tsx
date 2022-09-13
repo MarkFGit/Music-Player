@@ -8,9 +8,9 @@ import { ScreenPromptCancelButton, } from './ScreenPromptCancelButton';
 /** This function should only ever be run once per page load.
  * @param renderGrid - Renders the home page grid. Only provide a function here
  * if this is being called from the home page script. Otherwise provide null. */
-export function addNewScreenPromptEventlistener(renderGrid: Function | null){
-    document.getElementById('newPlaylistButton')
-    .addEventListener('click', _ => renderNewPlaylistScreenPrompt(renderGrid));
+export function addNewPlaylistScreenPromptEventlistener(renderGrid: Function | null){
+    document.getElementById("new-playlist-button")
+    .addEventListener("click", _ => renderNewPlaylistScreenPrompt(renderGrid));
 }
 
 
@@ -18,13 +18,12 @@ export function addNewScreenPromptEventlistener(renderGrid: Function | null){
 function renderNewPlaylistScreenPrompt(renderGrid: Function | null) {
     renderScreenPrompt(
         <>
-            <div className="screenPromptText"> Create New Playlist </div>
-            <input id="createPlaylistTextbox" className="small-generic-textbox" type="text" />
+            <div className="screen-prompt-text"> Create New Playlist </div>
+            <input id="new-playlist-name-input-field" className="small-generic-textbox" type="text"/>
             <button
-                className="screenPromptPositiveButton"
+                className="screen-prompt-positive-button"
                 onClick={async () => {
-                    // RENAME THIS ELEMENT TO "newPlaylistNameInputField"
-                    const textBox = getInputElemByID("createPlaylistTextbox");
+                    const textBox = getInputElemByID("new-playlist-name-input-field");
                     await contactServer.addNewPlaylist(textBox.value);
                     removeScreenPrompt();
 

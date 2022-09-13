@@ -33358,7 +33358,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 function ScreenPromptCancelButton() {
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "screenPromptCancelButton", onClick: _renderScreenPrompt__WEBPACK_IMPORTED_MODULE_1__.removeScreenPrompt }, "Cancel"));
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "screen-prompt-cancel-button", onClick: _renderScreenPrompt__WEBPACK_IMPORTED_MODULE_1__.removeScreenPrompt }, "Cancel"));
 }
 
 
@@ -33374,6 +33374,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "addNewPlaylist": () => (/* binding */ addNewPlaylist),
 /* harmony export */   "deletePlaylist": () => (/* binding */ deletePlaylist),
+/* harmony export */   "handleServerError": () => (/* binding */ handleServerError),
 /* harmony export */   "resolve_playlist_names": () => (/* binding */ resolve_playlist_names)
 /* harmony export */ });
 /* harmony import */ var _renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./renderCustomTextBox */ "./static/scripts/renderCustomTextBox.tsx");
@@ -33388,6 +33389,11 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 };
 // As the file name implies, this script talks to the server and can be used by any page in the app.
 
+/** Sends a clean error message to the user, sends all the details to the console.*/
+function handleServerError(technicalErrorMsg, userErrorMsg) {
+    (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)(userErrorMsg);
+    console.error(`${technicalErrorMsg} ${userErrorMsg}`);
+}
 /** Retrieves all playlist names from the DB. */
 function resolve_playlist_names() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -33398,10 +33404,13 @@ function resolve_playlist_names() {
             if (response.ok) {
                 return response.json();
             }
-            throw new Error("Failed to retrieve playlist names from server.");
+            throw new Error(`Failed with status: ${response.status}.`);
         })
             .then(data => {
             return data["PlaylistNames"];
+        })
+            .catch(error => {
+            handleServerError(error, "Failed to retrieve playlist names from server.");
         });
     });
 }
@@ -33414,11 +33423,12 @@ function addNewPlaylist(playlistName) {
             .then(response => {
             if (response.ok) {
                 (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)("Playlist added successfully.");
+                return;
             }
-            else {
-                (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)(`Failed to add playlist: "${playlistName}"`);
-                throw new Error(`Failed to add playlist: "${playlistName}". Failed with status: ${response.status}`);
-            }
+            throw new Error(`Failed with status: ${response.status}.`);
+        })
+            .catch(error => {
+            handleServerError(error, `Failed to add playlist: "${playlistName}"`);
         });
     });
 }
@@ -33431,11 +33441,12 @@ function deletePlaylist(playlistName) {
             .then(response => {
             if (response.ok) {
                 (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)("Playlist dropped successfully.");
+                return;
             }
-            else {
-                (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)(`Failed to drop playlist: "${playlistName}"`);
-                throw new Error(`Failed to drop playlist: "${playlistName}". Failed with status: ${response.status}`);
-            }
+            throw new Error(`Failed with status: ${response.status}.`);
+        })
+            .catch(error => {
+            handleServerError(error, `Failed to drop playlist: "${playlistName}".`);
         });
     });
 }
@@ -33456,6 +33467,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "_isHomePage": () => (/* binding */ _isHomePage),
 /* harmony export */   "_isPlaylistPage": () => (/* binding */ _isPlaylistPage),
 /* harmony export */   "addEscapeFeature": () => (/* binding */ addEscapeFeature),
+/* harmony export */   "checkElemIsButtonElem": () => (/* binding */ checkElemIsButtonElem),
 /* harmony export */   "checkElemIsCellElem": () => (/* binding */ checkElemIsCellElem),
 /* harmony export */   "checkElemIsDivElem": () => (/* binding */ checkElemIsDivElem),
 /* harmony export */   "checkElemIsImgElem": () => (/* binding */ checkElemIsImgElem),
@@ -33579,6 +33591,12 @@ function checkElemIsImgElem(elem) {
     }
     throw new TypeError(`The given item is not an instance of a HTMLImageElement. Given item: ${elem}`);
 }
+function checkElemIsButtonElem(elem) {
+    if (elem instanceof HTMLButtonElement) {
+        return elem;
+    }
+    throw new TypeError(`The given item is not an instance of a HTMLImageElement. Given item: ${elem}`);
+}
 /* # ------------------------------------------- End of Type Getters ------------------------------------------- */
 function _isPlaylistPage() {
     /** On a playlist page the pathArr should be
@@ -33609,7 +33627,7 @@ function _isHomePage() {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "addNewScreenPromptEventlistener": () => (/* binding */ addNewScreenPromptEventlistener)
+/* harmony export */   "addNewPlaylistScreenPromptEventlistener": () => (/* binding */ addNewPlaylistScreenPromptEventlistener)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
@@ -33634,18 +33652,17 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 /** This function should only ever be run once per page load.
  * @param renderGrid - Renders the home page grid. Only provide a function here
  * if this is being called from the home page script. Otherwise provide null. */
-function addNewScreenPromptEventlistener(renderGrid) {
-    document.getElementById('newPlaylistButton')
-        .addEventListener('click', _ => renderNewPlaylistScreenPrompt(renderGrid));
+function addNewPlaylistScreenPromptEventlistener(renderGrid) {
+    document.getElementById("new-playlist-button")
+        .addEventListener("click", _ => renderNewPlaylistScreenPrompt(renderGrid));
 }
 /** Screen prompt which makes the interface for creating a new playlist. */
 function renderNewPlaylistScreenPrompt(renderGrid) {
     (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_3__.renderScreenPrompt)(react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "screenPromptText" }, " Create New Playlist "),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { id: "createPlaylistTextbox", className: "small-generic-textbox", type: "text" }),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "screenPromptPositiveButton", onClick: () => __awaiter(this, void 0, void 0, function* () {
-                // RENAME THIS ELEMENT TO "newPlaylistNameInputField"
-                const textBox = (0,_globals__WEBPACK_IMPORTED_MODULE_2__.getInputElemByID)("createPlaylistTextbox");
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "screen-prompt-text" }, " Create New Playlist "),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { id: "new-playlist-name-input-field", className: "small-generic-textbox", type: "text" }),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "screen-prompt-positive-button", onClick: () => __awaiter(this, void 0, void 0, function* () {
+                const textBox = (0,_globals__WEBPACK_IMPORTED_MODULE_2__.getInputElemByID)("new-playlist-name-input-field");
                 yield _contactServerGlobals__WEBPACK_IMPORTED_MODULE_1__.addNewPlaylist(textBox.value);
                 (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_3__.removeScreenPrompt)();
                 if (renderGrid !== null) {
@@ -33653,6 +33670,158 @@ function renderNewPlaylistScreenPrompt(renderGrid) {
                 }
             }) }, "Add Playlist"),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ScreenPromptCancelButton__WEBPACK_IMPORTED_MODULE_4__.ScreenPromptCancelButton, null)));
+}
+
+
+/***/ }),
+
+/***/ "./static/scripts/playlistScripts/RowContent.tsx":
+/*!*******************************************************!*\
+  !*** ./static/scripts/playlistScripts/RowContent.tsx ***!
+  \*******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "RowContent": () => (/* binding */ RowContent)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _findImages__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./findImages */ "./static/scripts/playlistScripts/findImages.ts");
+/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
+/* harmony import */ var _songOptions__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./songOptions */ "./static/scripts/playlistScripts/songOptions.tsx");
+/* harmony import */ var _basicSongOperations__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./basicSongOperations */ "./static/scripts/playlistScripts/basicSongOperations.tsx");
+
+
+
+
+
+/** Used when initalizing the playlist table or when adding a new song. */
+function RowContent({ rowNum }) {
+    const song = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.getSongObjectByRowNum)(rowNum);
+    const dateField = react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "date-field-container" },
+        " ",
+        song.date,
+        " ");
+    (0,_findImages__WEBPACK_IMPORTED_MODULE_1__.setSongImageByRowNum)(rowNum);
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("td", { className: "song-container" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", { className: "row-img", onClick: _basicSongOperations__WEBPACK_IMPORTED_MODULE_4__.songImgEventListener }),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "large-field-container" },
+            " ",
+            song.title,
+            " "),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "row-add-playlist-button", onClick: e => (0,_songOptions__WEBPACK_IMPORTED_MODULE_3__.renderSongOptionsDropDown)(react__WEBPACK_IMPORTED_MODULE_0__.createElement(_songOptions__WEBPACK_IMPORTED_MODULE_3__.SongOptionsDropDown, { e: e })) }, "+"),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "generic-attrs" },
+            " ",
+            song.duration,
+            " "),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "medium-field-container" },
+            " ",
+            song.artist,
+            " "),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "medium-field-container" },
+            " ",
+            song.album,
+            " "),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "small-field-container plays" },
+            " ",
+            song.plays,
+            " "),
+        _playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.isLastAddedPlaylist ? dateField : null));
+}
+
+
+/***/ }),
+
+/***/ "./static/scripts/playlistScripts/basicSongOperations.tsx":
+/*!****************************************************************!*\
+  !*** ./static/scripts/playlistScripts/basicSongOperations.tsx ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "songImgEventListener": () => (/* binding */ songImgEventListener)
+/* harmony export */ });
+/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
+/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../globals */ "./static/scripts/globals.ts");
+/* harmony import */ var _findImages__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./findImages */ "./static/scripts/playlistScripts/findImages.ts");
+/* This file contains function for basic operability of songs. i.e. pausing and playing. */
+
+
+
+function songImgEventListener(e) {
+    const rowNum = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.getRowIndexByEventTarget)(e.target);
+    const song = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.getSongObjectByRowNum)(rowNum);
+    const clickedOnSameSong = (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum === song.rowNum);
+    if (clickedOnSameSong) {
+        if (song.isPlaying) {
+            pauseSong(song);
+        }
+        else {
+            playSong(song);
+        }
+        return;
+    }
+    const songIsAlreadySelected = (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum !== null);
+    if (songIsAlreadySelected) { //revert previous song/row
+        (0,_findImages__WEBPACK_IMPORTED_MODULE_2__.setSongImageByRowNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum);
+        _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.table.rows[_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum].classList.remove("active-row");
+        const oldSong = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.getSongObjectByRowNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum);
+        oldSong.isPlaying = false;
+    }
+    // Update page with the song just clicked on
+    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.updateLastSongNum)(rowNum);
+    updateLowerBarPlayingTitle(song);
+    document.getElementById("curr-song-duration-text").innerText = song.duration;
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.table.rows[rowNum].classList.add("active-row");
+    scrollPlaylistIfNeeded(rowNum);
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.audio.src = `${_globals__WEBPACK_IMPORTED_MODULE_1__.PAGE_PROPERTIES.staticFolderURL}/media/songs/${song.fileName}`;
+    // Finally... play the song.
+    playSong(song);
+}
+function pauseSong(song) {
+    const playPromise = _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.audio.play();
+    // In browsers that don’t yet support this functionality, playPromise won’t be defined
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.audio.pause();
+            song.isPlaying = false;
+            (0,_findImages__WEBPACK_IMPORTED_MODULE_2__.setSongImageByRowNum)(song.rowNum);
+            (0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footer-play-img").src = (0,_findImages__WEBPACK_IMPORTED_MODULE_2__.determineFooterPlayImgSrc)(song.isPlaying);
+        })
+            .catch(error => {
+            console.error(`${error}` + `Failed to pause song: ${song}`);
+        });
+    }
+}
+function playSong(song) {
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.audio.play();
+    song.isPlaying = true;
+    const imgForRow = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.getImgByRow)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum);
+    imgForRow.src = _globals__WEBPACK_IMPORTED_MODULE_1__.IMG_PATHS.globalPlayingGifSrc;
+    (0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footer-play-img").src = (0,_findImages__WEBPACK_IMPORTED_MODULE_2__.determineFooterPlayImgSrc)(song.isPlaying);
+}
+function updateLowerBarPlayingTitle(song) {
+    const playingTitle = document.getElementById("playing-title");
+    if (song.artist === "" || song.title === "") {
+        playingTitle.innerText = `Playing: ${(0,_globals__WEBPACK_IMPORTED_MODULE_1__.removeFileExtension)(song.fileName)}`;
+    }
+    else {
+        playingTitle.innerText = `Playing: ${song.artist} - ${song.title}`;
+    }
+}
+function scrollPlaylistIfNeeded(rowNum) {
+    const playlistContainer = document.getElementById("playlist-content-container");
+    const playlistContainerCoords = playlistContainer.getBoundingClientRect();
+    const currentRowCoords = _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.table.rows[rowNum].getBoundingClientRect();
+    if (currentRowCoords.bottom > playlistContainerCoords.bottom) {
+        _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.table.rows[rowNum].scrollIntoView(false);
+        return;
+    }
+    if (currentRowCoords.top < playlistContainerCoords.top) {
+        _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.table.rows[rowNum].scrollIntoView();
+    }
 }
 
 
@@ -33677,6 +33846,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
 /* harmony import */ var _renderCustomTextBox__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../renderCustomTextBox */ "./static/scripts/renderCustomTextBox.tsx");
+/* harmony import */ var _contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../contactServerGlobals */ "./static/scripts/contactServerGlobals.ts");
 // As the name suggests, this file is solely responsible for communicating with the backend
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -33687,6 +33857,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
 
 
 function sendSongFile(songFile) {
@@ -33704,11 +33875,17 @@ function sendSongFile(songFile) {
             body: form,
         })
             .then(response => {
-            if (!response.ok) {
-                throw new Error(`Failed to upload song with filename: "${songFile.name}". `
-                    + `Failed with status: ${response.status}.`
-                    + `It is probable this file name already exists in the DB which is causing the error.`);
+            if (response.ok) {
+                (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_1__.renderCustomTextBox)("Song successfully uploaded!");
+                return;
             }
+            throw new Error(`Failed with status: ${response.status}.`);
+        })
+            .catch(error => {
+            const firstPart = `Failed to upload song with filename: "${songFile.name}". `;
+            const secondPart = "It is likely this file name already exists in the DB which is causing the error.";
+            const userErr = firstPart + secondPart;
+            (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleServerError)(error, userErr);
         });
     });
 }
@@ -33720,20 +33897,31 @@ function isNotAcceptedFileUploadType(fileType) {
     }
     return true;
 }
-function incrementPlayCount(currentSongObject) {
+function incrementPlayCount(song) {
     return __awaiter(this, void 0, void 0, function* () {
         return fetch("/updatePlays", {
             method: "POST",
-            body: currentSongObject.fileName
+            body: song.fileName
         })
             .then(response => {
             if (!response.ok) {
-                throw new Error(`Failed to update play count. Failed with status: ${response.status}.`);
+                throw new Error(`Failed to update with status: ${response.status}. `);
             }
+            const row = _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.table.rows[song.rowNum];
+            const plays = row.querySelector(".plays");
+            if (plays instanceof HTMLSpanElement) {
+                song.plays += 1;
+                plays.innerText = song.plays.toString();
+                return;
+            }
+            throw new TypeError("Tried to update the row's play's count text but it failed. "
+                +
+                    `Instead got element "${plays}" of type "${plays.constructor.name}". `
+                +
+                    `Row given: ${row}, with song: ${song.fileName}`);
         })
             .catch(error => {
-            console.error(`${error} Offending song has attributes: file name: ${currentSongObject.fileName}\
-			Failed with playcount: ${currentSongObject.plays}`);
+            (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleServerError)(error, `Failed to update play count on song: "${song.fileName}". Song had ${song.plays} plays.`);
         });
     });
 }
@@ -33747,30 +33935,35 @@ function addSongToPlaylist(songFileName, playlistName) {
             body: form,
         })
             .then(response => {
-            if (!response.ok) {
-                return (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_1__.renderCustomTextBox)(`Failed to add song, ${songFileName}, to playlist, ${playlistName}. `
-                    + `Failed with status: ${response.status}`);
+            if (response.ok) {
+                (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_1__.renderCustomTextBox)(`Successfully added to playlist: ${playlistName}`);
+                return;
             }
-            (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_1__.renderCustomTextBox)("Added to Playlist");
+            throw new Error(`Failed with status: ${response.status}`);
+        })
+            .catch(error => {
+            (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleServerError)(error, `Failed to add song "${songFileName}" to playlist: "${playlistName}"`);
         });
     });
 }
-function removeSongFromCurrPlaylist(indexInDB) {
+function removeSongFromCurrPlaylist(song) {
     return __awaiter(this, void 0, void 0, function* () {
         const form = new FormData();
-        form.append('songPlaylistIndex', indexInDB.toString());
+        form.append('songPlaylistIndex', song.dbIndex.toString());
         form.append('playlistName', _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.currPlaylistName);
         return fetch("/removeSong", {
             method: "POST",
             body: form,
         })
             .then(response => {
-            if (!response.ok) {
-                throw new Error("Failed to remove song from playlist.");
+            if (response.ok) {
+                (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_1__.renderCustomTextBox)("Song removed from the current playlist successfully.");
+                return;
             }
+            throw new Error(`Failed with status ${response.status}. Index of song in DB: ${song.dbIndex}.`);
         })
             .catch(error => {
-            `${error} Current playlist name: ${_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.currPlaylistName}. Index of song in DB: ${indexInDB}`;
+            (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleServerError)(error, `Failed to remove song "${song.fileName}" from the current playlist: "${_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.currPlaylistName}"`);
         });
     });
 }
@@ -33784,12 +33977,14 @@ function deleteSongFromDB(songFileName, songName) {
             body: form,
         })
             .then((response) => __awaiter(this, void 0, void 0, function* () {
-            if (!response.ok) {
-                throw new Error(`An error was encounted while deleting a song. Failed with status ${response.status}.`);
+            if (response.ok) {
+                (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_1__.renderCustomTextBox)("Song successfully deleted.");
+                return;
             }
+            throw new Error(`Failed with status ${response.status}.`);
         }))
             .catch(error => {
-            console.error(`${error} Offending song file name: ${songFileName}`);
+            (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleServerError)(error, `An error was encounted while deleting song: "${songFileName}"`);
         });
     });
 }
@@ -33803,13 +33998,13 @@ function getUpdatedPlaylistTime(playlistName) {
             if (response.ok) {
                 return response.json();
             }
-            throw new Error(`Failed to update playlist time. Failed with status: ${response.status}`);
+            throw new Error(`Failed with status: ${response.status}.`);
         })
             .then(data => {
             return data["totalTime"];
         })
             .catch(error => {
-            console.error(`${error} \nRequested playlist name: ${playlistName}`);
+            (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleServerError)(error, `Failed to get most recent playlist time for playlist: ${playlistName}.`);
         });
     });
 }
@@ -33827,11 +34022,11 @@ function updateSongInfo(newInfo, song_img, songFileName) {
         })
             .then(response => {
             if (!response.ok) {
-                throw new Error(`Failed to update song info from server. Failed with status: ${response.status}`);
+                throw new Error(`Failed with status: ${response.status}.`);
             }
         })
             .catch(error => {
-            console.error(`${error} \nRequested song file name: ${songFileName}`);
+            (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleServerError)(error, `Failed to update song with filename: "${songFileName}"`);
         });
     });
 }
@@ -33845,13 +34040,13 @@ function getSong(songFileName) {
             if (response.ok) {
                 return response.json();
             }
-            throw new Error(`Failed to get song info from server with status: ${response.status}`);
+            throw new Error(`Failed with status: ${response.status}.`);
         })
             .then(data => {
             return data["songObj"];
         })
             .catch(error => {
-            console.error(`${error} \nRequested song file name: ${songFileName}`);
+            (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleServerError)(error, `Failed to retrieve song with filename: "${songFileName}"`);
         });
     });
 }
@@ -33867,13 +34062,15 @@ function getSong(songFileName) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ setSongImageByRowNum),
 /* harmony export */   "determineFooterPlayImgSrc": () => (/* binding */ determineFooterPlayImgSrc),
 /* harmony export */   "fillPlaylistPreviewImages": () => (/* binding */ fillPlaylistPreviewImages),
-/* harmony export */   "getSongImage": () => (/* binding */ getSongImage)
+/* harmony export */   "getSongImage": () => (/* binding */ getSongImage),
+/* harmony export */   "setSongImageByRowNum": () => (/* binding */ setSongImageByRowNum)
 /* harmony export */ });
 /* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../globals */ "./static/scripts/globals.ts");
 /* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
+/* This file is used for general image stuff. Checking to see if an image exists or
+setting images. This file is should be refactored in the future. */
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -33933,7 +34130,7 @@ function fillPlaylistPreviewImages() {
         for (let index = 0; index < numOfPlaylistSongs; index++) {
             const currentCoverSrc = yield getSongImage(index);
             if (currentCoverSrc !== _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.noCoverImgSrc) {
-                (0,_globals__WEBPACK_IMPORTED_MODULE_0__.getImgElemByID)(`coverPreview${numOfFoundPreviewImages}`).src = currentCoverSrc;
+                (0,_globals__WEBPACK_IMPORTED_MODULE_0__.getImgElemByID)(`cover-preview-${numOfFoundPreviewImages}`).src = currentCoverSrc;
                 numOfFoundPreviewImages++;
             }
             if (numOfFoundPreviewImages === maxNumOfPreviews) {
@@ -33941,23 +34138,99 @@ function fillPlaylistPreviewImages() {
             }
         }
         while (numOfFoundPreviewImages < maxNumOfPreviews) {
-            (0,_globals__WEBPACK_IMPORTED_MODULE_0__.getImgElemByID)(`coverPreview${numOfFoundPreviewImages}`).src = _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.noCoverImgSrc;
+            (0,_globals__WEBPACK_IMPORTED_MODULE_0__.getImgElemByID)(`cover-preview-${numOfFoundPreviewImages}`).src = _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.noCoverImgSrc;
             numOfFoundPreviewImages++;
         }
     });
 }
 function determineFooterPlayImgSrc(songIsPlaying) {
-    const footerImgElement = (0,_globals__WEBPACK_IMPORTED_MODULE_0__.getImgElemByID)('footerPlayImg');
+    const footerImgElement = (0,_globals__WEBPACK_IMPORTED_MODULE_0__.getImgElemByID)("footer-play-img");
+    const currSrc = footerImgElement.src;
     if (songIsPlaying) {
-        if (footerImgElement.src === _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.lowerBarPlayHoverImgSrc) {
+        // the second condition here occurs when hovering over the main play button while a song is finishing
+        if (currSrc === _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.lowerBarPlayHoverImgSrc || currSrc === _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.lowerBarPauseHoverImgSrc) {
             return _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.lowerBarPauseHoverImgSrc;
         }
         return _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.lowerBarPauseImgSrc;
     }
-    if (footerImgElement.src === _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.lowerBarPauseHoverImgSrc) {
+    if (currSrc === _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.lowerBarPauseHoverImgSrc) {
         return _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.lowerBarPlayHoverImgSrc;
     }
     return _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.globalPlayImgSrc;
+}
+
+
+/***/ }),
+
+/***/ "./static/scripts/playlistScripts/handleFileDrop.tsx":
+/*!***********************************************************!*\
+  !*** ./static/scripts/playlistScripts/handleFileDrop.tsx ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "handleFileDrop": () => (/* binding */ handleFileDrop)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
+/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
+/* harmony import */ var _findImages__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./findImages */ "./static/scripts/playlistScripts/findImages.ts");
+/* harmony import */ var _RowContent__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./RowContent */ "./static/scripts/playlistScripts/RowContent.tsx");
+/* harmony import */ var _contactServer__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./contactServer */ "./static/scripts/playlistScripts/contactServer.ts");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+function handleFileDrop(e) {
+    return __awaiter(this, void 0, void 0, function* () {
+        e.preventDefault();
+        if (e.dataTransfer === null)
+            return;
+        if (!e.dataTransfer.items)
+            return;
+        const files = [...e.dataTransfer.items].map(item => item.getAsFile());
+        for (const file of files) {
+            if (file === null)
+                break;
+            // This await is necessary, otherwise the SQL server recieves to many requests and will crash.
+            // Wrap the this function call in a try catch block.
+            // That way if uploading multiple files, one fails but the rest can attempt to go through.
+            yield _contactServer__WEBPACK_IMPORTED_MODULE_5__.sendSongFile(file);
+            const newSongObj = yield _contactServer__WEBPACK_IMPORTED_MODULE_5__.getSong(file.name);
+            const newTotalTime = yield _contactServer__WEBPACK_IMPORTED_MODULE_5__.getUpdatedPlaylistTime(_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.currPlaylistName);
+            updatePageForNewRow(newSongObj, newTotalTime);
+        }
+    });
+}
+;
+// This is used when the page is already loaded, a song is dropped and added to the table
+function updatePageForNewRow(newSongObj, newTotalTime) {
+    document.getElementById("playlist-total-time").innerText = newTotalTime;
+    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.addNewSongObjectFromDictData)(newSongObj);
+    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.lastSongNum !== null) {
+        (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.updateLastSongNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.lastSongNum + 1);
+    }
+    // rowNums here are all 0 because adding a song adds it to Last Added.
+    // Obviously, the song just added is the most recent. So it will be at the top of Last Added.
+    const newRow = _playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.table.insertRow(0);
+    newRow.classList.add("song-row");
+    const rowNum = 0;
+    const container = newRow;
+    react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement(_RowContent__WEBPACK_IMPORTED_MODULE_4__.RowContent, { rowNum: rowNum }), container);
+    (0,_findImages__WEBPACK_IMPORTED_MODULE_3__.fillPlaylistPreviewImages)();
 }
 
 
@@ -33974,7 +34247,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "Song": () => (/* binding */ Song),
 /* harmony export */   "addNewSongObjectFromDictData": () => (/* binding */ addNewSongObjectFromDictData),
 /* harmony export */   "audio": () => (/* binding */ audio),
-/* harmony export */   "clickSongBySongNum": () => (/* binding */ clickSongBySongNum),
+/* harmony export */   "clickSongByRowNum": () => (/* binding */ clickSongByRowNum),
 /* harmony export */   "currPlaylistName": () => (/* binding */ currPlaylistName),
 /* harmony export */   "getImgByRow": () => (/* binding */ getImgByRow),
 /* harmony export */   "getNumOfSongs": () => (/* binding */ getNumOfSongs),
@@ -33985,11 +34258,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "lastSongNum": () => (/* binding */ lastSongNum),
 /* harmony export */   "removeObjFromSongObjectsList": () => (/* binding */ removeObjFromSongObjectsList),
 /* harmony export */   "replaceObjInSongObjList": () => (/* binding */ replaceObjInSongObjList),
+/* harmony export */   "revertPageToNoSong": () => (/* binding */ revertPageToNoSong),
 /* harmony export */   "setDraggingSong": () => (/* binding */ setDraggingSong),
 /* harmony export */   "table": () => (/* binding */ table),
 /* harmony export */   "updateLastSongNum": () => (/* binding */ updateLastSongNum)
 /* harmony export */ });
+/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../globals */ "./static/scripts/globals.ts");
 // This file is used for globals which are used *only* within pages that start with /playlist/
+
 /** Object used to store a song's attributes. So far only data is kept here, no functions yet.
  * This class is exported only for typing purposes. Do not use this constructor outside this file! */
 class Song {
@@ -34018,7 +34294,6 @@ class Song {
 let lastSongNum = null;
 /** Keeps track of if the seekBarHandle is being dragged.
  * i.e. the song time is being moved manually. */
-/* Rename this to isDraggingSong or something else... */
 let isDraggingSong = false;
 const currPlaylistName = _getPlaylistName();
 const isLastAddedPlaylist = (_getPlaylistName() === "Last Added");
@@ -34032,13 +34307,14 @@ const table = _getPlaylistTable();
 const audio = _getMainAudio();
 /** List of all song objects for the entire page.
  * This list is in the same order as the playlist. */
-const _songs = JSON.parse(document.getElementById('scriptTag').getAttribute('songObjectList')).map((dictSongObject) => new Song(dictSongObject));
+const _songs = JSON.parse(document.getElementById("script-tag").getAttribute("songObjectList")).map((dictSongObject) => new Song(dictSongObject));
 function updateLastSongNum(newNum) {
     lastSongNum = newNum;
 }
 function setDraggingSong(isDraggingSong) {
     isDraggingSong = isDraggingSong;
 }
+/** Unused function but may be useful in the future.. */
 function getNumOfSongs() {
     return _getPlaylistTable().rows.length;
 }
@@ -34047,27 +34323,27 @@ function getNumOfSongs() {
  * The function is designed as such so it always returns a HTMLTableElement.
  * Thus there is never a need to check for null.*/
 function _getPlaylistTable() {
-    const elem = document.getElementById("songTable");
+    const elem = document.getElementById("song-table");
     if (elem instanceof HTMLTableElement) {
         return elem;
     }
     throw new DOMException(`Failed to retrieve songTable element.`);
 }
-/** This is denoted as private since this should only be used to get the 'mainAudio' element. */
+/** This is denoted as private since this should only be used to get the 'main-audio' element. */
 function _getMainAudio() {
-    const elem = document.getElementById("mainAudio");
+    const elem = document.getElementById("main-audio");
     if (elem instanceof HTMLAudioElement) {
         return elem;
     }
-    throw new DOMException(`Failed to retrieve the "mainAudio" element.`);
+    throw new DOMException(`Failed to retrieve the "main-audio" element.`);
 }
 /** Returns the image for a song for the given row in the playlist table. */
-function getImgByRow(songRow) {
-    const elem = table.rows[songRow].firstElementChild.firstElementChild;
+function getImgByRow(rowNum) {
+    const elem = table.rows[rowNum].firstElementChild.firstElementChild;
     if (elem instanceof HTMLImageElement) {
         return elem;
     }
-    throw new DOMException(`Failed to retrieve song Img for the row with row number: ${songRow}`);
+    throw new DOMException(`Failed to retrieve song Img for the row with row number: ${rowNum}`);
 }
 function getRowIndexByEventTarget(t) {
     if (t instanceof HTMLButtonElement || t instanceof HTMLImageElement) {
@@ -34094,8 +34370,8 @@ function addNewSongObjectFromDictData(dictSong) {
 function addToSongObjectsList(newSongObj) {
     _songs.unshift(newSongObj);
 }
-function clickSongBySongNum(songNum) {
-    getImgByRow(songNum).click();
+function clickSongByRowNum(rowNum) {
+    getImgByRow(rowNum).click();
 }
 function removeObjFromSongObjectsList(index) {
     _songs.splice(index, 1);
@@ -34108,6 +34384,16 @@ function getSongObjectByRowNum(rowNum) {
 }
 function replaceObjInSongObjList(newSongObj, index) {
     _songs[index] = newSongObj;
+}
+function revertPageToNoSong() {
+    (0,_globals__WEBPACK_IMPORTED_MODULE_0__.getImgElemByID)("footer-play-img").src = _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.globalPlayImgSrc;
+    document.getElementById("current-time-stamp").innerText = '-:--';
+    document.getElementById("playing-title").innerText = 'Playing:';
+    document.getElementById("curr-song-duration-text").innerText = '-:--';
+    document.getElementById("seek-bar-progress").style.width = '0%';
+    table.rows[table.rows.length - 1].setAttribute("style", "background-color: ;");
+    audio.src = "";
+    updateLastSongNum(null);
 }
 
 
@@ -34133,54 +34419,52 @@ const iconFolderPath = `${staticFolderURL}/media/icons`;
 /** This should be the only function called from this file.
  * This func exists purely so it can be imported from another module thus, the global code is below is run. */
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-= prepare header buttons with listeners =-=-=-=-=-=-=-=-=-=-=-=-=-=-
-const headerPlayIcon = (0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)('headerPlayIconID');
+const headerPlayIcon = (0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("header-play-icon");
 headerPlayIcon.addEventListener('click', () => {
     if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum === null) {
-        (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.clickSongBySongNum)(0);
+        (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.clickSongByRowNum)(0);
     }
 });
 headerPlayIcon.addEventListener('mouseover', () => {
     if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum === null) {
-        headerPlayIcon.src = `${iconFolderPath}/playHover.png`;
+        headerPlayIcon.src = _globals__WEBPACK_IMPORTED_MODULE_1__.IMG_PATHS.lowerBarPlayHoverImgSrc;
         headerPlayIcon.style.cursor = 'pointer';
     }
 });
 headerPlayIcon.addEventListener('mouseout', () => {
-    headerPlayIcon.src = `${iconFolderPath}/play.png`;
+    headerPlayIcon.src = _globals__WEBPACK_IMPORTED_MODULE_1__.IMG_PATHS.globalPlayImgSrc;
     headerPlayIcon.style.cursor = 'default';
 });
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-= prepare footer buttons with listeners =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-(0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footerPrevImg").addEventListener('click', () => {
-    const previousSongNum = _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum - 1;
-    const canPlayPreviousSong = (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum !== null && previousSongNum >= 0);
+(0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footer-prev-img").addEventListener('click', () => {
+    const canPlayPreviousSong = (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum !== null && _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum > 0);
     if (canPlayPreviousSong)
-        return (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.clickSongBySongNum)(previousSongNum);
+        return (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.clickSongByRowNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum - 1);
     console.error("Error: Cannot play previous song.");
 });
-(0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footerPlayImg").addEventListener('click', () => {
+(0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footer-play-img").addEventListener('click', () => {
     if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum === null)
         return (console.error("Error: Cannot play song when no song has been selected."));
     const currentSongNum = _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum;
-    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.clickSongBySongNum)(currentSongNum);
+    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.clickSongByRowNum)(currentSongNum);
 });
-(0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footerNextImg").addEventListener('click', () => {
-    const canPlayPreviousSong = (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum !== null && _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum >= 0);
-    const nextSongNum = _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum + 1;
-    if (canPlayPreviousSong)
-        return (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.clickSongBySongNum)(nextSongNum);
+(0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footer-next-img").addEventListener('click', () => {
+    const canPlayNextSong = (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum !== null && _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum + 1 < _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.table.rows.length);
+    if (canPlayNextSong)
+        return (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.clickSongByRowNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum + 1);
     console.error("Error: Cannot play next song.");
 });
 const footerImgInfo = {
     prev: {
-        id: 'footerPrevImg',
+        id: "footer-prev-img",
         srcs: {
             normal: `${iconFolderPath}/prev.png`,
             hover: `${iconFolderPath}/prevHover.png`
         }
     },
     play: {
-        id: 'footerPlayImg',
+        id: "footer-play-img",
         srcs: {
             normal: `${iconFolderPath}/play.png`,
             hover: `${iconFolderPath}/playHover.png`,
@@ -34189,7 +34473,7 @@ const footerImgInfo = {
         }
     },
     next: {
-        id: 'footerNextImg',
+        id: "footer-next-img",
         srcs: {
             normal: `${iconFolderPath}/next.png`,
             hover: `${iconFolderPath}/nextHover.png`
@@ -34224,6 +34508,261 @@ for (const [current] of Object.entries(footerImgInfo)) {
 
 /***/ }),
 
+/***/ "./static/scripts/playlistScripts/songOptions.tsx":
+/*!********************************************************!*\
+  !*** ./static/scripts/playlistScripts/songOptions.tsx ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "SongOptionsDropDown": () => (/* binding */ SongOptionsDropDown),
+/* harmony export */   "renderSongOptionsDropDown": () => (/* binding */ renderSongOptionsDropDown),
+/* harmony export */   "unmountSongOptionsContainer": () => (/* binding */ unmountSongOptionsContainer)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
+/* harmony import */ var _contactServer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./contactServer */ "./static/scripts/playlistScripts/contactServer.ts");
+/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./../globals */ "./static/scripts/globals.ts");
+/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
+/* harmony import */ var _renderScreenPrompt__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./../renderScreenPrompt */ "./static/scripts/renderScreenPrompt.tsx");
+/* harmony import */ var _ScreenPromptCancelButton__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../ScreenPromptCancelButton */ "./static/scripts/ScreenPromptCancelButton.tsx");
+/* harmony import */ var _contactServerGlobals__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./../contactServerGlobals */ "./static/scripts/contactServerGlobals.ts");
+/* harmony import */ var _findImages__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./findImages */ "./static/scripts/playlistScripts/findImages.ts");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+
+
+
+/** Generic prompt which is generated for a particular row.
+ * So far this is only for:
+ *
+ *  - the base song options
+ *
+ *  - the playlist names (when adding a song to another playlist) */
+function renderSongOptionsDropDown(customPrompt) {
+    const container = document.getElementById("song-options-prompt-container");
+    react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "song-drop-down-invisible-background", onClick: e => {
+            const t = e.target;
+            if (t instanceof HTMLDivElement && t.className === "song-drop-down-invisible-background") {
+                react_dom__WEBPACK_IMPORTED_MODULE_1__.unmountComponentAtNode(container);
+            }
+        } }, customPrompt), container);
+}
+function unmountSongOptionsContainer() {
+    const container = document.getElementById("song-options-prompt-container");
+    react_dom__WEBPACK_IMPORTED_MODULE_1__.unmountComponentAtNode(container);
+}
+function SongOptionsDropDown({ e }) {
+    const rowNum = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.getRowIndexByEventTarget)(e.target);
+    const button = (0,_globals__WEBPACK_IMPORTED_MODULE_3__.checkElemIsButtonElem)(e.target);
+    const buttonPos = button.getBoundingClientRect();
+    const renderNearClickPos = {
+        left: buttonPos.x + 'px',
+        top: (buttonPos.y + 20) + 'px'
+    };
+    const song = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.getSongObjectByRowNum)(rowNum);
+    const removeSongOption = react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "song-option", onClick: () => __awaiter(this, void 0, void 0, function* () {
+            yield _contactServer__WEBPACK_IMPORTED_MODULE_2__.removeSongFromCurrPlaylist(song);
+            const newPlaylistTime = yield _contactServer__WEBPACK_IMPORTED_MODULE_2__.getUpdatedPlaylistTime(_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.currPlaylistName);
+            updatePageForDeletedRow(rowNum, newPlaylistTime);
+            unmountSongOptionsContainer();
+            (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.fillPlaylistPreviewImages)();
+        }) }, "Remove song from playlist");
+    const editSongOption = react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "song-option", onClick: () => {
+            renderEditSongWindow(song.rowNum);
+            unmountSongOptionsContainer();
+        } }, "Edit Song Info");
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "song-drop-down", style: renderNearClickPos },
+        _playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.isLastAddedPlaylist ? null : removeSongOption,
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "song-option", onClick: () => {
+                renderDeleteSongScreenPrompt(song.fileName);
+                unmountSongOptionsContainer();
+            } }, "Delete song"),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "song-option", onClick: e => renderPlaylistNamesDropDown(e, song.fileName) }, "Add song to playlist"),
+        _playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.isLastAddedPlaylist ? editSongOption : null));
+}
+function renderPlaylistNamesDropDown(e, songFileName) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const playlistNames = yield (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_7__.resolve_playlist_names)();
+        const index = playlistNames.indexOf("Last Added");
+        if (index > -1) {
+            playlistNames.splice(index, 1);
+        }
+        const currentPlaylistIndex = playlistNames.indexOf(_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.currPlaylistName);
+        if (currentPlaylistIndex !== -1) {
+            playlistNames.splice(currentPlaylistIndex, 1); //remove current playlist from playlists to choose from
+        }
+        const songOption = (0,_globals__WEBPACK_IMPORTED_MODULE_3__.checkElemIsSpanElem)(e.target);
+        const optionsDropDown = (0,_globals__WEBPACK_IMPORTED_MODULE_3__.checkElemIsDivElem)(songOption.parentElement);
+        const parentPos = optionsDropDown.getBoundingClientRect();
+        const stylePos = Object.freeze({
+            left: parentPos.left + 'px',
+            top: parentPos.top + 'px'
+        });
+        renderSongOptionsDropDown(react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "song-drop-down", style: stylePos }, playlistNames.map((name) => {
+            return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "song-option", key: name, onClick: () => _contactServer__WEBPACK_IMPORTED_MODULE_2__.addSongToPlaylist(songFileName, name) }, name));
+        })));
+    });
+}
+function updatePageForDeletedRow(rowIndex, newTotalTime) {
+    document.getElementById("playlist-total-time").innerText = newTotalTime;
+    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.removeObjFromSongObjectsList)(rowIndex);
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.table.deleteRow(rowIndex);
+    (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.fillPlaylistPreviewImages)();
+    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.lastSongNum === null) {
+        return;
+    }
+    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.lastSongNum === rowIndex) {
+        (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.revertPageToNoSong)();
+        return;
+    }
+    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.lastSongNum > rowIndex) {
+        (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.updateLastSongNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.lastSongNum - 1);
+    }
+}
+function renderDeleteSongScreenPrompt(songFileName) {
+    const songName = (0,_globals__WEBPACK_IMPORTED_MODULE_3__.removeFileExtension)(songFileName);
+    (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_5__.renderScreenPrompt)(react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "screen-prompt-text" },
+            "Are you sure you want to delete the song \"",
+            songName,
+            "\" from your account?"),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "screen-prompt-positive-button", onClick: () => __awaiter(this, void 0, void 0, function* () {
+                yield _contactServer__WEBPACK_IMPORTED_MODULE_2__.deleteSongFromDB(songFileName, songName);
+                const newTotalTime = yield _contactServer__WEBPACK_IMPORTED_MODULE_2__.getUpdatedPlaylistTime(_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.currPlaylistName);
+                updatePageForDeletedSong(songFileName, newTotalTime);
+                (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_5__.removeScreenPrompt)();
+            }) }, "Delete Song"),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ScreenPromptCancelButton__WEBPACK_IMPORTED_MODULE_6__.ScreenPromptCancelButton, null)));
+}
+function updatePageForDeletedSong(deletedSongFileName, newTotalTime) {
+    document.getElementById("playlist-total-time").innerText = newTotalTime;
+    let i = 0;
+    while (i < _playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.table.rows.length) {
+        const currSongFileName = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.getSongObjectByRowNum)(i).fileName;
+        if (currSongFileName === deletedSongFileName) {
+            (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.removeObjFromSongObjectsList)(i);
+            _playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.table.deleteRow(i);
+            if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.lastSongNum === null) {
+                continue;
+            }
+            if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.lastSongNum > i) {
+                (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.updateLastSongNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.lastSongNum - 1);
+                continue;
+            }
+            if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.lastSongNum === i) {
+                (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.revertPageToNoSong)();
+            }
+        }
+        else {
+            i++;
+        }
+    }
+    (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.fillPlaylistPreviewImages)();
+}
+function renderEditSongWindow(rowNum) {
+    const song = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.getSongObjectByRowNum)(rowNum);
+    (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_5__.renderScreenPrompt)(react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "screen-prompt-text" }, " Edit Song Info "),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { type: "file", accept: "image/*", id: "img-upload", style: { display: "none" }, onChange: () => {
+                const newImgFile = (0,_globals__WEBPACK_IMPORTED_MODULE_3__.getInputElemByID)("img-upload").files[0];
+                const previewImg = (0,_globals__WEBPACK_IMPORTED_MODULE_3__.getImgElemByID)("edit-prompt-img");
+                const fr = new FileReader();
+                fr.onload = () => (previewImg.src = fr.result.toString());
+                fr.readAsDataURL(newImgFile);
+            } }),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", { htmlFor: "img-upload" },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null, " Change Picture: "),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", { id: "edit-prompt-img", className: "row-img" })),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(SongEditTextField, { props: { fieldName: "Title", defaultVal: song.title } }),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(SongEditTextField, { props: { fieldName: "Artist", defaultVal: song.artist } }),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(SongEditTextField, { props: { fieldName: "Album", defaultVal: song.album } }),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "generic-attrs" },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "generic-attrs" }, " Date: "),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { className: "generic-textbox", type: "date" })),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "generic-attrs" },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "screen-prompt-positive-button", onClick: () => __awaiter(this, void 0, void 0, function* () {
+                    yield handleSongEdit(song.fileName, rowNum);
+                    (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_5__.removeScreenPrompt)();
+                }) }, "Confirm"),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ScreenPromptCancelButton__WEBPACK_IMPORTED_MODULE_6__.ScreenPromptCancelButton, null))));
+    const setImgSrc = () => __awaiter(this, void 0, void 0, function* () {
+        const editPreviewImg = (0,_globals__WEBPACK_IMPORTED_MODULE_3__.getImgElemByID)("edit-prompt-img");
+        editPreviewImg.src = yield (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.getSongImage)(rowNum);
+    });
+    setImgSrc();
+}
+/** Component which describes any text field within the Edit Song Info screen prompt. */
+function SongEditTextField({ props }) {
+    const { fieldName, defaultVal } = props;
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "generic-attrs" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "generic-attrs" },
+            " ",
+            fieldName,
+            ": "),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { className: "generic-textbox", type: "text", defaultValue: defaultVal })));
+}
+/** Gathers data from all fields, sends it to the backend.
+ * Retrieve the new song information and update local page. */
+function handleSongEdit(songFileName, rowNum) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const promptElem = document.getElementById("base-screen-prompt");
+        const editFields = promptElem.querySelectorAll(".generic-textbox");
+        const newInfo = Object.freeze({
+            newTitle: editFields[0].value,
+            newArtist: editFields[1].value,
+            newAlbum: editFields[2].value,
+            newDate: editFields[3].value,
+        });
+        const files = (0,_globals__WEBPACK_IMPORTED_MODULE_3__.getInputElemByID)("img-upload").files;
+        // if no image is chosen, imgFile will be of length 0.
+        if (files.length === 0) {
+            yield _contactServer__WEBPACK_IMPORTED_MODULE_2__.updateSongInfo(newInfo, null, songFileName);
+        }
+        else if (files.length === 1) {
+            const song_img = files[0];
+            yield _contactServer__WEBPACK_IMPORTED_MODULE_2__.updateSongInfo(newInfo, song_img, songFileName);
+        }
+        else {
+            throw new Error(`Got more than one song image file while trying to edit song with filename: ${songFileName}`);
+        }
+        (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.replaceObjInSongObjList)(yield _contactServer__WEBPACK_IMPORTED_MODULE_2__.getSong(songFileName), rowNum);
+        const currSong = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.getSongObjectByRowNum)(rowNum);
+        if (!currSong.isPlaying) {
+            (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.setSongImageByRowNum)(rowNum);
+        }
+        const row = (0,_globals__WEBPACK_IMPORTED_MODULE_3__.checkElemIsCellElem)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.table.rows[rowNum].firstElementChild);
+        updateSongRowProperties(row, currSong);
+        (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.fillPlaylistPreviewImages)();
+    });
+}
+/** This only updates front-end text. This does not update the backend. */
+function updateSongRowProperties(row, newSong) {
+    const rowFields = row.querySelectorAll("*");
+    rowFields[1].innerText = newSong.title;
+    rowFields[4].innerText = newSong.artist;
+    rowFields[5].innerText = newSong.album;
+    rowFields[7].innerText = newSong.date;
+}
+
+
+/***/ }),
+
 /***/ "./static/scripts/renderCustomTextBox.tsx":
 /*!************************************************!*\
   !*** ./static/scripts/renderCustomTextBox.tsx ***!
@@ -34240,9 +34779,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 function renderCustomTextBox(customText) {
-    const container = document.getElementById("successBoxContainer");
-    react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "successBox" },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "addToPlaylistSuccessMessage" },
+    const container = document.getElementById("notification-box-container");
+    react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "notification-box" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "notification-text" },
             " ",
             customText,
             " ")), container);
@@ -34273,7 +34812,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const _container = document.getElementById("screenPromptContainer");
+const _container = document.getElementById("screen-prompt-container");
 function renderScreenPrompt(customPrompt) {
     react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "screen-prompt-blur" },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "base-screen-prompt", id: "base-screen-prompt" }, customPrompt)), _container);
@@ -34373,31 +34912,26 @@ var __webpack_exports__ = {};
   !*** ./static/scripts/playlistScripts/script.tsx ***!
   \***************************************************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "updatePageForDeletedSong": () => (/* binding */ updatePageForDeletedSong)
-/* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
 /* harmony import */ var _newPlaylistScreenPrompt__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../newPlaylistScreenPrompt */ "./static/scripts/newPlaylistScreenPrompt.tsx");
 /* harmony import */ var _playlistPageEvents__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./playlistPageEvents */ "./static/scripts/playlistScripts/playlistPageEvents.ts");
-/* harmony import */ var _ScreenPromptCancelButton__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./../ScreenPromptCancelButton */ "./static/scripts/ScreenPromptCancelButton.tsx");
-/* harmony import */ var _renderScreenPrompt__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./../renderScreenPrompt */ "./static/scripts/renderScreenPrompt.tsx");
-/* harmony import */ var _contactServer__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./contactServer */ "./static/scripts/playlistScripts/contactServer.ts");
-/* harmony import */ var _contactServerGlobals__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./../contactServerGlobals */ "./static/scripts/contactServerGlobals.ts");
-/* harmony import */ var _findImages__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./findImages */ "./static/scripts/playlistScripts/findImages.ts");
-/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./../globals */ "./static/scripts/globals.ts");
-/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
+/* harmony import */ var _contactServer__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./contactServer */ "./static/scripts/playlistScripts/contactServer.ts");
+/* harmony import */ var _findImages__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./findImages */ "./static/scripts/playlistScripts/findImages.ts");
+/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./../globals */ "./static/scripts/globals.ts");
+/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
+/* harmony import */ var _RowContent__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./RowContent */ "./static/scripts/playlistScripts/RowContent.tsx");
+/* harmony import */ var _handleFileDrop__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./handleFileDrop */ "./static/scripts/playlistScripts/handleFileDrop.tsx");
+// This file is the entry point for all code in any page with URL: <server>/playlists/*
+// Where the playlist name is valid.
+// Functions defined in this file should only be for basic page functionality.
+// Examples:
+// Initial page load
+// Setting up basic event listeners
+// Playing/pausing songs
+// Functions which are _generally_ more complex than this should be in the 'playlistComponents' file.
+// Adding a new song is handled in this file. It may be moved in future.
 
 
 
@@ -34410,79 +34944,48 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 window["createPage"] = createPage;
 window["dragOverHandler"] = (e) => { e.preventDefault(); };
-window["fileDropHandler"] = (e) => __awaiter(void 0, void 0, void 0, function* () {
-    e.preventDefault();
-    if (e.dataTransfer === null)
-        return;
-    if (!e.dataTransfer.items)
-        return;
-    const files = [...e.dataTransfer.items].map(item => item.getAsFile());
-    for (const file of files) {
-        if (file === null)
-            break;
-        // This await is necessary, otherwise the SQL server recieves to many requests and will crash.
-        // Wrap the this function call in a try catch block.
-        // That way if uploading multiple files, one fails but the rest can attempt to go through.
-        yield _contactServer__WEBPACK_IMPORTED_MODULE_6__.sendSongFile(file);
-        const newSongObj = yield _contactServer__WEBPACK_IMPORTED_MODULE_6__.getSong(file.name);
-        const newTotalTime = yield _contactServer__WEBPACK_IMPORTED_MODULE_6__.getUpdatedPlaylistTime(_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.currPlaylistName);
-        updatePageForNewRow(newSongObj, newTotalTime);
-    }
-});
-(0,_newPlaylistScreenPrompt__WEBPACK_IMPORTED_MODULE_2__.addNewScreenPromptEventlistener)(null);
-_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.audio.addEventListener('timeupdate', () => {
-    const songPosition = _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.audio.currentTime / _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.audio.duration;
+window["fileDropHandler"] = _handleFileDrop__WEBPACK_IMPORTED_MODULE_9__.handleFileDrop;
+(0,_newPlaylistScreenPrompt__WEBPACK_IMPORTED_MODULE_2__.addNewPlaylistScreenPromptEventlistener)(null);
+_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.addEventListener('timeupdate', () => {
+    const songPosition = _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.currentTime / _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.duration;
     if (isNaN(songPosition))
         return;
     updatePlayingSongTimestamp(songPosition);
-    const playingSongEndedNaturally = (songPosition == 1 && !_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.isDraggingSong);
+    const playingSongEndedNaturally = (songPosition == 1 && !_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.isDraggingSong);
     if (playingSongEndedNaturally) {
-        document.getElementById("seekBarProgress").style.width = '0%';
-        const currentSong = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.getSongObjectByRowNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum);
-        _contactServer__WEBPACK_IMPORTED_MODULE_6__.incrementPlayCount(currentSong);
-        const currRow = _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.table.rows[currentSong.rowNum];
-        const incrementedPlayCount = currentSong.plays + 1;
-        updateRowPlay(currRow, incrementedPlayCount.toString());
-        const isLastPlaylistSong = (currentSong.rowNum === _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.table.rows.length - 1);
+        document.getElementById("seek-bar-progress").style.width = '0%';
+        const song = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.getSongObjectByRowNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.lastSongNum);
+        _contactServer__WEBPACK_IMPORTED_MODULE_4__.incrementPlayCount(song);
+        const isLastPlaylistSong = (song.rowNum === _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.table.rows.length - 1);
         if (isLastPlaylistSong) {
-            currentSong.isPlaying = false;
-            (0,_findImages__WEBPACK_IMPORTED_MODULE_8__["default"])(_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum);
-            revertPageToNoSong();
+            song.isPlaying = false;
+            (0,_findImages__WEBPACK_IMPORTED_MODULE_5__.setSongImageByRowNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.lastSongNum);
+            (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.revertPageToNoSong)();
             return;
         }
-        const nextSongNum = _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum + 1;
-        (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.clickSongBySongNum)(nextSongNum);
+        const nextSongNum = _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.lastSongNum + 1;
+        (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.clickSongByRowNum)(nextSongNum);
     }
 });
 function updatePlayingSongTimestamp(songPosition) {
-    const seekBarProgress = document.getElementById("seekBarProgress");
+    const seekBarProgress = document.getElementById("seek-bar-progress");
     seekBarProgress.style.width = `${songPosition * 100}%`;
-    const minutes = Math.floor(_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.audio.currentTime / 60);
-    let seconds = Math.floor(_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.audio.currentTime % 60);
+    const minutes = Math.floor(_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.currentTime / 60);
+    const seconds = Math.floor(_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.currentTime % 60);
     let secondsStr = seconds.toString();
     if (seconds < 10) {
         secondsStr = `0${seconds}`;
     }
-    const updateCurrentTime = document.getElementById('currentTimeStamp');
+    const updateCurrentTime = document.getElementById("current-time-stamp");
     updateCurrentTime.innerText = `${minutes}:${secondsStr}`;
 }
-function revertPageToNoSong() {
-    (0,_globals__WEBPACK_IMPORTED_MODULE_9__.getImgElemByID)('footerPlayImg').src = _globals__WEBPACK_IMPORTED_MODULE_9__.IMG_PATHS.globalPlayImgSrc;
-    document.getElementById('currentTimeStamp').innerText = '-:--';
-    document.getElementById('playingTitleID').innerText = 'Playing:';
-    document.getElementById('playingTimeLength').innerText = '-:--';
-    document.getElementById("seekBarProgress").style.width = '0%';
-    _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.table.rows[_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.table.rows.length - 1].setAttribute('style', "background-color: ;");
-    _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.audio.src = "";
-    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.updateLastSongNum)(null);
-}
-document.getElementById("seekBar").addEventListener("mousedown", (e) => {
-    const noSelectedAudioSrc = `${_globals__WEBPACK_IMPORTED_MODULE_9__.PAGE_PROPERTIES.websiteOrigin}/playlists/${_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.currPlaylistName}`;
-    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.audio.src === noSelectedAudioSrc) {
+document.getElementById("seek-bar").addEventListener("mousedown", (e) => {
+    const noSelectedAudioSrc = `${_globals__WEBPACK_IMPORTED_MODULE_6__.PAGE_PROPERTIES.websiteOrigin}/playlists/${_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.currPlaylistName}`;
+    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.src === noSelectedAudioSrc) {
         return console.error("Error: Cannot use seekbar when no song is selected.");
     }
-    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.setDraggingSong)(true);
-    _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.audio.pause();
+    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.setDraggingSong)(true);
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.pause();
     e.preventDefault();
     setSeekBarWidth(e);
     updateCurrentSongTime();
@@ -34495,390 +34998,46 @@ function dragElement(e) {
     updateCurrentSongTime();
 }
 function updateCurrentSongTime() {
-    const seekBarProgress = document.getElementById("seekBarProgress");
-    _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.audio.currentTime = (parseFloat(seekBarProgress.style.width) / 100) * _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.audio.duration;
+    const seekBarProgress = document.getElementById("seek-bar-progress");
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.currentTime = (parseFloat(seekBarProgress.style.width) / 100) * _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.duration;
 }
 function stopDragElement() {
     document.onmouseup = null;
     document.onmousemove = null;
-    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.setDraggingSong)(false);
-    const currentSongSrc = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.getImgByRow)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum).src;
-    const pausedFromDragging = (currentSongSrc === _globals__WEBPACK_IMPORTED_MODULE_9__.IMG_PATHS.globalPlayingGifSrc);
+    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.setDraggingSong)(false);
+    const currentSongSrc = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.getImgByRow)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.lastSongNum).src;
+    const pausedFromDragging = (currentSongSrc === _globals__WEBPACK_IMPORTED_MODULE_6__.IMG_PATHS.globalPlayingGifSrc);
     if (pausedFromDragging)
-        _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.audio.play();
+        _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.play();
 }
 function setSeekBarWidth(e) {
-    const seekBar = document.getElementById('seekBar');
-    const seekBarWidth = parseFloat(window.getComputedStyle(seekBar).getPropertyValue('width'));
+    const seekBar = document.getElementById("seek-bar");
+    const seekBarWidth = parseFloat(window.getComputedStyle(seekBar).getPropertyValue("width"));
     const clickedPos = e.clientX;
     const seekBarLeftOffset = seekBar.getBoundingClientRect().left;
-    const seekBarHandle = document.getElementById("seekBarHandle");
+    const seekBarHandle = document.getElementById("seek-bar-handle");
     const middleOfHandle = seekBarHandle.getBoundingClientRect().width / 2;
     const clickedWidth = clickedPos - seekBarLeftOffset - middleOfHandle;
-    const seekBarProgress = document.getElementById("seekBarProgress");
+    const seekBarProgress = document.getElementById("seek-bar-progress");
     seekBarProgress.style.width = `${(clickedWidth / seekBarWidth) * 100}%`;
 }
 function createPage() {
-    const numOfPlaylistSongs = parseInt(document.getElementById('scriptTag').getAttribute('numOfSongs'));
+    const numOfPlaylistSongs = parseInt(document.getElementById("script-tag").getAttribute("numOfSongs"));
     const songNums = [...Array(numOfPlaylistSongs).keys()];
-    const container = document.getElementById('tableBody');
+    const rows = [];
+    for (let rowNum = 0; rowNum < numOfPlaylistSongs; rowNum++) {
+        rows.push(react__WEBPACK_IMPORTED_MODULE_0__.createElement(Row, { key: rowNum, rowNum: rowNum }));
+    }
+    const container = document.getElementById("song-table-body");
     react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, songNums.map((_, rowNum) => {
-        const returnItem = react__WEBPACK_IMPORTED_MODULE_0__.createElement(Row, { key: rowNum, props: { rowNum, numOfPlaylistSongs } });
-        (0,_findImages__WEBPACK_IMPORTED_MODULE_8__["default"])(rowNum); // Song image src's will be set in Row func at a later point...
-        return returnItem;
+        return react__WEBPACK_IMPORTED_MODULE_0__.createElement(Row, { key: rowNum, rowNum: rowNum });
     })), container);
-    (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.fillPlaylistPreviewImages)();
+    (0,_findImages__WEBPACK_IMPORTED_MODULE_5__.fillPlaylistPreviewImages)();
 }
-function Row({ props }) {
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("tr", { className: "songRowClass" },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(RowContent, { props: props })));
-}
-function RowContent({ props }) {
-    const { rowNum, numOfPlaylistSongs } = props;
-    const song = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.getSongObjectByRowNum)(rowNum);
-    // Put songDiv in the Row function? This would eliminate the need for songRowClass
-    // Current hierarchy:
-    // <table row>
-    // <Row> 
-    // <RowContent> </RowContent>
-    // <songDiv> </songDiv>
-    // </Row>
-    // </table row>
-    // Could have instead:
-    // <table row>
-    // <RowContent> </RowContent>
-    // <songDiv> </songDiv>    // songDiv should be renamed to rowDiv
-    const isLastSong = (rowNum + 1 === numOfPlaylistSongs);
-    // Both of the following components are used conditionally in the return statement.
-    const songDiv = react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "songDivider" });
-    const dateSpan = react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "date-field-container" },
-        " ",
-        song.date,
-        " ");
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("td", { className: "songContainer" },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", { className: "coverImg", onClick: songImgEventListener }),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "large-field-container" },
-                " ",
-                song.title,
-                " "),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "songRowAddPlaylistButton", onClick: e => renderSongDropDown(react__WEBPACK_IMPORTED_MODULE_0__.createElement(SongOptionsDropDown, { e: e })) }, "+"),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "generic-attrs" },
-                " ",
-                song.duration,
-                " "),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "medium-field-container" },
-                " ",
-                song.artist,
-                " "),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "medium-field-container" },
-                " ",
-                song.album,
-                " "),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "small-field-container" },
-                " ",
-                song.plays,
-                " "),
-            _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.isLastAddedPlaylist ? dateSpan : null),
-        isLastSong ? null : songDiv));
-}
-// This is used when the page is already loaded, a song is dropped and added to the table
-function updatePageForNewRow(newSongObj, newTotalTime) {
-    document.getElementById("totalTimeText").innerText = newTotalTime;
-    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.addNewSongObjectFromDictData)(newSongObj);
-    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum !== null) {
-        (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.updateLastSongNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum + 1);
-    }
-    // rowNums here are all 0 because adding a song adds it to Last Added.
-    // Obviously, the song just added is the most recent. So it will be at the top of Last Added.
-    const newRow = _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.table.insertRow(0);
-    newRow.className = "songRowClass";
-    const rowNum = 0;
-    const numOfPlaylistSongs = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.getNumOfSongs)();
-    const container = newRow;
-    react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement(RowContent, { props: { rowNum, numOfPlaylistSongs } }), container);
-    (0,_findImages__WEBPACK_IMPORTED_MODULE_8__["default"])(0);
-    (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.fillPlaylistPreviewImages)();
-}
-function updatePageForDeletedRow(rowIndex, newTotalTime) {
-    document.getElementById("totalTimeText").innerText = newTotalTime;
-    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.removeObjFromSongObjectsList)(rowIndex);
-    _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.table.deleteRow(rowIndex);
-    (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.fillPlaylistPreviewImages)();
-    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum === null) {
-        return;
-    }
-    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum === rowIndex) {
-        revertPageToNoSong();
-        return;
-    }
-    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum > rowIndex) {
-        (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.updateLastSongNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum - 1);
-    }
-}
-function updatePageForDeletedSong(deletedSongFileName, newTotalTime) {
-    document.getElementById("totalTimeText").innerText = newTotalTime;
-    let i = 0;
-    while (i < _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.table.rows.length) {
-        const currSongFileName = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.getSongObjectByRowNum)(i).fileName;
-        if (currSongFileName === deletedSongFileName) {
-            (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.removeObjFromSongObjectsList)(i);
-            _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.table.deleteRow(i);
-            if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum === null) {
-                continue;
-            }
-            if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum > i) {
-                (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.updateLastSongNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum - 1);
-                continue;
-            }
-            if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum === i) {
-                revertPageToNoSong();
-            }
-        }
-        else {
-            i++;
-        }
-    }
-    (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.fillPlaylistPreviewImages)();
-}
-function unmountSongOptionsContainer() {
-    const container = document.getElementById("songOptionsPromptContainer");
-    react_dom__WEBPACK_IMPORTED_MODULE_1__.unmountComponentAtNode(container);
-}
-/** Generic prompt which is generated for a particular row.
- * So far this is only for:
- *
- *  - the base song options
- *
- *  - the playlist names */
-function renderSongDropDown(customPrompt) {
-    const container = document.getElementById("songOptionsPromptContainer");
-    react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "song-drop-down-invisible-background", onClick: e => {
-            const t = e.target;
-            if (t instanceof HTMLDivElement && t.className === "song-drop-down-invisible-background") {
-                react_dom__WEBPACK_IMPORTED_MODULE_1__.unmountComponentAtNode(container);
-            }
-        } }, customPrompt), container);
-}
-function SongOptionsDropDown({ e }) {
-    const rowNum = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.getRowIndexByEventTarget)(e.target);
-    const buttonPos = e.target.getBoundingClientRect();
-    const clickPos = {
-        left: buttonPos.x + 'px',
-        top: (buttonPos.y + 20) + 'px'
-    };
-    const song = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.getSongObjectByRowNum)(rowNum);
-    const removeSongOption = react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "song-option", onClick: () => __awaiter(this, void 0, void 0, function* () {
-            yield _contactServer__WEBPACK_IMPORTED_MODULE_6__.removeSongFromCurrPlaylist(song.dbIndex);
-            const newPlaylistTime = yield _contactServer__WEBPACK_IMPORTED_MODULE_6__.getUpdatedPlaylistTime(_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.currPlaylistName);
-            updatePageForDeletedRow(rowNum, newPlaylistTime);
-            unmountSongOptionsContainer();
-            (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.fillPlaylistPreviewImages)();
-        }) }, "Remove song from playlist");
-    const editSongOption = react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "song-option", onClick: () => {
-            renderEditSongWindow(song.rowNum);
-            unmountSongOptionsContainer();
-        } }, "Edit Song Info");
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "song-drop-down", style: clickPos },
-            _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.isLastAddedPlaylist ? null : removeSongOption,
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "song-option", onClick: () => {
-                    renderDeleteSongScreenPrompt(song.fileName);
-                    unmountSongOptionsContainer();
-                } }, "Delete song"),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "song-option", onClick: e => renderPlaylistNamesDropDown(e, song.fileName) }, "Add song to playlist"),
-            _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.isLastAddedPlaylist ? editSongOption : null)));
-}
-function renderPlaylistNamesDropDown(e, songFileName) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const playlistNames = yield (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_7__.resolve_playlist_names)();
-        const index = playlistNames.indexOf("Last Added");
-        if (index > -1) {
-            playlistNames.splice(index, 1);
-        }
-        const currentPlaylistIndex = playlistNames.indexOf(_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.currPlaylistName);
-        if (currentPlaylistIndex !== -1) {
-            playlistNames.splice(currentPlaylistIndex, 1); //remove current playlist from playlists to choose from
-        }
-        const songOption = (0,_globals__WEBPACK_IMPORTED_MODULE_9__.checkElemIsSpanElem)(e.target);
-        const optionsDropDown = (0,_globals__WEBPACK_IMPORTED_MODULE_9__.checkElemIsDivElem)(songOption.parentElement);
-        const parentPos = optionsDropDown.getBoundingClientRect();
-        const stylePos = Object.freeze({
-            left: parentPos.left + 'px',
-            top: parentPos.top + 'px'
-        });
-        renderSongDropDown(react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "song-drop-down", style: stylePos }, playlistNames.map((name) => {
-            return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "song-option", key: name, onClick: () => _contactServer__WEBPACK_IMPORTED_MODULE_6__.addSongToPlaylist(songFileName, name) }, name));
-        })));
-    });
-}
-function renderDeleteSongScreenPrompt(songFileName) {
-    const songName = (0,_globals__WEBPACK_IMPORTED_MODULE_9__.removeFileExtension)(songFileName);
-    (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_5__.renderScreenPrompt)(react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "screenPromptText" },
-            "Are you sure you want to delete the song \"",
-            songName,
-            "\" from your account?"),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "screenPromptPositiveButton", onClick: () => __awaiter(this, void 0, void 0, function* () {
-                yield _contactServer__WEBPACK_IMPORTED_MODULE_6__.deleteSongFromDB(songFileName, songName);
-                const newTotalTime = yield _contactServer__WEBPACK_IMPORTED_MODULE_6__.getUpdatedPlaylistTime(_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.currPlaylistName);
-                updatePageForDeletedSong(songFileName, newTotalTime);
-                (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_5__.removeScreenPrompt)();
-            }) }, "Delete Song"),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ScreenPromptCancelButton__WEBPACK_IMPORTED_MODULE_4__.ScreenPromptCancelButton, null)));
-}
-function songImgEventListener(e) {
-    const rowNum = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.getRowIndexByEventTarget)(e.target);
-    const song = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.getSongObjectByRowNum)(rowNum);
-    const clickedOnAnotherSong = (_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum !== song.rowNum);
-    if (clickedOnAnotherSong) {
-        const songIsAlreadySelected = (_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum !== null);
-        if (songIsAlreadySelected) { //revert previous song/row
-            (0,_findImages__WEBPACK_IMPORTED_MODULE_8__["default"])(_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum);
-            song.isPlaying = false;
-            _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.table.rows[_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum].setAttribute("style", "");
-        }
-        _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.audio.src = `${_globals__WEBPACK_IMPORTED_MODULE_9__.PAGE_PROPERTIES.staticFolderURL}/media/songs/${song.fileName}`;
-        const playingTitleDiv = document.getElementById('playingTitleID');
-        const songNameWithoutExtension = (0,_globals__WEBPACK_IMPORTED_MODULE_9__.removeFileExtension)(song.fileName);
-        playingTitleDiv.innerText = `Playing: ${songNameWithoutExtension}`;
-        const playingTimeLengthDiv = document.getElementById('playingTimeLength');
-        playingTimeLengthDiv.innerText = song.duration;
-        _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.table.rows[rowNum].setAttribute("style", "background-color: #161616;");
-        scrollPlaylistIfNeeded(rowNum);
-    }
-    if (song.isPlaying) {
-        pauseSong(song);
-    }
-    else {
-        (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.updateLastSongNum)(rowNum);
-        playSong(song);
-    }
-}
-function pauseSong(song) {
-    const playPromise = _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.audio.play();
-    // In browsers that don’t yet support this functionality, playPromise won’t be defined
-    if (playPromise !== undefined) {
-        playPromise.then(() => {
-            _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.audio.pause();
-            song.isPlaying = false;
-            (0,_findImages__WEBPACK_IMPORTED_MODULE_8__["default"])(song.rowNum);
-            (0,_globals__WEBPACK_IMPORTED_MODULE_9__.getImgElemByID)('footerPlayImg').src = (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.determineFooterPlayImgSrc)(song.isPlaying);
-        })
-            .catch(error => {
-            console.error(`${error}` + `Failed to pause song object with properties: ${JSON.stringify(song)}`);
-        });
-    }
-}
-function playSong(song) {
-    _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.audio.play();
-    song.isPlaying = true;
-    const imgForRow = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.getImgByRow)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.lastSongNum);
-    imgForRow.src = _globals__WEBPACK_IMPORTED_MODULE_9__.IMG_PATHS.globalPlayingGifSrc;
-    (0,_globals__WEBPACK_IMPORTED_MODULE_9__.getImgElemByID)('footerPlayImg').src = (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.determineFooterPlayImgSrc)(song.isPlaying);
-}
-function scrollPlaylistIfNeeded(rowNum) {
-    const playlistContainer = document.getElementById('playlistContentContainer');
-    const playlistContainerCoords = playlistContainer.getBoundingClientRect();
-    const currentRowCoords = _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.table.rows[rowNum].getBoundingClientRect();
-    if (currentRowCoords.bottom > playlistContainerCoords.bottom) {
-        _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.table.rows[rowNum].scrollIntoView(false);
-        return;
-    }
-    if (currentRowCoords.top < playlistContainerCoords.top) {
-        _playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.table.rows[rowNum].scrollIntoView();
-    }
-}
-function renderEditSongWindow(rowNum) {
-    const song = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.getSongObjectByRowNum)(rowNum);
-    (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_5__.renderScreenPrompt)(react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { style: { width: "100%" } }, " Edit Song Info "),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { type: "file", accept: "image/*", id: "img-upload", style: { display: "none" }, onChange: () => {
-                const newImgFile = (0,_globals__WEBPACK_IMPORTED_MODULE_9__.getInputElemByID)("img-upload").files[0];
-                const previewImg = (0,_globals__WEBPACK_IMPORTED_MODULE_9__.getImgElemByID)("edit-prompt-img");
-                const fr = new FileReader();
-                fr.onload = () => (previewImg.src = fr.result.toString());
-                fr.readAsDataURL(newImgFile);
-            } }),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", { htmlFor: "img-upload" },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", null, " Change Picture: "),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", { id: "edit-prompt-img", className: "coverImg" })),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(SongEditTextField, { props: { fieldName: "Title", defaultVal: song.title } }),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(SongEditTextField, { props: { fieldName: "Artist", defaultVal: song.artist } }),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(SongEditTextField, { props: { fieldName: "Album", defaultVal: song.album } }),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "generic-attrs" },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "generic-attrs" }, " Date: "),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { className: "generic-textbox", type: "date" })),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "generic-attrs" },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "screenPromptPositiveButton", onClick: () => __awaiter(this, void 0, void 0, function* () {
-                    yield handleSongEdit(song.fileName, rowNum);
-                    (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_5__.removeScreenPrompt)();
-                }) }, "Confirm"),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ScreenPromptCancelButton__WEBPACK_IMPORTED_MODULE_4__.ScreenPromptCancelButton, null))));
-    const setImgSrc = () => __awaiter(this, void 0, void 0, function* () {
-        const editPreviewImg = (0,_globals__WEBPACK_IMPORTED_MODULE_9__.getImgElemByID)("edit-prompt-img");
-        editPreviewImg.src = yield (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.getSongImage)(rowNum);
-    });
-    setImgSrc();
-}
-/** Component which describes any text field within the Edit Song Info screen prompt. */
-function SongEditTextField({ props }) {
-    const { fieldName, defaultVal } = props;
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "generic-attrs" },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "generic-attrs" },
-            " ",
-            fieldName,
-            ": "),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { className: "generic-textbox", type: "text", defaultValue: defaultVal })));
-}
-function handleSongEdit(songFileName, rowNum) {
-    return __awaiter(this, void 0, void 0, function* () {
-        /* gather data from all prompts, send it to backend. Retrieve the new db edits and update local page */
-        const promptElem = document.getElementById("base-screen-prompt");
-        const textBoxElems = promptElem.querySelectorAll(".generic-textbox");
-        const newInfo = Object.freeze({
-            newTitle: textBoxElems[0].value,
-            newArtist: textBoxElems[1].value,
-            newAlbum: textBoxElems[2].value,
-            newDate: textBoxElems[3].value,
-        });
-        const files = (0,_globals__WEBPACK_IMPORTED_MODULE_9__.getInputElemByID)("img-upload").files;
-        // if no image is chosen, imgFile will be of length 0.
-        if (files.length === 0) {
-            yield _contactServer__WEBPACK_IMPORTED_MODULE_6__.updateSongInfo(newInfo, null, songFileName);
-        }
-        else if (files.length === 1) {
-            const song_img = files[0];
-            yield _contactServer__WEBPACK_IMPORTED_MODULE_6__.updateSongInfo(newInfo, song_img, songFileName);
-        }
-        else {
-            throw new Error(`Got more than one song image file while trying to edit song with filename: ${songFileName}`);
-        }
-        (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.replaceObjInSongObjList)(yield _contactServer__WEBPACK_IMPORTED_MODULE_6__.getSong(songFileName), rowNum);
-        const currSong = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.getSongObjectByRowNum)(rowNum);
-        if (!currSong.isPlaying) {
-            (0,_findImages__WEBPACK_IMPORTED_MODULE_8__["default"])(rowNum);
-        }
-        const row = (0,_globals__WEBPACK_IMPORTED_MODULE_9__.checkElemIsCellElem)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_10__.table.rows[rowNum].firstElementChild);
-        updateSongRowProperties(row, currSong);
-        (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.fillPlaylistPreviewImages)();
-    });
-}
-/** This only updates front-end text. This does not update the backend. */
-function updateSongRowProperties(row, newSong) {
-    const rowFields = row.querySelectorAll("*");
-    rowFields[1].innerText = newSong.title;
-    rowFields[4].innerText = newSong.artist;
-    rowFields[5].innerText = newSong.album;
-    rowFields[7].innerText = newSong.date;
-}
-/** This only updates front-end text. This does not update the backend.
- * This function, at this moment in time, should only be used to increment the plays count when a song finishes. */
-function updateRowPlay(row, newPlaysCount) {
-    const plays = row.querySelector(".play");
-    if (plays instanceof HTMLSpanElement) {
-        plays.innerText = newPlaysCount;
-    }
+/** This is used to create a Row only in the initial page load. */
+function Row({ rowNum }) {
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("tr", { className: "song-row" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_RowContent__WEBPACK_IMPORTED_MODULE_8__.RowContent, { rowNum: rowNum })));
 }
 
 })();

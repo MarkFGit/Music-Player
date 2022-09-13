@@ -1,8 +1,9 @@
 // As the name suggests, this file is solely responsible for communicating with the backend
 
 
-import { Song, currPlaylistName, } from './playlistGlobals';
+import { Song, table, currPlaylistName, } from './playlistGlobals';
 import { renderCustomTextBox } from "./../renderCustomTextBox";
+import { handleServerError, } from "./../contactServerGlobals";
 
 
 export async function sendSongFile(songFile: File): Promise<void> {
@@ -24,13 +25,17 @@ export async function sendSongFile(songFile: File): Promise<void> {
 		}
 	)
 	.then(response => {
-		if(!response.ok){
-			throw new Error(
-				`Failed to upload song with filename: "${songFile.name}". `
-				+ `Failed with status: ${response.status}.`
-				+ `It is probable this file name already exists in the DB which is causing the error.`
-			);
+		if(response.ok){
+			renderCustomTextBox("Song successfully uploaded!");
+			return;
 		}
+		throw new Error(`Failed with status: ${response.status}.`);
+	})
+	.catch(error => {
+		const firstPart = `Failed to upload song with filename: "${songFile.name}". `;
+		const secondPart = "It is likely this file name already exists in the DB which is causing the error.";
+		const userErr = firstPart + secondPart;
+		handleServerError(error, userErr);
 	})
 }
 
@@ -46,27 +51,43 @@ function isNotAcceptedFileUploadType(fileType: string){
 }
 
 
-export async function incrementPlayCount(currentSongObject: Song): Promise<void> {
+export async function incrementPlayCount(song: Song): Promise<void> {
 	return fetch(
 		"/updatePlays",
 		{
 			method: "POST",
-			body: currentSongObject.fileName
+			body: song.fileName
 		}
 	)
 	.then(response => {
 		if(!response.ok){
-			throw new Error(`Failed to update play count. Failed with status: ${response.status}.`);
+			throw new Error(`Failed to update with status: ${response.status}. `);
 		}
+
+		const row = table.rows[song.rowNum];
+		const plays = row.querySelector(".plays");
+
+		if(plays instanceof HTMLSpanElement){
+			song.plays += 1;
+			plays.innerText = song.plays.toString();
+			return;
+		}
+
+		throw new TypeError(
+			"Tried to update the row's play's count text but it failed. "
+			+
+			`Instead got element "${plays}" of type "${plays.constructor.name}". `
+			+
+			`Row given: ${row}, with song: ${song.fileName}`
+		);
 	})
 	.catch(error => {
-		console.error(`${error} Offending song has attributes: file name: ${currentSongObject.fileName}\
-			Failed with playcount: ${currentSongObject.plays}`)
+		handleServerError(error, `Failed to update play count on song: "${song.fileName}". Song had ${song.plays} plays.`);
 	})
 }
 
 
-export async function addSongToPlaylist(songFileName: string, playlistName: string){
+export async function addSongToPlaylist(songFileName: string, playlistName: string): Promise<void> {
 	const form = new FormData();
 	form.append('fileName', songFileName);
 	form.append('playlistName', playlistName);
@@ -79,20 +100,22 @@ export async function addSongToPlaylist(songFileName: string, playlistName: stri
 		}
 	)
 	.then(response => {
-		if(!response.ok){
-			return renderCustomTextBox(
-				`Failed to add song, ${songFileName}, to playlist, ${playlistName}. `
-				+ `Failed with status: ${response.status}`);
+		if(response.ok){
+			renderCustomTextBox(`Successfully added to playlist: ${playlistName}`);
+			return;
 		}
-		renderCustomTextBox("Added to Playlist");
+		throw new Error(`Failed with status: ${response.status}`);
+	})
+	.catch(error => {
+		handleServerError(error, `Failed to add song "${songFileName}" to playlist: "${playlistName}"`);
 	})
 }
 
 
 
-export async function removeSongFromCurrPlaylist(indexInDB: number){
+export async function removeSongFromCurrPlaylist(song: Song): Promise<void> {
 	const form = new FormData();
-	form.append('songPlaylistIndex', indexInDB.toString());
+	form.append('songPlaylistIndex', song.dbIndex.toString());
 	form.append('playlistName', currPlaylistName);
 
 	return fetch(
@@ -103,17 +126,20 @@ export async function removeSongFromCurrPlaylist(indexInDB: number){
 		}
 	)
 	.then(response => {
-		if(!response.ok){
-			throw new Error("Failed to remove song from playlist.");
+		if(response.ok){
+			renderCustomTextBox("Song removed from the current playlist successfully.");
+			return;
 		}
+
+		throw new Error(`Failed with status ${response.status}. Index of song in DB: ${song.dbIndex}.`);
 	})
 	.catch(error => {
-		`${error} Current playlist name: ${currPlaylistName}. Index of song in DB: ${indexInDB}`
+		handleServerError(error, `Failed to remove song "${song.fileName}" from the current playlist: "${currPlaylistName}"`);
 	})
 }
 
 
-export async function deleteSongFromDB(songFileName: string, songName: string){
+export async function deleteSongFromDB(songFileName: string, songName: string): Promise<void> {
 	const form = new FormData();
 	form.append('songFileName', songFileName);
 	form.append('songName', songName);
@@ -126,17 +152,20 @@ export async function deleteSongFromDB(songFileName: string, songName: string){
 		}
 	)
 	.then(async (response) => {
-		if(!response.ok){
-			throw new Error(`An error was encounted while deleting a song. Failed with status ${response.status}.`)
+		if(response.ok){
+			renderCustomTextBox("Song successfully deleted.");
+			return;
 		}
+		
+		throw new Error(`Failed with status ${response.status}.`);
 	})
 	.catch(error => {
-		console.error(`${error} Offending song file name: ${songFileName}`)
+		handleServerError(error, `An error was encounted while deleting song: "${songFileName}"`);
 	})
 }
 
 
-export async function getUpdatedPlaylistTime(playlistName: string): Promise<any>{
+export async function getUpdatedPlaylistTime(playlistName: string): Promise<string> {
 	return fetch(
 		"/getPlaylistTime",
 		{
@@ -148,15 +177,13 @@ export async function getUpdatedPlaylistTime(playlistName: string): Promise<any>
 		if(response.ok){
 			return response.json();
 		}
-		throw new Error(`Failed to update playlist time. Failed with status: ${response.status}`);
+		throw new Error(`Failed with status: ${response.status}.`);
 	})
 	.then(data => {
-		return data["totalTime"]
+		return data["totalTime"];
 	})
 	.catch(error => {
-		console.error(
-			`${error} \nRequested playlist name: ${playlistName}`
-		)
+		handleServerError(error, `Failed to get most recent playlist time for playlist: ${playlistName}.`);
 	});
 }
 
@@ -178,15 +205,11 @@ export async function updateSongInfo(newInfo: object, song_img: File | null, son
 	)
 	.then(response => {
 		if(!response.ok){
-			throw new Error(
-				`Failed to update song info from server. Failed with status: ${response.status}`
-			);
+			throw new Error(`Failed with status: ${response.status}.`);
 		}
 	})
 	.catch(error => {
-		console.error(
-			`${error} \nRequested song file name: ${songFileName}`
-		);
+		handleServerError(error, `Failed to update song with filename: "${songFileName}"`);
 	});
 }
 
@@ -203,16 +226,12 @@ export async function getSong(songFileName: string){
 		if(response.ok){
 			return response.json();
 		}
-		throw new Error(
-			`Failed to get song info from server with status: ${response.status}`
-		);
+		throw new Error(`Failed with status: ${response.status}.`);
 	})
 	.then(data => {
 		return data["songObj"];
 	})
 	.catch(error => {
-		console.error(
-			`${error} \nRequested song file name: ${songFileName}`
-		);
+		handleServerError(error, `Failed to retrieve song with filename: "${songFileName}"`);
 	});
 }

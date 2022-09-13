@@ -1,4 +1,6 @@
 // This file is used for globals which are used *only* within pages that start with /playlist/
+import { getImgElemByID, IMG_PATHS, } from './../globals';
+
 
 /** Object used to store a song's attributes. So far only data is kept here, no functions yet. 
  * This class is exported only for typing purposes. Do not use this constructor outside this file! */
@@ -43,7 +45,6 @@ export let lastSongNum: null | number = null;
 
 /** Keeps track of if the seekBarHandle is being dragged. 
  * i.e. the song time is being moved manually. */
-/* Rename this to isDraggingSong or something else... */
 export let isDraggingSong = false;
 
 export const currPlaylistName = _getPlaylistName();
@@ -66,7 +67,7 @@ export const audio = _getMainAudio();
 /** List of all song objects for the entire page.
  * This list is in the same order as the playlist. */
 const _songs: Array<Song> = JSON.parse(
-		document.getElementById('scriptTag').getAttribute('songObjectList')
+		document.getElementById("script-tag").getAttribute("songObjectList")
 	).map((dictSongObject: object) => new Song(dictSongObject));
 
 
@@ -80,6 +81,7 @@ export function setDraggingSong(isDraggingSong: boolean): void {
 }
 
 
+/** Unused function but may be useful in the future.. */
 export function getNumOfSongs(){
 	return _getPlaylistTable().rows.length;
 }
@@ -90,7 +92,7 @@ export function getNumOfSongs(){
  * The function is designed as such so it always returns a HTMLTableElement.
  * Thus there is never a need to check for null.*/
 function _getPlaylistTable(): HTMLTableElement {
-	const elem = document.getElementById("songTable");
+	const elem = document.getElementById("song-table");
 	if(elem instanceof HTMLTableElement){
 		return elem;
 	}
@@ -98,23 +100,23 @@ function _getPlaylistTable(): HTMLTableElement {
 }
 
 
-/** This is denoted as private since this should only be used to get the 'mainAudio' element. */
+/** This is denoted as private since this should only be used to get the 'main-audio' element. */
 function _getMainAudio(): HTMLAudioElement {
-	const elem = document.getElementById("mainAudio");
+	const elem = document.getElementById("main-audio");
 	if(elem instanceof HTMLAudioElement){
 		return elem;
 	}
-	throw new DOMException(`Failed to retrieve the "mainAudio" element.`)
+	throw new DOMException(`Failed to retrieve the "main-audio" element.`)
 }
 
 
 /** Returns the image for a song for the given row in the playlist table. */
-export function getImgByRow(songRow: number): HTMLImageElement {
-	const elem = table.rows[songRow].firstElementChild.firstElementChild;
+export function getImgByRow(rowNum: number): HTMLImageElement {
+	const elem = table.rows[rowNum].firstElementChild.firstElementChild;
 	if(elem instanceof HTMLImageElement){
 		return elem;
 	}
-	throw new DOMException(`Failed to retrieve song Img for the row with row number: ${songRow}`)
+	throw new DOMException(`Failed to retrieve song Img for the row with row number: ${rowNum}`)
 }
 
 
@@ -152,8 +154,8 @@ function addToSongObjectsList(newSongObj: Song): void {
 }
 
 
-export function clickSongBySongNum(songNum: number): void {
-	getImgByRow(songNum).click();
+export function clickSongByRowNum(rowNum: number): void {
+	getImgByRow(rowNum).click();
 }
 
 
@@ -172,4 +174,18 @@ export function getSongObjectByRowNum(rowNum: number): Song {
 
 export function replaceObjInSongObjList(newSongObj: Song, index: number): void {
 	_songs[index] = newSongObj;
+}
+
+
+export function revertPageToNoSong(){
+	getImgElemByID("footer-play-img").src = IMG_PATHS.globalPlayImgSrc;
+	document.getElementById("current-time-stamp").innerText = '-:--';
+	document.getElementById("playing-title").innerText = 'Playing:';
+	document.getElementById("curr-song-duration-text").innerText = '-:--';
+	document.getElementById("seek-bar-progress").style.width = '0%';
+
+	table.rows[table.rows.length - 1].setAttribute("style", "background-color: ;");
+	audio.src = "";
+
+	updateLastSongNum(null);
 }

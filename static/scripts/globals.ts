@@ -151,6 +151,16 @@ export function checkElemIsImgElem(elem: any): HTMLImageElement {
 }
 
 
+export function checkElemIsButtonElem(elem: any): HTMLButtonElement {
+	if(elem instanceof HTMLButtonElement){
+		return elem;
+	}
+	throw new TypeError(
+		`The given item is not an instance of a HTMLImageElement. Given item: ${elem}`
+	);
+}
+
+
 /* # ------------------------------------------- End of Type Getters ------------------------------------------- */
 
 export function _isPlaylistPage(): boolean {

@@ -33358,7 +33358,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 function ScreenPromptCancelButton() {
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "screenPromptCancelButton", onClick: _renderScreenPrompt__WEBPACK_IMPORTED_MODULE_1__.removeScreenPrompt }, "Cancel"));
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "screen-prompt-cancel-button", onClick: _renderScreenPrompt__WEBPACK_IMPORTED_MODULE_1__.removeScreenPrompt }, "Cancel"));
 }
 
 
@@ -33374,6 +33374,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "addNewPlaylist": () => (/* binding */ addNewPlaylist),
 /* harmony export */   "deletePlaylist": () => (/* binding */ deletePlaylist),
+/* harmony export */   "handleServerError": () => (/* binding */ handleServerError),
 /* harmony export */   "resolve_playlist_names": () => (/* binding */ resolve_playlist_names)
 /* harmony export */ });
 /* harmony import */ var _renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./renderCustomTextBox */ "./static/scripts/renderCustomTextBox.tsx");
@@ -33388,6 +33389,11 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 };
 // As the file name implies, this script talks to the server and can be used by any page in the app.
 
+/** Sends a clean error message to the user, sends all the details to the console.*/
+function handleServerError(technicalErrorMsg, userErrorMsg) {
+    (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)(userErrorMsg);
+    console.error(`${technicalErrorMsg} ${userErrorMsg}`);
+}
 /** Retrieves all playlist names from the DB. */
 function resolve_playlist_names() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -33398,10 +33404,13 @@ function resolve_playlist_names() {
             if (response.ok) {
                 return response.json();
             }
-            throw new Error("Failed to retrieve playlist names from server.");
+            throw new Error(`Failed with status: ${response.status}.`);
         })
             .then(data => {
             return data["PlaylistNames"];
+        })
+            .catch(error => {
+            handleServerError(error, "Failed to retrieve playlist names from server.");
         });
     });
 }
@@ -33414,11 +33423,12 @@ function addNewPlaylist(playlistName) {
             .then(response => {
             if (response.ok) {
                 (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)("Playlist added successfully.");
+                return;
             }
-            else {
-                (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)(`Failed to add playlist: "${playlistName}"`);
-                throw new Error(`Failed to add playlist: "${playlistName}". Failed with status: ${response.status}`);
-            }
+            throw new Error(`Failed with status: ${response.status}.`);
+        })
+            .catch(error => {
+            handleServerError(error, `Failed to add playlist: "${playlistName}"`);
         });
     });
 }
@@ -33431,11 +33441,12 @@ function deletePlaylist(playlistName) {
             .then(response => {
             if (response.ok) {
                 (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)("Playlist dropped successfully.");
+                return;
             }
-            else {
-                (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)(`Failed to drop playlist: "${playlistName}"`);
-                throw new Error(`Failed to drop playlist: "${playlistName}". Failed with status: ${response.status}`);
-            }
+            throw new Error(`Failed with status: ${response.status}.`);
+        })
+            .catch(error => {
+            handleServerError(error, `Failed to drop playlist: "${playlistName}".`);
         });
     });
 }
@@ -33456,6 +33467,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "_isHomePage": () => (/* binding */ _isHomePage),
 /* harmony export */   "_isPlaylistPage": () => (/* binding */ _isPlaylistPage),
 /* harmony export */   "addEscapeFeature": () => (/* binding */ addEscapeFeature),
+/* harmony export */   "checkElemIsButtonElem": () => (/* binding */ checkElemIsButtonElem),
 /* harmony export */   "checkElemIsCellElem": () => (/* binding */ checkElemIsCellElem),
 /* harmony export */   "checkElemIsDivElem": () => (/* binding */ checkElemIsDivElem),
 /* harmony export */   "checkElemIsImgElem": () => (/* binding */ checkElemIsImgElem),
@@ -33579,6 +33591,12 @@ function checkElemIsImgElem(elem) {
     }
     throw new TypeError(`The given item is not an instance of a HTMLImageElement. Given item: ${elem}`);
 }
+function checkElemIsButtonElem(elem) {
+    if (elem instanceof HTMLButtonElement) {
+        return elem;
+    }
+    throw new TypeError(`The given item is not an instance of a HTMLImageElement. Given item: ${elem}`);
+}
 /* # ------------------------------------------- End of Type Getters ------------------------------------------- */
 function _isPlaylistPage() {
     /** On a playlist page the pathArr should be
@@ -33609,7 +33627,7 @@ function _isHomePage() {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "addNewScreenPromptEventlistener": () => (/* binding */ addNewScreenPromptEventlistener)
+/* harmony export */   "addNewPlaylistScreenPromptEventlistener": () => (/* binding */ addNewPlaylistScreenPromptEventlistener)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
@@ -33634,18 +33652,17 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 /** This function should only ever be run once per page load.
  * @param renderGrid - Renders the home page grid. Only provide a function here
  * if this is being called from the home page script. Otherwise provide null. */
-function addNewScreenPromptEventlistener(renderGrid) {
-    document.getElementById('newPlaylistButton')
-        .addEventListener('click', _ => renderNewPlaylistScreenPrompt(renderGrid));
+function addNewPlaylistScreenPromptEventlistener(renderGrid) {
+    document.getElementById("new-playlist-button")
+        .addEventListener("click", _ => renderNewPlaylistScreenPrompt(renderGrid));
 }
 /** Screen prompt which makes the interface for creating a new playlist. */
 function renderNewPlaylistScreenPrompt(renderGrid) {
     (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_3__.renderScreenPrompt)(react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "screenPromptText" }, " Create New Playlist "),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { id: "createPlaylistTextbox", className: "small-generic-textbox", type: "text" }),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "screenPromptPositiveButton", onClick: () => __awaiter(this, void 0, void 0, function* () {
-                // RENAME THIS ELEMENT TO "newPlaylistNameInputField"
-                const textBox = (0,_globals__WEBPACK_IMPORTED_MODULE_2__.getInputElemByID)("createPlaylistTextbox");
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "screen-prompt-text" }, " Create New Playlist "),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { id: "new-playlist-name-input-field", className: "small-generic-textbox", type: "text" }),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "screen-prompt-positive-button", onClick: () => __awaiter(this, void 0, void 0, function* () {
+                const textBox = (0,_globals__WEBPACK_IMPORTED_MODULE_2__.getInputElemByID)("new-playlist-name-input-field");
                 yield _contactServerGlobals__WEBPACK_IMPORTED_MODULE_1__.addNewPlaylist(textBox.value);
                 (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_3__.removeScreenPrompt)();
                 if (renderGrid !== null) {
@@ -33674,9 +33691,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 function renderCustomTextBox(customText) {
-    const container = document.getElementById("successBoxContainer");
-    react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "successBox" },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "addToPlaylistSuccessMessage" },
+    const container = document.getElementById("notification-box-container");
+    react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "notification-box" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "notification-text" },
             " ",
             customText,
             " ")), container);
@@ -33707,7 +33724,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const _container = document.getElementById("screenPromptContainer");
+const _container = document.getElementById("screen-prompt-container");
 function renderScreenPrompt(customPrompt) {
     react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "screen-prompt-blur" },
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "base-screen-prompt", id: "base-screen-prompt" }, customPrompt)), _container);
@@ -33835,12 +33852,12 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
-(0,_newPlaylistScreenPrompt__WEBPACK_IMPORTED_MODULE_3__.addNewScreenPromptEventlistener)(renderPlaylistGrid);
+(0,_newPlaylistScreenPrompt__WEBPACK_IMPORTED_MODULE_3__.addNewPlaylistScreenPromptEventlistener)(renderPlaylistGrid);
 renderPlaylistGrid();
 function renderPlaylistGrid() {
     return __awaiter(this, void 0, void 0, function* () {
         const names = yield _contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.resolve_playlist_names();
-        const container = document.getElementById('playlistGrid');
+        const container = document.getElementById("playlist-grid");
         react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaylistCard, { key: "Last Added", name: "Last Added" }),
             names.map((name) => {
@@ -33851,31 +33868,48 @@ function renderPlaylistGrid() {
     });
 }
 function PlaylistCard({ name }) {
-    const playlistURL = `/playlists/${name}`;
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "playlistCard" },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "divSpacers", style: { justifyContent: "flex-end" } },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { href: playlistURL, className: "divSpacers", style: { width: "100%" } }, " "),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", { className: "playlistCardOptionsButton", style: { cursor: "pointer" }, src: _globals__WEBPACK_IMPORTED_MODULE_4__.IMG_PATHS.playlistCardOption, onClick: () => dropPlaylistScreenPrompt(name), onMouseEnter: e => {
-                    const img = (0,_globals__WEBPACK_IMPORTED_MODULE_4__.checkElemIsImgElem)(e.target);
-                    img.src = _globals__WEBPACK_IMPORTED_MODULE_4__.IMG_PATHS.playlistCardOptionHover;
-                }, onMouseLeave: e => {
-                    const img = (0,_globals__WEBPACK_IMPORTED_MODULE_4__.checkElemIsImgElem)(e.target);
-                    img.src = _globals__WEBPACK_IMPORTED_MODULE_4__.IMG_PATHS.playlistCardOption;
-                } })),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { href: playlistURL, className: "divSpacers link-text", style: { height: "100%" } },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "playlistPreviewTitle link-text" },
-                " ",
-                name,
-                " "))));
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "playlist-card link-color link-text", id: name, onClick: e => handlePlaylistCardClick(e, name) },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", { className: "playlist-card-options-button", src: _globals__WEBPACK_IMPORTED_MODULE_4__.IMG_PATHS.playlistCardOption, onMouseEnter: e => optionsImgEnter(e, name), onMouseLeave: e => optionsImgLeave(e, name) }),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "playlist-preview-title" },
+            " ",
+            name,
+            " ")));
+}
+/** This function handles what happens when the mouse enters the options image for a playlist card. */
+function optionsImgEnter(e, name) {
+    const img = (0,_globals__WEBPACK_IMPORTED_MODULE_4__.checkElemIsImgElem)(e.target);
+    img.src = _globals__WEBPACK_IMPORTED_MODULE_4__.IMG_PATHS.playlistCardOptionHover;
+    const elem = document.getElementById(name);
+    elem.classList.remove("link-text");
+}
+/** This function handles what happens when the mouse enters the options image for a playlist card. */
+function optionsImgLeave(e, name) {
+    const img = (0,_globals__WEBPACK_IMPORTED_MODULE_4__.checkElemIsImgElem)(e.target);
+    img.src = _globals__WEBPACK_IMPORTED_MODULE_4__.IMG_PATHS.playlistCardOption;
+    const elem = document.getElementById(name);
+    elem.classList.add("link-text");
+}
+function handlePlaylistCardClick(e, playlistName) {
+    const target = e.target;
+    if (target instanceof HTMLSpanElement) {
+        window.location.href = `/playlists/${playlistName}`;
+        return;
+    }
+    if (target instanceof HTMLImageElement) {
+        dropPlaylistScreenPrompt(playlistName);
+        return;
+    }
+    throw new DOMException("Tried to grab target of either type HTMLAnchorElement or type HTMLImageElement. " +
+        `However the target recieved is an instanceof ${target.constructor.name}`);
 }
 /** Screen prompt which makes the interface for dropping a specific playlist. */
 function dropPlaylistScreenPrompt(playlistName) {
     (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_5__.renderScreenPrompt)(react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "screenPromptText" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "screen-prompt-text" },
             " Are you sure you want to drop \"",
             playlistName,
             "\"? "),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "screenPromptPositiveButton", onClick: () => __awaiter(this, void 0, void 0, function* () {
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "screen-prompt-positive-button", onClick: () => __awaiter(this, void 0, void 0, function* () {
                 (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_5__.removeScreenPrompt)();
                 yield _contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.deletePlaylist(playlistName);
                 renderPlaylistGrid();

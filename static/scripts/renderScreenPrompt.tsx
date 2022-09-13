@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom'; 
 import { addEscapeFeature, } from './globals';
 
-const _container = document.getElementById("screenPromptContainer");
+const _container = document.getElementById("screen-prompt-container");
 
 export function renderScreenPrompt(customPrompt: JSX.Element): void {
     ReactDOM.render(

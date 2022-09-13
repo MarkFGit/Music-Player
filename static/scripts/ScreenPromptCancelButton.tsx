@@ -5,7 +5,7 @@ import { removeScreenPrompt, } from './renderScreenPrompt';
 export function ScreenPromptCancelButton() {
     return (
         <button
-            className="screenPromptCancelButton"
+            className="screen-prompt-cancel-button"
             onClick={removeScreenPrompt}
         >
             Cancel

@@ -3,8 +3,8 @@
 
 // All of these funcs can probably just sit at the global level. They only ever need to be run once.
 
-import { lastSongNum, clickSongBySongNum, } from './playlistGlobals';
-import { getImgElemByID } from './../globals';
+import { table, lastSongNum, clickSongByRowNum, } from './playlistGlobals';
+import { getImgElemByID, IMG_PATHS } from './../globals';
 
 const websiteOrigin = window.location.origin;
 const staticFolderURL = `${websiteOrigin}/static`;
@@ -15,59 +15,57 @@ const iconFolderPath = `${staticFolderURL}/media/icons`;
  * This func exists purely so it can be imported from another module thus, the global code is below is run. */
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-= prepare header buttons with listeners =-=-=-=-=-=-=-=-=-=-=-=-=-=-
-const headerPlayIcon = getImgElemByID('headerPlayIconID');
+const headerPlayIcon = getImgElemByID("header-play-icon");
 
 headerPlayIcon.addEventListener('click', () => {
 	if(lastSongNum === null){
-		clickSongBySongNum(0);
+		clickSongByRowNum(0);
 	}
 });
 
 headerPlayIcon.addEventListener('mouseover', () => {
 	if(lastSongNum === null){
-		headerPlayIcon.src = `${iconFolderPath}/playHover.png`;
+		headerPlayIcon.src = IMG_PATHS.lowerBarPlayHoverImgSrc;
 		headerPlayIcon.style.cursor = 'pointer';
 	}
 });
 
 headerPlayIcon.addEventListener('mouseout', () => {
-	headerPlayIcon.src = `${iconFolderPath}/play.png`;
+	headerPlayIcon.src = IMG_PATHS.globalPlayImgSrc;
 	headerPlayIcon.style.cursor = 'default';
 });
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-= prepare footer buttons with listeners =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-getImgElemByID("footerPrevImg").addEventListener('click', () => {
-	const previousSongNum = lastSongNum - 1;
-	const canPlayPreviousSong = (lastSongNum !== null && previousSongNum >= 0);
-	if(canPlayPreviousSong) return clickSongBySongNum(previousSongNum);
+getImgElemByID("footer-prev-img").addEventListener('click', () => {
+	const canPlayPreviousSong = (lastSongNum !== null && lastSongNum > 0);
+	if(canPlayPreviousSong) return clickSongByRowNum(lastSongNum - 1);
 	console.error("Error: Cannot play previous song.");
 });
 
-getImgElemByID("footerPlayImg").addEventListener('click', () => {
+getImgElemByID("footer-play-img").addEventListener('click', () => {
 	if(lastSongNum === null) return (console.error("Error: Cannot play song when no song has been selected."));
 	const currentSongNum = lastSongNum;
-	clickSongBySongNum(currentSongNum);
+	clickSongByRowNum(currentSongNum);
 });
 
-getImgElemByID("footerNextImg").addEventListener('click', () => {
-	const canPlayPreviousSong = (lastSongNum !== null && lastSongNum >= 0);
-	const nextSongNum = lastSongNum + 1;
-	if(canPlayPreviousSong) return clickSongBySongNum(nextSongNum);
+getImgElemByID("footer-next-img").addEventListener('click', () => {
+	const canPlayNextSong = (lastSongNum !== null && lastSongNum + 1 < table.rows.length);
+	if(canPlayNextSong) return clickSongByRowNum(lastSongNum + 1);
 	console.error("Error: Cannot play next song.");
 });
 
 const footerImgInfo = {
 	prev: {
-		id: 'footerPrevImg',
+		id: "footer-prev-img",
 		srcs: {
 			normal: `${iconFolderPath}/prev.png`,
 			hover: `${iconFolderPath}/prevHover.png`
 		}
 	},
 	play: {
-		id: 'footerPlayImg',
+		id: "footer-play-img",
 		srcs: {
 			normal: `${iconFolderPath}/play.png`,
 			hover: `${iconFolderPath}/playHover.png`,
@@ -76,7 +74,7 @@ const footerImgInfo = {
 		}
 	},
 	next: {
-		id: 'footerNextImg',
+		id: "footer-next-img",
 		srcs: {
 			normal: `${iconFolderPath}/next.png`,
 			hover: `${iconFolderPath}/nextHover.png`

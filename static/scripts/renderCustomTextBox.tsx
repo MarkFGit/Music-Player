@@ -3,11 +3,11 @@ import * as ReactDOM from 'react-dom';
 
 
 export function renderCustomTextBox(customText: string) {
-    const container = document.getElementById("successBoxContainer");
+    const container = document.getElementById("notification-box-container");
 
     ReactDOM.render(
-        <div className="successBox">
-            <span className="addToPlaylistSuccessMessage"> {customText} </span>
+        <div className="notification-box">
+            <span className="notification-text"> {customText} </span>
         </div>,
         container
     );

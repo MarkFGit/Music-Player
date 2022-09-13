@@ -5,93 +5,128 @@
 	<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='./dist/bundle.css') }}">
 	<script 
 		defer 
-		id='scriptTag'
+		id='script-tag'
 		playlistName = '{{ playlistName }}'
 		playlistCreateDate = '{{ playlistCreateDate }}'
 		formattedTotalTime = '{{ formattedTotalTime }}'
 		numOfSongs='{{ numOfSongs }}'
 		songObjectList = '{{ songObjectList|tojson }}'
 		src="{{ url_for('static',filename='./dist/playlists.js') }}"
-		> 
+	> 
 	</script>
 </head>
 
 
-<body class="bodyClass" id="bodyID" onload="createPage()" ondrop="fileDropHandler(event)" ondragover="dragOverHandler(event)">
+<body class="body" onload="createPage()" ondrop="fileDropHandler(event)" ondragover="dragOverHandler(event)">
 	{% with select="promptContainers" %}
 		{% include "globalSiteComponents.html" %}
 	{% endwith %}
 	{% with select="navbar" %}
 		{% include "globalSiteComponents.html" %}
 	{% endwith %}
-	<div class="playlistContentContainer" id="playlistContentContainer">
+	<!-- The ID here is used in the script typescript file. Specifically in
+		the playlistScrollIfNeeded function. -->
+	<div class="playlist-content-container" ID="playlist-content-container">
 		{% with select="sidePanel" %}
 			{% include "globalSiteComponents.html" %}
 		{% endwith %}
-		<div class="contentContainer">
-			<header class="playlistHeader">
-				<div class="playlistPreviewImages"> 
-					<img class="coverPreviewImg" id="coverPreview0"></img>
-					<img class="coverPreviewImg" id="coverPreview1"></img>
-					<img class="coverPreviewImg" id="coverPreview2"></img>
-					<img class="coverPreviewImg" id="coverPreview3"></img>
+		<div class="content-container">
+			<header class="playlist-header">
+				<div class="playlist-preview-images">
+					<!-- ID's for these cover previews are used only within the findImages typescript file. 
+						More Specifically, the fillPlaylistPreviewImages function. -->
+					<img class="cover-preview-img" id="cover-preview-0"></img>
+					<img class="cover-preview-img" id="cover-preview-1"></img>
+					<img class="cover-preview-img" id="cover-preview-2"></img>
+					<img class="cover-preview-img" id="cover-preview-3"></img>
 				</div>
-				<header class="headerTitleAndButtons">
-					<div class=headerTitleAndPlay>
-						<h3 class="playlistTitle"> {{ playlistName }} </h3>
-						<img class="headerPlayIcon" id="headerPlayIconID" src="{{ url_for('static',filename='media/icons/play.png') }}"> </img>
+				<header class="header-title-and-buttons">
+					<div class=header-title-and-play>
+						<h3 class="playlist-title"> {{ playlistName }} </h3>
+						<!-- ID is used to identify this element, so that event listeners can be added,
+							this is specifically done in the playlistPageEvents typescript file. -->
+						<img 
+							class="header-play-icon"
+							id="header-play-icon" 
+							src="{{ url_for('static',filename='media/icons/play.png') }}"
+						>
+						</img>
 					</div>
 					<div class="playlist-buttons-and-metadata-wrapper">
 						<div class="playlist-buttons-container">
-							<img class="headerSmallButton" id="headerShuffleIconID" 
+							<img 
+								class="header-small-button"
 								src="{{ url_for('static',filename='/media/icons/shuffle.png') }}">
 							</img>
 						</div>
 						<div class="playlist-metadata-text-container">
-							<span class="headerSmallButtonText" id = "totalTimeText"> {{ formattedTotalTime }} </span>
-							<span class="headerSmallButtonText"> Created: {{ playlistCreateDate }} </span>
+							<!-- ID is used here to set the innerText upon one of the following scenarios:
+								- page load
+								- deleting song
+								- adding song
+								- removing song from playlist -->
+							<span class="header-small-text" id="playlist-total-time"> {{ formattedTotalTime }} </span>
+							<span class="header-small-text"> Created: {{ playlistCreateDate }} </span>
 						</div>
 					</div>
 				</header>
 			</header>
-			<div class="songTableContainer">
-				<audio id="mainAudio" src=""></audio>
-				<div class="songTableHeader" id="songTableHeader">
-					<span class = "large-field-container"> Name </span>
-					<div class = "imgFiller"> </div>
-					<img class="durationImg" src="{{ url_for('static',filename='/media/icons/duration.png') }}"></img>
-					<span class = "medium-field-container"> Artist </span>
-					<span class = "medium-field-container"> Album </span>
-					<span class = "small-field-container"> Plays </span>
-					{% if playlistName=='Last Added' %}
-						<span class="date-field-container"> Date Added </span>
-					{% endif %}
-				</div>
-				<table class="songTableClass" id="songTable">
-					<tbody id="tableBody"></tbody>
+			<div class="song-table-container">
+				<!-- ID is used here to update the audio properties. Either to update the src 
+					to point to a new song or (in the future) to increase the volume. -->
+				<audio id="main-audio" src=""></audio>
+				<table class="song-table header-text">
+					<tr>
+						<th class="song-container">
+							<span class="large-field-container name-header-field header-align-text-left">
+								Name 
+							</span>
+							<div class="img-filler"> </div>
+							<img class="duration-img" src="{{ url_for('static',filename='/media/icons/duration.png') }}"></img>
+							<span class="medium-field-container header-align-text-left"> Artist </span>
+							<span class="medium-field-container header-align-text-left"> Album </span>
+							<span class="small-field-container"> Plays </span>
+							{% if playlistName=='Last Added' %}
+								<span class="date-field-container"> Date Added </span>
+							{% endif %}
+						</th>
+					</tr>
+				</table>
+				<!-- The ID below is used in playlistGlobals to grab the table element. -->
+				<table class="song-table" id="song-table">
+					<!-- The ID below is used in the script typescript file.
+						Specifically, this is the container for rendering the rows via React on page load. -->
+					<tbody id="song-table-body"></tbody>
 				</table>
 			</div>
 		</div>
 	</div>
-	<div class="lowerBar">
-		<div class="seekBar" id="seekBar" onmousedown="mouseDown()">
-			<div class="seekBarProgress" id="seekBarProgress"></div>
-			<div class="seekBarHandle" id="seekBarHandle"></div>
+	<div class="lower-bar">
+		<!-- ID below is used to add an event listener to the entire seek bar. -->
+		<div class="seek-bar" id="seek-bar">
+			<!-- Both of the IDs below are used to update and retrive info about the new position of time in the song. -->
+			<div class="seek-bar-progress" id="seek-bar-progress"></div>
+			<div class="seek-bar-handle" id="seek-bar-handle"></div>
 		</div>	
 
-		<div class="lowerBarButtonsWrapper">
-			<div class="currentTimeAndTitle">
-				<span class="lowerBarSmallText" id="currentTimeStamp"> -:-- </span>
-				<div class="playingTitle" id="playingTitleID"> Playing: </div>
+		<div class="lower-bar-text-and-buttons-wrapper">
+			<div class="current-time-and-title">
+				<!-- Both of the IDs below are used to uniquely identify each span.
+					These elements have their innerText updated when songs change. -->
+				<span class="lower-bar-small-text" id="current-time-stamp"> -:-- </span>
+				<span class="playing-title" id="playing-title"> Playing: </span>
 			</div>
 
-			<div class="threeButtonContainer" id="playButtons">
-        		<img class="smallImg" id="footerPrevImg" src="{{ url_for('static',filename='media/icons/prev.png') }}">
-        		<img class="mainImg" id="footerPlayImg" src="{{ url_for('static',filename='media/icons/play.png') }}">
-        		<img class="smallImg" id="footerNextImg" src="{{ url_for('static',filename='media/icons/next.png') }}">
+			<div class="lower-bar-images-wrapper">
+				<!-- The three IDs below are used to uniquely identify each footer image.
+					This is to add event listeners to each respective image. -->
+        		<img class="small-img" id="footer-prev-img" src="{{ url_for('static',filename='media/icons/prev.png') }}">
+        		<img class="main-img" id="footer-play-img" src="{{ url_for('static',filename='media/icons/play.png') }}">
+        		<img class="small-img" id="footer-next-img" src="{{ url_for('static',filename='media/icons/next.png') }}">
 	        </div>
-
-        	<span class="playingTimeLength lowerBarSmallText" id="playingTimeLength"> -:-- </span>
+			<!-- ID is used here to update the total time when a new song is being played or
+				if the page reverts back to no song. -->
+        	<span class="curr-song-duration-text lower-bar-small-text" id="curr-song-duration-text"> -:-- </span>
 		</div>
 	</div>
 </body>

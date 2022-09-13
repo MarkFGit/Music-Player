@@ -1,0 +1,206 @@
+@use 'globalVars' as *;
+
+$active-row-color: #161616;
+
+.song-table-container
+{
+    min-width: fit-content;
+    width: auto;
+
+    border: 4px;
+    margin: 0 80px 50px 80px;
+    padding: 5px 25px;
+
+    background-color: $playlistBgColor;
+    border-color: $playlistBgColor;
+    border-radius: 2px;
+    border-style: solid;
+    box-shadow: $contentGlow;
+    color: #c3c3c3;
+    font-size: 15px;
+    @include normal-text-font;
+}
+
+
+
+.header-text
+{
+    color: #979090;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+
+th .name-header-field
+{
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+}
+
+
+th .header-align-text-left
+{
+    text-align: left;
+}
+
+
+.img-filler
+{
+    margin: 20px;
+}
+
+
+.duration-img
+{
+    height: 30px;
+    width: 30px;
+
+    margin: 0 4px 0 15px;
+}
+
+
+.row-img
+{
+    height: 40px;
+    width: 40px;
+
+    image-rendering: pixelated;
+
+    cursor: pointer;
+    object-fit: cover;
+}
+
+
+.song-table
+{
+    width: calc(100% - 20px);
+
+    margin: 4px 10px 10px;
+
+    border-collapse: collapse;
+    @include normal-text-font;  
+}
+
+// make the last row in the playlist have no bottom border.
+table tr:last-child{
+    border-bottom: none;
+}
+
+table{
+    border-spacing: 0px;
+}
+
+
+.song-row
+{
+    overflow: hidden;
+
+    margin: 1px;
+    padding: 4px;
+
+    border: solid;
+    border-width: 0 0 1px 0;
+    border-color: #414141;
+
+
+    &:hover{
+        background-color: $active-row-color;
+        .row-add-playlist-button{
+            display: block;
+
+            cursor: pointer;
+
+            &:hover{
+                color: lightgrey;
+            }
+
+            &:active{
+                color: grey;
+            }
+        }
+    }
+}
+
+
+.active-row
+{
+    background-color: $active-row-color;
+}
+
+
+.song-container
+{
+    align-items: center;
+    display: flex;
+
+    height: 40px;
+
+    margin: 1px;
+    @include normal-padding;
+
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+
+
+
+@mixin playlist-field-container
+{
+    @include all-norms;
+
+    height: fit-content;
+
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+
+.large-field-container
+{
+    @include playlist-field-container;
+
+    width: 200%;
+}
+
+
+.medium-field-container
+{
+    @include playlist-field-container;
+
+    width: 100%;
+}
+
+.small-field-container
+{
+    @include playlist-field-container;
+
+    min-width: 60px;
+
+    text-align: center;
+}
+
+.date-field-container
+{
+    @include playlist-field-container;
+
+    min-width: 100px;
+
+    text-align: center;
+}
+
+
+.row-add-playlist-button
+{
+    display: none;
+
+    @include normal-margin;
+    padding: 2px;
+
+    background-color: transparent;
+    border: 0;
+    color: grey;
+    font-size: large;
+    font-weight: 700;
+}

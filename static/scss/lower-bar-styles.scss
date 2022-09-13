@@ -2,7 +2,7 @@
 
 $text-color: #cecece;
 
-.lowerBar
+.lower-bar
 {
     height: 100px;
     width: calc(100vw - 20px);
@@ -17,7 +17,7 @@ $text-color: #cecece;
 }
 
 
-.seekBar
+.seek-bar
 {
     align-items: center;
     display: flex;
@@ -34,7 +34,7 @@ $text-color: #cecece;
 }
 
 
-.seekBarProgress
+.seek-bar-progress
 {
     height: 7px;
     width: 0;
@@ -44,7 +44,7 @@ $text-color: #cecece;
 }
 
 
-.seekBarHandle
+.seek-bar-handle
 {
     height: 80px;
     width: 80px;
@@ -57,7 +57,7 @@ $text-color: #cecece;
     transform: scale(.2, .2);
 }
 
-.lowerBarTextAndButtonsWrapper
+.lower-bar-text-and-buttons-wrapper
 {
     display: flex;
 
@@ -67,7 +67,7 @@ $text-color: #cecece;
     justify-content: center;
 }
 
-.currentTimeAndTitle
+.current-time-and-title
 {
     float: left;
 
@@ -81,23 +81,23 @@ $text-color: #cecece;
     color: $text-color;;
 }
 
-.lowerBarSmallText
+.lower-bar-small-text
 {
     @include all-norms;
     margin: 4px 0;
 }
 
-.playingTitle
+.playing-title
 {
     height: 35px;
 
     @include normal-padding;
 
-    @include ellipsesAfterTwoLines;
+    @include ellipses-after-two-lines;
     font-size: 15px;
 }
 
-.lowerBarButtonsWrapper
+.lower-bar-images-wrapper
 {
     align-items: center;
     display: flex; /* gap? */
@@ -109,14 +109,14 @@ $text-color: #cecece;
     margin: auto;   
 }
 
-.mainImg
+.main-img
 {
     width: 60px;
 
     cursor: pointer;
 }
 
-.smallImg
+.small-img
 {
     width: 30px;
 
@@ -126,8 +126,7 @@ $text-color: #cecece;
 }
 
 
-
-.playingTimeLength
+.curr-song-duration-text
 {
     flex-grow: 1;
     float: right;

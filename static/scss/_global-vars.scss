@@ -1,4 +1,4 @@
-@mixin noMarginOrPadding
+@mixin no-margin-or-padding
 {
     margin: 0;
     padding: 0;
@@ -25,7 +25,7 @@
 }
 
 
-@mixin ellipsesAfterTwoLines
+@mixin ellipses-after-two-lines
 {
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -34,7 +34,7 @@
 }
 
 
-@mixin ellipsesAfterThreeLines
+@mixin ellipses-after-three-lines
 {
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -42,7 +42,7 @@
     overflow: hidden;
 }
 
-@mixin scrollBar
+@mixin scroll-bar
 {
     max-height:13px;
     width: 13px;
