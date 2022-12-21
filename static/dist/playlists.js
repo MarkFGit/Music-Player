@@ -34923,8 +34923,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
 /* harmony import */ var _RowContent__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./RowContent */ "./static/scripts/playlistScripts/RowContent.tsx");
 /* harmony import */ var _handleFileDrop__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./handleFileDrop */ "./static/scripts/playlistScripts/handleFileDrop.tsx");
-// This file is the entry point for all code in any page with URL: <server>/playlists/*
-// Where the playlist name is valid.
+// This file is the entry point for all code in any page with URL: <server>/playlists/<playlist_name>
+// Where the playlist_name is a valid playlist name.
 // Functions defined in this file should only be for basic page functionality.
 // Examples:
 // Initial page load
@@ -34946,6 +34946,18 @@ window["createPage"] = createPage;
 window["dragOverHandler"] = (e) => { e.preventDefault(); };
 window["fileDropHandler"] = _handleFileDrop__WEBPACK_IMPORTED_MODULE_9__.handleFileDrop;
 (0,_newPlaylistScreenPrompt__WEBPACK_IMPORTED_MODULE_2__.addNewPlaylistScreenPromptEventlistener)(null);
+document.getElementById("volume-range").addEventListener("input", () => {
+    const volRange = document.getElementById("volume-range");
+    const volLevel = parseFloat(volRange.value);
+    if (isNaN(volLevel)) { // this shouldn't happen, but just in case it does...
+        return;
+    }
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.volume = volLevel;
+    // round is needed because sometimes numbers come out as xx.000000001 or xx.99999999
+    // this is probably due to unavoidable floating point arithmetic errors
+    const volInt = Math.round(volLevel * 100);
+    document.getElementById("volume-text").innerText = volInt.toString() + "%";
+});
 _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.addEventListener('timeupdate', () => {
     const songPosition = _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.currentTime / _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.duration;
     if (isNaN(songPosition))
@@ -34980,8 +34992,7 @@ function updatePlayingSongTimestamp(songPosition) {
     updateCurrentTime.innerText = `${minutes}:${secondsStr}`;
 }
 document.getElementById("seek-bar").addEventListener("mousedown", (e) => {
-    const noSelectedAudioSrc = `${_globals__WEBPACK_IMPORTED_MODULE_6__.PAGE_PROPERTIES.websiteOrigin}/playlists/${_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.currPlaylistName}`;
-    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.src === noSelectedAudioSrc) {
+    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.lastSongNum === null) {
         return console.error("Error: Cannot use seekbar when no song is selected.");
     }
     (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.setDraggingSong)(true);

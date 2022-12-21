@@ -124,9 +124,16 @@
         		<img class="main-img" id="footer-play-img" src="{{ url_for('static',filename='media/icons/play.png') }}">
         		<img class="small-img" id="footer-next-img" src="{{ url_for('static',filename='media/icons/next.png') }}">
 	        </div>
-			<!-- ID is used here to update the total time when a new song is being played or
+			
+			<div class="lower-bar-right-side">
+				<div class="justify-middle">
+					<input id="volume-range" type="range" min="0" max="1" value="1" step=".01" title="5">
+					<output id="volume-text"> 100% </output>
+				</div>
+				<!-- ID is used here to update the total time when a new song is being played or
 				if the page reverts back to no song. -->
-        	<span class="curr-song-duration-text lower-bar-small-text" id="curr-song-duration-text"> -:-- </span>
+				<span id="curr-song-duration-text"> -:-- </span>
+			</div>
 		</div>
 	</div>
 </body>

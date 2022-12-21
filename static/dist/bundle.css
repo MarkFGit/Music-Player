@@ -258,88 +258,85 @@
   !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/scss/lower-bar-styles.scss ***!
   \****************************************************************************************************************************/
 .lower-bar {
-  height: 100px;
   width: calc(100vw - 20px);
-  border-width: 8px 0 0 0;
+  height: 100px;
   padding: 0 10px;
-  background-color: #000;
-  border-image: linear-gradient(to top, rgba(255, 0, 0, 0), rgba(66, 66, 66, 0.5)) 100;
+  border-width: 8px 0 0 0;
   border-style: solid;
+  border-image: linear-gradient(to top, rgba(255, 0, 0, 0), rgba(66, 66, 66, 0.5)) 100;
+  background-color: #000;
   font-family: sans-serif;
 }
 
 .seek-bar {
-  align-items: center;
   display: flex;
-  justify-content: left;
   height: 10px;
   margin: 6px 0;
   padding: 0.2% 0.2%;
   cursor: pointer;
   border-radius: 60px;
   background-color: grey;
+  align-items: center;
+  justify-content: left;
 }
 
 .seek-bar-progress {
-  height: 7px;
   width: 0;
-  background-color: royalblue;
+  height: 7px;
   border-radius: 100px;
+  background-color: royalblue;
 }
 
 .seek-bar-handle {
-  height: 80px;
   width: 80px;
+  height: 80px;
   margin: 0 -35px;
-  background: white;
+  transform: scale(0.2, 0.2);
   border: 2px solid #000;
   border-radius: 100px;
-  transform: scale(0.2, 0.2);
+  background: white;
 }
 
 .lower-bar-text-and-buttons-wrapper {
+  font-size: 12px;
   display: flex;
   margin: 0 5px;
-  font-size: 12px;
   justify-content: center;
 }
 
 .current-time-and-title {
   float: left;
-  flex-grow: 1;
   width: 40%;
   margin: 4px;
-  padding: 4px;
-  font-family: sans-serif;
-  padding-bottom: 0;
-  padding-top: 0;
+  padding: 0 3px;
   color: #cecece;
+  flex-grow: 1;
 }
 
 .lower-bar-small-text {
+  margin: 4px 0;
   margin: 4px;
   padding: 4px;
   font-family: sans-serif;
-  margin: 4px 0;
 }
 
 .playing-title {
+  font-size: 15px;
   height: 35px;
   padding: 4px;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
-  font-size: 15px;
 }
 
 .lower-bar-images-wrapper {
-  align-items: center;
   display: flex; /* gap? */
-  justify-content: center;
-  flex-grow: 2;
   width: 20%;
   margin: auto;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 2;
 }
 
 .main-img {
@@ -349,21 +346,79 @@
 
 .small-img {
   width: 30px;
+  cursor: pointer;
   margin: 4px;
   padding: 4px;
   font-family: sans-serif;
-  cursor: pointer;
 }
 
-.curr-song-duration-text {
-  flex-grow: 1;
+.lower-bar-right-side {
+  display: flex;
   float: right;
-  text-align: right;
+  justify-content: space-between;
   width: 40%;
-  margin: 4px;
-  margin-top: 0;
-  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  text-align: right;
   color: #cecece;
+  flex-grow: 1;
+  margin: 4px;
+  padding: 4px;
+  font-family: sans-serif;
+}
+
+.justify-middle {
+  align-items: center;
+  display: flex;
+}
+
+input[type=range] {
+  appearance: none;
+  height: 10px;
+  width: 6rem;
+  background-color: black;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  height: 10px;
+  cursor: pointer;
+  border: 1px solid #000;
+  border-radius: 100px;
+  background: #999;
+}
+input[type=range]::-moz-range-track {
+  height: 10px;
+  cursor: pointer;
+  border: 1px solid #000;
+  border-radius: 100px;
+  background: #999;
+}
+input[type=range]:hover::-webkit-slider-runnable-track {
+  background: #3071bb;
+}
+input[type=range]:hover::-moz-range-track {
+  background: #3071bb;
+}
+input[type=range]::-webkit-slider-thumb {
+  width: 15px;
+  height: 15px;
+  margin-top: -4px;
+  cursor: pointer;
+  border: 1px solid #000;
+  border-radius: 100px;
+  background: #fff;
+  box-shadow: 1px 1px 1px #000;
+  appearance: none;
+}
+input[type=range]::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  margin-top: -4px;
+  cursor: pointer;
+  border: 1px solid #000;
+  border-radius: 100px;
+  background: #fff;
+  box-shadow: 1px 1px 1px #000;
+  appearance: none;
 }
 /*!****************************************************************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/scss/main.scss ***!

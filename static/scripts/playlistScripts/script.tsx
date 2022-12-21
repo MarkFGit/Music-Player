@@ -1,5 +1,5 @@
-// This file is the entry point for all code in any page with URL: <server>/playlists/*
-// Where the playlist name is valid.
+// This file is the entry point for all code in any page with URL: <server>/playlists/<playlist_name>
+// Where the playlist_name is a valid playlist name.
 
 // Functions defined in this file should only be for basic page functionality.
 // Examples:
@@ -20,10 +20,10 @@ import * as contactServer from './contactServer';
 
 import { setSongImageByRowNum, fillPlaylistPreviewImages, } from './findImages';
 
-import { PAGE_PROPERTIES, IMG_PATHS, } from './../globals';
+import { IMG_PATHS, } from './../globals';
 
 import { 
-	lastSongNum, isDraggingSong, table, currPlaylistName, audio, 
+	lastSongNum, isDraggingSong, table, audio, 
 	getImgByRow, getSongObjectByRowNum, setDraggingSong, clickSongByRowNum, revertPageToNoSong, 
 } from './playlistGlobals';
 
@@ -38,6 +38,22 @@ window["fileDropHandler"] = handleFileDrop;
 
 
 addNewPlaylistScreenPromptEventlistener(null);
+
+document.getElementById("volume-range").addEventListener("input", () => {
+	const volRange = document.getElementById("volume-range") as HTMLInputElement;
+	const volLevel = parseFloat(volRange.value);
+
+	if(isNaN(volLevel)){ // this shouldn't happen, but just in case it does...
+		return;
+	}
+
+	audio.volume = volLevel;
+
+	// round is needed because sometimes numbers come out as xx.000000001 or xx.99999999
+	// this is probably due to unavoidable floating point arithmetic errors
+	const volInt = Math.round(volLevel * 100);
+	document.getElementById("volume-text").innerText = volInt.toString() + "%";
+});
 
 
 audio.addEventListener('timeupdate', () => {
@@ -86,8 +102,7 @@ function updatePlayingSongTimestamp(songPosition: number){
 
 
 document.getElementById("seek-bar").addEventListener("mousedown", (e: MouseEvent) => {
-	const noSelectedAudioSrc = `${PAGE_PROPERTIES.websiteOrigin}/playlists/${currPlaylistName}`;
-	if(audio.src === noSelectedAudioSrc){
+	if(lastSongNum === null){
 		return console.error("Error: Cannot use seekbar when no song is selected.");
 	}
 
