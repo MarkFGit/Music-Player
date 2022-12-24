@@ -33868,39 +33868,19 @@ function renderPlaylistGrid() {
     });
 }
 function PlaylistCard({ name }) {
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "playlist-card link-color link-text", id: name, onClick: e => handlePlaylistCardClick(e, name) },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", { className: "playlist-card-options-button", src: _globals__WEBPACK_IMPORTED_MODULE_4__.IMG_PATHS.playlistCardOption, onMouseEnter: e => optionsImgEnter(e, name), onMouseLeave: e => optionsImgLeave(e, name) }),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "playlist-preview-title" },
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "playlist-card" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "space-between" },
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { className: "full-width-and-height link-color", href: `/playlists/${name}`, onMouseEnter: e => getPlaylistCardFromEvent(e).classList.add("link-text"), onMouseLeave: e => getPlaylistCardFromEvent(e).classList.remove("link-text") }),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", { className: "playlist-card-options-button", src: _globals__WEBPACK_IMPORTED_MODULE_4__.IMG_PATHS.playlistCardOption, onMouseEnter: e => e.target.src = _globals__WEBPACK_IMPORTED_MODULE_4__.IMG_PATHS.playlistCardOptionHover, onMouseLeave: e => e.target.src = _globals__WEBPACK_IMPORTED_MODULE_4__.IMG_PATHS.playlistCardOption, onClick: () => dropPlaylistScreenPrompt(name) })),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", { className: "link-color link-text playlist-preview-title", href: `/playlists/${name}` },
             " ",
             name,
             " ")));
 }
-/** This function handles what happens when the mouse enters the options image for a playlist card. */
-function optionsImgEnter(e, name) {
-    const img = (0,_globals__WEBPACK_IMPORTED_MODULE_4__.checkElemIsImgElem)(e.target);
-    img.src = _globals__WEBPACK_IMPORTED_MODULE_4__.IMG_PATHS.playlistCardOptionHover;
-    const elem = document.getElementById(name);
-    elem.classList.remove("link-text");
-}
-/** This function handles what happens when the mouse enters the options image for a playlist card. */
-function optionsImgLeave(e, name) {
-    const img = (0,_globals__WEBPACK_IMPORTED_MODULE_4__.checkElemIsImgElem)(e.target);
-    img.src = _globals__WEBPACK_IMPORTED_MODULE_4__.IMG_PATHS.playlistCardOption;
-    const elem = document.getElementById(name);
-    elem.classList.add("link-text");
-}
-function handlePlaylistCardClick(e, playlistName) {
-    const target = e.target;
-    if (target instanceof HTMLSpanElement) {
-        window.location.href = `/playlists/${playlistName}`;
-        return;
-    }
-    if (target instanceof HTMLImageElement) {
-        dropPlaylistScreenPrompt(playlistName);
-        return;
-    }
-    throw new DOMException("Tried to grab target of either type HTMLAnchorElement or type HTMLImageElement. " +
-        `However the target recieved is an instanceof ${target.constructor.name}`);
+/** This function grabs the playlist card from an event when the mouse enters/leaves the extraneous anchor tag. */
+function getPlaylistCardFromEvent(e) {
+    const anchor = e.target;
+    return anchor.parentElement.parentElement;
 }
 /** Screen prompt which makes the interface for dropping a specific playlist. */
 function dropPlaylistScreenPrompt(playlistName) {

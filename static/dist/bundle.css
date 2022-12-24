@@ -229,6 +229,7 @@
   font-family: sans-serif;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   height: 150px;
   width: 250px;
   background-color: #8d8d8d;
@@ -238,7 +239,6 @@
 
 .playlist-card-options-button {
   display: flex;
-  margin-left: auto;
   height: 30px;
   width: 30px;
   cursor: pointer;
@@ -253,6 +253,16 @@
 
 .link-color {
   color: white;
+}
+
+.full-width-and-height {
+  height: 100%;
+  width: 100%;
+}
+
+.space-between {
+  display: flex;
+  justify-content: space-between;
 }
 /*!****************************************************************************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/scss/lower-bar-styles.scss ***!
@@ -634,7 +644,6 @@ body {
 }
 
 .song-option {
-  margin: 1px;
   padding: 4px;
   border-color: #2b2b2e;
   border-radius: 5px;
@@ -695,7 +704,7 @@ th .header-align-text-left {
 .row-img {
   height: 40px;
   width: 40px;
-  image-rendering: pixelated;
+  image-rendering: crisp-edges;
   cursor: pointer;
   object-fit: cover;
 }
@@ -718,10 +727,9 @@ table {
 .song-row {
   overflow: hidden;
   margin: 1px;
-  padding: 4px;
   border: solid;
-  border-width: 0 0 1px 0;
   border-color: #414141;
+  border-width: 0 0 1px 0;
 }
 .song-row:hover {
   background-color: #161616;
@@ -778,7 +786,7 @@ table {
   height: fit-content;
   text-overflow: ellipsis;
   overflow: hidden;
-  min-width: 60px;
+  min-width: 3rem;
   text-align: center;
 }
 

@@ -65,7 +65,7 @@ th .header-align-text-left
     height: 40px;
     width: 40px;
 
-    image-rendering: pixelated;
+    image-rendering: crisp-edges;
 
     cursor: pointer;
     object-fit: cover;
@@ -97,15 +97,16 @@ table{
     overflow: hidden;
 
     margin: 1px;
-    padding: 4px;
 
     border: solid;
-    border-width: 0 0 1px 0;
     border-color: #414141;
+    border-width: 0 0 1px 0;
+    
 
 
     &:hover{
         background-color: $active-row-color;
+
         .row-add-playlist-button{
             display: block;
 
@@ -176,7 +177,7 @@ table{
 {
     @include playlist-field-container;
 
-    min-width: 60px;
+    min-width: 3rem;
 
     text-align: center;
 }

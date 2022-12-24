@@ -33,52 +33,33 @@ export async function renderPlaylistGrid(){
 
 function PlaylistCard({name}: {name: string}): JSX.Element {
 	return(
-		<div 
-			className="playlist-card link-color link-text"
-			id={name}
-			onClick={e => handlePlaylistCardClick(e, name)}>
-			<img 
-				className="playlist-card-options-button" 
-				src={IMG_PATHS.playlistCardOption}
-				onMouseEnter={e => optionsImgEnter(e, name)}
-				onMouseLeave={e => optionsImgLeave(e, name)}
-			/>
-			<span className="playlist-preview-title"> {name} </span>
+		<div className="playlist-card">
+			<div className="space-between">
+				<a 
+					className="full-width-and-height link-color" 
+					href={`/playlists/${name}`}
+					onMouseEnter={e => getPlaylistCardFromEvent(e).classList.add("link-text")}
+					onMouseLeave={e => getPlaylistCardFromEvent(e).classList.remove("link-text")}
+				>
+				</a>
+				<img 
+					className="playlist-card-options-button" 
+					src={IMG_PATHS.playlistCardOption}
+					onMouseEnter={e => (e.target as HTMLImageElement).src = IMG_PATHS.playlistCardOptionHover}
+					onMouseLeave={e => (e.target as HTMLImageElement).src = IMG_PATHS.playlistCardOption}
+					onClick={() => dropPlaylistScreenPrompt(name)}
+				/>
+			</div>
+			<a className="link-color link-text playlist-preview-title" href={`/playlists/${name}`}> {name} </a>
 		</div>
 	);
 }
 
-/** This function handles what happens when the mouse enters the options image for a playlist card. */
-function optionsImgEnter(e: React.SyntheticEvent, name: string){
-	const img = checkElemIsImgElem(e.target);
-	img.src = IMG_PATHS.playlistCardOptionHover;
-	const elem = document.getElementById(name);
-	elem.classList.remove("link-text");
-}
 
-/** This function handles what happens when the mouse enters the options image for a playlist card. */
-function optionsImgLeave(e: React.SyntheticEvent, name: string){
-	const img = checkElemIsImgElem(e.target);
-	img.src = IMG_PATHS.playlistCardOption;
-	const elem = document.getElementById(name);
-	elem.classList.add("link-text");
-}
-
-
-function handlePlaylistCardClick(e: React.SyntheticEvent, playlistName: string){
-	const target = e.target;
-	if(target instanceof HTMLSpanElement){
-		window.location.href = `/playlists/${playlistName}`;
-		return;
-	}
-	if(target instanceof HTMLImageElement){
-		dropPlaylistScreenPrompt(playlistName);
-		return;
-	}
-	throw new DOMException(
-		"Tried to grab target of either type HTMLAnchorElement or type HTMLImageElement. " +
-		`However the target recieved is an instanceof ${target.constructor.name}`
-	);
+/** This function grabs the playlist card from an event when the mouse enters/leaves the extraneous anchor tag. */
+function getPlaylistCardFromEvent(e: React.SyntheticEvent): HTMLDivElement{
+	const anchor = e.target as HTMLAnchorElement;
+	return anchor.parentElement.parentElement as HTMLDivElement;
 }
 
 

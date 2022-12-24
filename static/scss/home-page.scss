@@ -45,6 +45,7 @@
 
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
 
     height: 150px;
     width: 250px;
@@ -57,7 +58,6 @@
 
 .playlist-card-options-button{
     display: flex;
-    margin-left: auto;
 
     height: 30px;
     width: 30px;
@@ -77,4 +77,16 @@
 .link-color
 {
     color: white;
+}
+
+
+.full-width-and-height
+{
+    height: 100%;
+    width: 100%;
+}
+
+.space-between{
+    display: flex;
+    justify-content: space-between;
 }
