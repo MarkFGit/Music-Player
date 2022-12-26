@@ -65,9 +65,8 @@ th .header-align-text-left
     height: 40px;
     width: 40px;
 
-    image-rendering: crisp-edges;
-
     cursor: pointer;
+    // For some reason object-fit: cover; makes any non-square images render really poorly on Chrome; however the issue is non-existent on Firefox
     object-fit: cover;
 }
 

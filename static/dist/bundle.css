@@ -704,7 +704,6 @@ th .header-align-text-left {
 .row-img {
   height: 40px;
   width: 40px;
-  image-rendering: crisp-edges;
   cursor: pointer;
   object-fit: cover;
 }
