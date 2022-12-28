@@ -33747,6 +33747,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../globals */ "./static/scripts/globals.ts");
 /* harmony import */ var _findImages__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./findImages */ "./static/scripts/playlistScripts/findImages.ts");
 /* This file contains function for basic operability of songs. i.e. pausing and playing. */
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 
 
 
@@ -33763,6 +33772,7 @@ function songImgEventListener(e) {
         }
         return;
     }
+    updateMediaSessionMetadata(song);
     const songIsAlreadySelected = (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum !== null);
     if (songIsAlreadySelected) { //revert previous song/row
         (0,_findImages__WEBPACK_IMPORTED_MODULE_2__.setSongImageByRowNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum);
@@ -33801,6 +33811,18 @@ function playSong(song) {
     const imgForRow = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.getImgByRow)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum);
     imgForRow.src = _globals__WEBPACK_IMPORTED_MODULE_1__.IMG_PATHS.globalPlayingGifSrc;
     (0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footer-play-img").src = (0,_findImages__WEBPACK_IMPORTED_MODULE_2__.determineFooterPlayImgSrc)(song.isPlaying);
+}
+/** This function changes the mediasession information. Mediasession information is displayed via media control pop-ups on different platforms
+(i.e. Windows/iOS/Android, etc.) */
+function updateMediaSessionMetadata(song) {
+    return __awaiter(this, void 0, void 0, function* () {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: song.title,
+            artist: song.artist,
+            album: song.album,
+            artwork: [{ src: yield (0,_findImages__WEBPACK_IMPORTED_MODULE_2__.getSongImage)(song.rowNum) }]
+        });
+    });
 }
 function updateLowerBarPlayingTitle(song) {
     const playingTitle = document.getElementById("playing-title");
@@ -34406,6 +34428,11 @@ function revertPageToNoSong() {
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "nextTrackButtonHandler": () => (/* binding */ nextTrackButtonHandler),
+/* harmony export */   "playPauseButtonHandler": () => (/* binding */ playPauseButtonHandler),
+/* harmony export */   "previousTrackButtonHandler": () => (/* binding */ previousTrackButtonHandler)
+/* harmony export */ });
 /* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
 /* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../globals */ "./static/scripts/globals.ts");
 // This file is used to set the event listeners on static fields
@@ -34437,24 +34464,28 @@ headerPlayIcon.addEventListener('mouseout', () => {
 });
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-= prepare footer buttons with listeners =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-(0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footer-prev-img").addEventListener('click', () => {
+(0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footer-prev-img").addEventListener('click', previousTrackButtonHandler);
+(0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footer-play-img").addEventListener('click', playPauseButtonHandler);
+(0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footer-next-img").addEventListener('click', nextTrackButtonHandler);
+function previousTrackButtonHandler() {
     const canPlayPreviousSong = (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum !== null && _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum > 0);
     if (canPlayPreviousSong)
         return (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.clickSongByRowNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum - 1);
     console.error("Error: Cannot play previous song.");
-});
-(0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footer-play-img").addEventListener('click', () => {
+}
+/** Handles clicking the play/pause button. */
+function playPauseButtonHandler() {
     if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum === null)
         return (console.error("Error: Cannot play song when no song has been selected."));
     const currentSongNum = _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum;
     (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.clickSongByRowNum)(currentSongNum);
-});
-(0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footer-next-img").addEventListener('click', () => {
+}
+function nextTrackButtonHandler() {
     const canPlayNextSong = (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum !== null && _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum + 1 < _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.table.rows.length);
     if (canPlayNextSong)
         return (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.clickSongByRowNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum + 1);
     console.error("Error: Cannot play next song.");
-});
+}
 const footerImgInfo = {
     prev: {
         id: "footer-prev-img",
@@ -34925,11 +34956,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _handleFileDrop__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./handleFileDrop */ "./static/scripts/playlistScripts/handleFileDrop.tsx");
 // This file is the entry point for all code in any page with URL: <server>/playlists/<playlist_name>
 // Where the playlist_name is a valid playlist name.
-// Functions defined in this file should only be for basic page functionality.
-// Examples:
-// Initial page load
-// Setting up basic event listeners
-// Playing/pausing songs
+// Functions defined in this file should only be for the intial page load.
 // Functions which are _generally_ more complex than this should be in the 'playlistComponents' file.
 // Adding a new song is handled in this file. It may be moved in future.
 
@@ -34942,9 +34969,16 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-window["createPage"] = createPage;
 window["dragOverHandler"] = (e) => { e.preventDefault(); };
 window["fileDropHandler"] = _handleFileDrop__WEBPACK_IMPORTED_MODULE_9__.handleFileDrop;
+window.onload = () => {
+    generateTable();
+    (0,_findImages__WEBPACK_IMPORTED_MODULE_5__.fillPlaylistPreviewImages)();
+    navigator.mediaSession.setActionHandler("previoustrack", _playlistPageEvents__WEBPACK_IMPORTED_MODULE_3__.previousTrackButtonHandler);
+    navigator.mediaSession.setActionHandler("play", _playlistPageEvents__WEBPACK_IMPORTED_MODULE_3__.playPauseButtonHandler);
+    navigator.mediaSession.setActionHandler("pause", _playlistPageEvents__WEBPACK_IMPORTED_MODULE_3__.playPauseButtonHandler);
+    navigator.mediaSession.setActionHandler("nexttrack", _playlistPageEvents__WEBPACK_IMPORTED_MODULE_3__.nextTrackButtonHandler);
+};
 (0,_newPlaylistScreenPrompt__WEBPACK_IMPORTED_MODULE_2__.addNewPlaylistScreenPromptEventlistener)(null);
 document.getElementById("volume-range").addEventListener("input", () => {
     const volRange = document.getElementById("volume-range");
@@ -35032,7 +35066,7 @@ function setSeekBarWidth(e) {
     const seekBarProgress = document.getElementById("seek-bar-progress");
     seekBarProgress.style.width = `${(clickedWidth / seekBarWidth) * 100}%`;
 }
-function createPage() {
+function generateTable() {
     const numOfPlaylistSongs = parseInt(document.getElementById("script-tag").getAttribute("numOfSongs"));
     const songNums = [...Array(numOfPlaylistSongs).keys()];
     const rows = [];
@@ -35043,7 +35077,6 @@ function createPage() {
     react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, songNums.map((_, rowNum) => {
         return react__WEBPACK_IMPORTED_MODULE_0__.createElement(Row, { key: rowNum, rowNum: rowNum });
     })), container);
-    (0,_findImages__WEBPACK_IMPORTED_MODULE_5__.fillPlaylistPreviewImages)();
 }
 /** This is used to create a Row only in the initial page load. */
 function Row({ rowNum }) {

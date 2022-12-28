@@ -5,7 +5,7 @@ import { getRowIndexByEventTarget, getSongObjectByRowNum, lastSongNum,
 import { IMG_PATHS, PAGE_PROPERTIES, getImgElemByID,
 	removeFileExtension, } from "./../globals";
 
-import { setSongImageByRowNum, determineFooterPlayImgSrc,  } from "./findImages";
+import { setSongImageByRowNum, determineFooterPlayImgSrc, getSongImage, } from "./findImages";
 
 export function songImgEventListener(e: React.SyntheticEvent){
 	const rowNum = getRowIndexByEventTarget(e.target);
@@ -21,6 +21,8 @@ export function songImgEventListener(e: React.SyntheticEvent){
 		}
 		return;
 	}
+
+	updateMediaSessionMetadata(song);
 
 	const songIsAlreadySelected = (lastSongNum !== null);
 	if(songIsAlreadySelected){ //revert previous song/row
@@ -70,6 +72,18 @@ function playSong(song: Song){
 	const imgForRow = getImgByRow(lastSongNum);
 	imgForRow.src = IMG_PATHS.globalPlayingGifSrc;
 	getImgElemByID("footer-play-img").src = determineFooterPlayImgSrc(song.isPlaying);
+}
+
+
+/** This function changes the mediasession information. Mediasession information is displayed via media control pop-ups on different platforms
+(i.e. Windows/iOS/Android, etc.) */
+async function updateMediaSessionMetadata(song: Song){
+	navigator.mediaSession.metadata = new MediaMetadata({
+		title: song.title,
+		artist: song.artist,
+		album: song.album,
+		artwork: [{src: await getSongImage(song.rowNum)}]
+	})
 }
 
 

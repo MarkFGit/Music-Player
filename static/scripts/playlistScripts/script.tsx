@@ -1,11 +1,8 @@
 // This file is the entry point for all code in any page with URL: <server>/playlists/<playlist_name>
 // Where the playlist_name is a valid playlist name.
 
-// Functions defined in this file should only be for basic page functionality.
-// Examples:
-	// Initial page load
-	// Setting up basic event listeners
-	// Playing/pausing songs
+// Functions defined in this file should only be for the intial page load.
+
 // Functions which are _generally_ more complex than this should be in the 'playlistComponents' file.
 
 // Adding a new song is handled in this file. It may be moved in future.
@@ -14,7 +11,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
 import { addNewPlaylistScreenPromptEventlistener, } from './../newPlaylistScreenPrompt';
-import './playlistPageEvents';
+import { previousTrackButtonHandler, playPauseButtonHandler, nextTrackButtonHandler, } from './playlistPageEvents';
 
 import * as contactServer from './contactServer';
 
@@ -32,10 +29,19 @@ import { RowContent, } from './RowContent';
 import { handleFileDrop, } from './handleFileDrop';
 
 
-window["createPage"] = createPage;
 window["dragOverHandler"] = (e: DragEvent) => {e.preventDefault()};
 window["fileDropHandler"] = handleFileDrop;
 
+
+window.onload = () => {
+	generateTable();
+	fillPlaylistPreviewImages();
+
+	navigator.mediaSession.setActionHandler("previoustrack", previousTrackButtonHandler);
+	navigator.mediaSession.setActionHandler("play", playPauseButtonHandler);
+	navigator.mediaSession.setActionHandler("pause", playPauseButtonHandler);
+	navigator.mediaSession.setActionHandler("nexttrack", nextTrackButtonHandler);
+}
 
 addNewPlaylistScreenPromptEventlistener(null);
 
@@ -82,6 +88,7 @@ audio.addEventListener('timeupdate', () => {
 		clickSongByRowNum(nextSongNum);
 	}
 });
+
 
 
 function updatePlayingSongTimestamp(songPosition: number){
@@ -159,7 +166,7 @@ function setSeekBarWidth(e: MouseEvent){
 
 
 
-function createPage(){
+function generateTable(){
 	const numOfPlaylistSongs = parseInt(document.getElementById("script-tag").getAttribute("numOfSongs"));
 	const songNums = [...Array(numOfPlaylistSongs).keys()];
 
@@ -178,7 +185,7 @@ function createPage(){
 		container
 	);
 
-	fillPlaylistPreviewImages();
+	
 }
 
 

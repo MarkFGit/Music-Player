@@ -38,23 +38,31 @@ headerPlayIcon.addEventListener('mouseout', () => {
 
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-= prepare footer buttons with listeners =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-getImgElemByID("footer-prev-img").addEventListener('click', () => {
+getImgElemByID("footer-prev-img").addEventListener('click', previousTrackButtonHandler);
+getImgElemByID("footer-play-img").addEventListener('click', playPauseButtonHandler);
+getImgElemByID("footer-next-img").addEventListener('click', nextTrackButtonHandler);
+
+
+export function previousTrackButtonHandler(){
 	const canPlayPreviousSong = (lastSongNum !== null && lastSongNum > 0);
 	if(canPlayPreviousSong) return clickSongByRowNum(lastSongNum - 1);
 	console.error("Error: Cannot play previous song.");
-});
+}
 
-getImgElemByID("footer-play-img").addEventListener('click', () => {
+
+/** Handles clicking the play/pause button. */
+export function playPauseButtonHandler(){
 	if(lastSongNum === null) return (console.error("Error: Cannot play song when no song has been selected."));
 	const currentSongNum = lastSongNum;
 	clickSongByRowNum(currentSongNum);
-});
+}
 
-getImgElemByID("footer-next-img").addEventListener('click', () => {
+export function nextTrackButtonHandler(){
 	const canPlayNextSong = (lastSongNum !== null && lastSongNum + 1 < table.rows.length);
 	if(canPlayNextSong) return clickSongByRowNum(lastSongNum + 1);
 	console.error("Error: Cannot play next song.");
-});
+}
+
 
 const footerImgInfo = {
 	prev: {
