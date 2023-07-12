@@ -33374,8 +33374,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "addNewPlaylist": () => (/* binding */ addNewPlaylist),
 /* harmony export */   "deletePlaylist": () => (/* binding */ deletePlaylist),
-/* harmony export */   "handleServerError": () => (/* binding */ handleServerError),
-/* harmony export */   "resolve_playlist_names": () => (/* binding */ resolve_playlist_names)
+/* harmony export */   "handleError": () => (/* binding */ handleError),
+/* harmony export */   "resolvePlaylistNames": () => (/* binding */ resolvePlaylistNames)
 /* harmony export */ });
 /* harmony import */ var _renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./renderCustomTextBox */ "./static/scripts/renderCustomTextBox.tsx");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -33389,65 +33389,42 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 };
 // As the file name implies, this script talks to the server and can be used by any page in the app.
 
-/** Sends a clean error message to the user, sends all the details to the console.*/
-function handleServerError(technicalErrorMsg, userErrorMsg) {
+/** Sends a clean error message to the user, sends userError + technicalErrorMsg to the console.
+ * Later this function will also send error details to the server to record in a log file. */
+function handleError(userErrorMsg, technicalErrorMsg) {
     (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)(userErrorMsg);
-    console.error(`${technicalErrorMsg} ${userErrorMsg}`);
+    console.error(`${userErrorMsg} ${technicalErrorMsg}`);
 }
 /** Retrieves all playlist names from the DB. */
-function resolve_playlist_names() {
+function resolvePlaylistNames() {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield fetch("/getPlaylists", {
-            method: "POST",
-        })
-            .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error(`Failed with status: ${response.status}.`);
-        })
-            .then(data => {
-            return data["PlaylistNames"];
-        })
-            .catch(error => {
-            handleServerError(error, "Failed to retrieve playlist names from server.");
-        });
+        const response = yield fetch("/getPlaylists", { method: "POST" });
+        if (!response.ok) {
+            handleError("Failed to retrieve playlist names from server.", `Failed with status: ${response.status}.`);
+            return;
+        }
+        const data = yield response.json();
+        return data["PlaylistNames"];
     });
 }
 function addNewPlaylist(playlistName) {
     return __awaiter(this, void 0, void 0, function* () {
-        return fetch("/addPlaylist", {
-            method: "POST",
-            body: playlistName
-        })
-            .then(response => {
-            if (response.ok) {
-                (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)("Playlist added successfully.");
-                return;
-            }
-            throw new Error(`Failed with status: ${response.status}.`);
-        })
-            .catch(error => {
-            handleServerError(error, `Failed to add playlist: "${playlistName}"`);
-        });
+        const response = yield fetch("/addPlaylist", { method: "POST", body: playlistName });
+        if (!response.ok) {
+            handleError(`Failed to create playlist with name: "${playlistName}".`, `Failed with status: ${response.status}.`);
+            return;
+        }
+        (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)("Playlist added successfully.");
     });
 }
 function deletePlaylist(playlistName) {
     return __awaiter(this, void 0, void 0, function* () {
-        return fetch("/deletePlaylist", {
-            method: "POST",
-            body: playlistName
-        })
-            .then(response => {
-            if (response.ok) {
-                (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)("Playlist dropped successfully.");
-                return;
-            }
-            throw new Error(`Failed with status: ${response.status}.`);
-        })
-            .catch(error => {
-            handleServerError(error, `Failed to drop playlist: "${playlistName}".`);
-        });
+        const response = yield fetch("/deletePlaylist", { method: "POST", body: playlistName });
+        if (!response.ok) {
+            handleError(`Failed to drop playlist with name: "${playlistName}".`, `Failed with status: ${response.status}.`);
+            return;
+        }
+        (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)("Playlist dropped succesfully.");
     });
 }
 
@@ -33464,17 +33441,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "IMG_PATHS": () => (/* binding */ IMG_PATHS),
 /* harmony export */   "PAGE_PROPERTIES": () => (/* binding */ PAGE_PROPERTIES),
-/* harmony export */   "_isHomePage": () => (/* binding */ _isHomePage),
-/* harmony export */   "_isPlaylistPage": () => (/* binding */ _isPlaylistPage),
 /* harmony export */   "addEscapeFeature": () => (/* binding */ addEscapeFeature),
-/* harmony export */   "checkElemIsButtonElem": () => (/* binding */ checkElemIsButtonElem),
-/* harmony export */   "checkElemIsCellElem": () => (/* binding */ checkElemIsCellElem),
-/* harmony export */   "checkElemIsDivElem": () => (/* binding */ checkElemIsDivElem),
-/* harmony export */   "checkElemIsImgElem": () => (/* binding */ checkElemIsImgElem),
-/* harmony export */   "checkElemIsSpanElem": () => (/* binding */ checkElemIsSpanElem),
+/* harmony export */   "getDivElemByID": () => (/* binding */ getDivElemByID),
 /* harmony export */   "getImgElemByID": () => (/* binding */ getImgElemByID),
-/* harmony export */   "getImgElemFromEventTarget": () => (/* binding */ getImgElemFromEventTarget),
 /* harmony export */   "getInputElemByID": () => (/* binding */ getInputElemByID),
+/* harmony export */   "getSpanElemByID": () => (/* binding */ getSpanElemByID),
 /* harmony export */   "getTextElemByID": () => (/* binding */ getTextElemByID),
 /* harmony export */   "isHomePage": () => (/* binding */ isHomePage),
 /* harmony export */   "isPlaylistPage": () => (/* binding */ isPlaylistPage),
@@ -33486,9 +33457,6 @@ class TypeError extends Error {
         super(msg);
     }
 }
-// this function has to exist because React decided to just up and change rendering to root.render
-// this is a solution to hide the warning that comes with using ReactDOM.render
-// this will no longer be needed once I leave React forever and go to something else.
 /** This const is only to be used with in the console.error suppress warning function. */
 const backup = console.error;
 console.error = function filterWarnings(msg) {
@@ -33497,8 +33465,10 @@ console.error = function filterWarnings(msg) {
         backup.apply(console, arguments);
     }
 };
-const isHomePage = _isHomePage();
-const isPlaylistPage = _isPlaylistPage();
+// The home page path Arr should be ["", "home", ""]
+const isHomePage = window.location.pathname.split("/")[1] === "home" ? true : false;
+// On a playlist page the pathArr should be ["", "playlists", "<playlist_name>]
+const isPlaylistPage = window.location.pathname.split("/")[1] === "playlists" ? true : false;
 const staticFolderPath = `${window.location.origin}/static`;
 const iconFolderPath = `${staticFolderPath}/media/icons/`;
 const PAGE_PROPERTIES = Object.freeze({
@@ -33550,8 +33520,7 @@ function getInputElemByID(ID) {
     if (elem instanceof HTMLInputElement) {
         return elem;
     }
-    throw new TypeError(`Failed to retrieve input elem with ID: "${ID}". `
-        + `Retrieved elem has typeof: ${typeof elem}`);
+    throw new TypeError(`Failed to retrieve input elem with ID: "${ID}". Retrieved elem has typeof: ${typeof elem}`);
 }
 // This function is never used, replace it with a func like getSpanElemByID
 function getTextElemByID(ID) {
@@ -33561,60 +33530,21 @@ function getTextElemByID(ID) {
     }
     throw new TypeError(`Failed to retrieve Text Element with ID: "${ID}". Element is of type "${elem}"`);
 }
-function getImgElemFromEventTarget(target) {
-    if (target instanceof HTMLImageElement) {
-        return target;
-    }
-    throw new TypeError(`The given event target is not an image! Given event target: ${target}`);
-}
-function checkElemIsCellElem(elem) {
-    if (elem instanceof HTMLTableCellElement) {
-        return elem;
-    }
-    throw new TypeError(`The given item is not an instance of a HTMLTableCellElement. Given item: ${elem}`);
-}
-function checkElemIsSpanElem(elem) {
+function getSpanElemByID(ID) {
+    const elem = document.getElementById(ID);
     if (elem instanceof HTMLSpanElement) {
         return elem;
     }
-    throw new TypeError(`The given item is not an instance of a HTMLSpanElement. Given item: ${elem}`);
+    throw new TypeError(`Failed to retrieve Span Element with ID: "${ID}". Instead, element is of type "${elem}"`);
 }
-function checkElemIsDivElem(elem) {
+function getDivElemByID(ID) {
+    const elem = document.getElementById(ID);
     if (elem instanceof HTMLDivElement) {
         return elem;
     }
-    throw new TypeError(`The given item is not an instance of a HTMLDivElement. Given item: ${elem}`);
+    throw new TypeError(`Failed to retrieve Div Element with ID: "${ID}". Instead, element is of type "${elem}"`);
 }
-function checkElemIsImgElem(elem) {
-    if (elem instanceof HTMLImageElement) {
-        return elem;
-    }
-    throw new TypeError(`The given item is not an instance of a HTMLImageElement. Given item: ${elem}`);
-}
-function checkElemIsButtonElem(elem) {
-    if (elem instanceof HTMLButtonElement) {
-        return elem;
-    }
-    throw new TypeError(`The given item is not an instance of a HTMLImageElement. Given item: ${elem}`);
-}
-/* # ------------------------------------------- End of Type Getters ------------------------------------------- */
-function _isPlaylistPage() {
-    /** On a playlist page the pathArr should be
-     * ["", "playlists", "<playlist_name>] */
-    const pathArr = window.location.pathname.split("/");
-    if (pathArr[1] === "playlists") {
-        return true;
-    }
-    return false;
-}
-function _isHomePage() {
-    /** The home page path Arr should be ["", "home", ""] */
-    const pathArr = window.location.pathname.split("/");
-    if (pathArr[1] === "home") {
-        return true;
-    }
-    return false;
-}
+/* # ------------------------------------------- End of Type Getters ------------------------------------------- */ 
 
 
 /***/ }),
@@ -33665,7 +33595,7 @@ function renderNewPlaylistScreenPrompt(renderGrid) {
                 const textBox = (0,_globals__WEBPACK_IMPORTED_MODULE_2__.getInputElemByID)("new-playlist-name-input-field");
                 yield _contactServerGlobals__WEBPACK_IMPORTED_MODULE_1__.addNewPlaylist(textBox.value);
                 (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_3__.removeScreenPrompt)();
-                if (renderGrid !== null) {
+                if (_globals__WEBPACK_IMPORTED_MODULE_2__.isHomePage) {
                     renderGrid();
                 }
             }) }, "Add Playlist"),
@@ -33856,7 +33786,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 renderPlaylistGrid();
 function renderPlaylistGrid() {
     return __awaiter(this, void 0, void 0, function* () {
-        const names = yield _contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.resolve_playlist_names();
+        const names = yield _contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.resolvePlaylistNames();
         const container = document.getElementById("playlist-grid");
         react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(PlaylistCard, { key: "Last Added", name: "Last Added" }),

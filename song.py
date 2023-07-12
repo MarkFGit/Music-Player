@@ -2,6 +2,7 @@
 # any class/function which is only used by song methods
 
 
+from configparser import Error
 from flask import request, jsonify, Blueprint
 from dataclasses import dataclass
 from abc import ABC
@@ -103,51 +104,42 @@ def get_song_obj_info() -> dict:
 	return {"songObj": song_obj}
 
 
-@song_routes.route("/updatePlays", methods=["POST"])
-def increment_plays_count() -> str:
-	song_name =  request.data.decode("utf-8")
-
-	db_ptr = get_db_cursor()
-	db_ptr.execute("SELECT Plays FROM `last added` WHERE `File Name` = %s", (song_name,)) 
-	new_play_value = db_ptr.fetchall()[0][0] + 1
-	db_ptr.execute(
-		"UPDATE `last added` SET Plays = %s WHERE `File Name` = %s", (new_play_value, song_name)
-	)
-
-	db = get_db_conn()
-	db.commit()
-
-	return "OK"	
-
-
 @song_routes.route("/updateSongInfo", methods=["POST"])
-def update_song_info_from_user_edit() -> str:
+def update_song_info() -> str:
 	song_file_name = request.form.to_dict()["songFileName"]
+	new_value = request.form.to_dict()["newValue"]
+	attribute = request.form.to_dict()["attribute"]
 
-	new_img_file = request.files.to_dict().get("newSongImg")
-	if(new_img_file is not None):
-		save_cover_img_to_file_system(song_file_name, new_img_file.stream.read())
-
-	new_info: dict[str, datetime | str] = jsonpickle.decode(request.form.to_dict()["newInfo"])
 	db_ptr = get_db_cursor()
-	db = get_db_conn() 
-	if(new_info["newDate"] != ""):
-		db_ptr.execute(
-			"UPDATE `Last Added` SET `Date Created` = %s WHERE `File Name` = %s", (new_info["newDate"], song_file_name)
-		)
-		db.commit()
+	db = get_db_conn()
 
+	match attribute:
+		case "album":
+			db_ptr.execute("UPDATE `Last Added` SET album = %s WHERE `File Name` = %s", (new_value,	song_file_name))
+		case "artist":
+			db_ptr.execute("UPDATE `Last Added` SET artist = %s WHERE `File Name` = %s", (new_value, song_file_name))
+		case "date":
+			db_ptr.execute("UPDATE `Last Added` SET `Date Created` = %s WHERE `File Name` = %s", (new_value, song_file_name))
+		case "plays":
+			db_ptr.execute("UPDATE `Last Added` SET plays = %s WHERE `File Name` = %s", (new_value,	song_file_name))
+		case "title":
+			db_ptr.execute("UPDATE `Last Added` SET title = %s WHERE `File Name` = %s", (new_value,	song_file_name))
+		case _:
+			raise Exception(f"Invalid attribute type, got attribute: {attribute}")
 
-	db_ptr.execute(
-		"""
-		UPDATE `Last Added` 
-		SET Title = %s, Artist = %s, Album = %s 
-		WHERE `File Name` = %s
-		""", (new_info["newTitle"], new_info["newArtist"], new_info["newAlbum"], song_file_name)
-	)
 	db.commit()
 
-	return "OK"	
+	return "OK"
+
+
+@song_routes.route("/updateSongImage", methods=["POST"])
+def update_song_cover_img() -> str:
+	song_file_name = request.form.to_dict()["songFileName"]
+	new_img_file = request.files.to_dict()["newSongImage"]
+
+	save_cover_img_to_file_system(song_file_name, new_img_file.stream.read())
+
+	return "OK"
 
 
 @song_routes.route("/findImage", methods=["POST"])
@@ -171,8 +163,7 @@ def save_cover_img_to_file_system(file_name: str, cover_image_data: bytes) -> No
 		print(
 			f"""
 			An UnidentifiedImageError has occurred (probably while trying to open cover_image_data). 
-			Proceeding as if image data does not exist.
-			Offending song file name: {file_name}
+			\nProceeding as if image data does not exist. Offending song file name: {file_name}
 			"""
 		)
 

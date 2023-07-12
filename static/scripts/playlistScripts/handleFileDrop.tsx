@@ -1,12 +1,14 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import {
-	table, lastSongNum, updateLastSongNum, currPlaylistName,
-	addNewSongObjectFromDictData,
-} from './playlistGlobals';
+import { fillPlaylistPreviewImages, } from './playlist';
+import { playlistSongs, } from './songs';
 
-import { fillPlaylistPreviewImages, } from './findImages';
+import { currPlaylistName, table, currentRow, } from './playlistGlobals';
+
+import { renderCustomTextBox, } from '../renderCustomTextBox';
+import { handleError, } from '../contactServerGlobals';
+
 
 import { RowContent, } from './RowContent';
 import * as contactServer from "./contactServer";
@@ -19,15 +21,36 @@ export async function handleFileDrop(e: DragEvent){
 
 	const files = [...e.dataTransfer.items].map(item => item.getAsFile());
 
-	for(const file of files){
-		if(file === null) break;
+	for(const songFile of files){
+		if(songFile === null) break;
+
+		// Checking if a file is of acceptable type should be done on the backend, not client-side.
+		const allowedFileTypes = ["audio/mpeg", "audio/x-m4a"];
+
+		if(!allowedFileTypes.includes(songFile.type)){
+			break;
+		}
+
+		const form = new FormData();
+		form.append("file", songFile);
 
 		// This await is necessary, otherwise the SQL server recieves to many requests and will crash.
 		// Wrap the this function call in a try catch block.
 		// That way if uploading multiple files, one fails but the rest can attempt to go through.
-		await contactServer.sendSongFile(file); 
+		const response = await fetch("/uploadSongFile", { method: "POST", body: form });
 
-		const newSongObj = await contactServer.getSong(file.name);
+		if(!response.ok){
+			handleError(
+				`Failed to upload song with filename: "${songFile.name}".` 
+				+ "It is likely this file name already exists in the DB which is causing the error.",
+				`Failed with status: ${response.status}.`
+			);
+			return;
+		}
+
+		renderCustomTextBox("Song successfully uploaded!");
+
+		const newSongObj = await contactServer.getSong(songFile.name);
 		const newTotalTime = await contactServer.getUpdatedPlaylistTime(currPlaylistName);
 		updatePageForNewRow(newSongObj, newTotalTime);
 	}
@@ -39,19 +62,17 @@ export async function handleFileDrop(e: DragEvent){
 function updatePageForNewRow(newSongObj: object, newTotalTime: string): void {
 	document.getElementById("playlist-total-time").innerText = newTotalTime;
 
-	addNewSongObjectFromDictData(newSongObj);
-	if(lastSongNum !== null){
-		updateLastSongNum(lastSongNum + 1);
+	playlistSongs.addSong(newSongObj);
+	if(currentRow.getIndex() !== null){
+		currentRow.set(currentRow.getIndex() + 1);
 	}
 	
-	// rowNums here are all 0 because adding a song adds it to Last Added.
-	// Obviously, the song just added is the most recent. So it will be at the top of Last Added.
+	// rowIndex here is 0 because adding a song adds it to Last Added.
+	// Obviously, the song just added is the most recent, so it will be at the top of Last Added.
 	const newRow = table.insertRow(0);
 	newRow.classList.add("song-row");
 
-	const rowNum = 0;
-	const container = newRow;
-	ReactDOM.render(<RowContent rowNum={rowNum}/>, container);
+	ReactDOM.render(<RowContent rowIndex={0}/>, newRow);
 
 	fillPlaylistPreviewImages();	
 }

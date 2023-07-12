@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as contactServer from './contactServerGlobals';
-import { getInputElemByID, } from './globals'; 
+import { getInputElemByID, isHomePage, } from './globals'; 
 import { renderScreenPrompt, removeScreenPrompt, } from './renderScreenPrompt';
 import { ScreenPromptCancelButton, } from './ScreenPromptCancelButton';
 
@@ -27,7 +27,7 @@ function renderNewPlaylistScreenPrompt(renderGrid: Function | null) {
                     await contactServer.addNewPlaylist(textBox.value);
                     removeScreenPrompt();
 
-                    if(renderGrid !== null){
+                    if(isHomePage){
                         renderGrid();
                     }
                 }}

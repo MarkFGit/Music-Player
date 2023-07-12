@@ -8,13 +8,10 @@ class TypeError extends Error{
 }
 
 
-// this function has to exist because React decided to just up and change rendering to root.render
-// this is a solution to hide the warning that comes with using ReactDOM.render
-// this will no longer be needed once I leave React forever and go to something else.
 /** This const is only to be used with in the console.error suppress warning function. */
 const backup = console.error;
 console.error = function filterWarnings(msg: string) {
-  const supressedWarnings = ["ReactDOM.render is no longer supported in React 18.",];
+  const supressedWarnings = ["ReactDOM.render is no longer supported in React 18.",];  
 
   if (!supressedWarnings.some(entry => msg.includes(entry))) {
     backup.apply(console, arguments);
@@ -22,8 +19,11 @@ console.error = function filterWarnings(msg: string) {
 };
 
 
-export const isHomePage = _isHomePage();
-export const isPlaylistPage = _isPlaylistPage();
+// The home page path Arr should be ["", "home", ""]
+export const isHomePage = window.location.pathname.split("/")[1] === "home" ? true : false;
+
+// On a playlist page the pathArr should be ["", "playlists", "<playlist_name>]
+export const isPlaylistPage = window.location.pathname.split("/")[1] === "playlists" ? true : false;
 
 const staticFolderPath = `${window.location.origin}/static`;
 const iconFolderPath = `${staticFolderPath}/media/icons/`;
@@ -50,6 +50,8 @@ export const IMG_PATHS = Object.freeze({
 	playlistCardOptionHover: `${iconFolderPath}optionsHover.png`,
 	playlistCardOption: `${iconFolderPath}options.png`,
 });
+
+
 
 
 export function removeFileExtension(fileName: string): string {
@@ -90,8 +92,7 @@ export function getInputElemByID(ID: string): HTMLInputElement {
 	if(elem instanceof HTMLInputElement){
 		return elem;
 	}
-	throw new TypeError(`Failed to retrieve input elem with ID: "${ID}". `
-		+ `Retrieved elem has typeof: ${typeof elem}`);
+	throw new TypeError(`Failed to retrieve input elem with ID: "${ID}". Retrieved elem has typeof: ${typeof elem}`);
 }
 
 // This function is never used, replace it with a func like getSpanElemByID
@@ -100,87 +101,26 @@ export function getTextElemByID(ID: string): HTMLTextAreaElement {
 	if(elem instanceof HTMLTextAreaElement){
 		return elem;
 	}
-	throw new TypeError(
-		`Failed to retrieve Text Element with ID: "${ID}". Element is of type "${elem}"`
-		);
+	throw new TypeError(`Failed to retrieve Text Element with ID: "${ID}". Element is of type "${elem}"`);
 }
 
-export function getImgElemFromEventTarget(target: EventTarget): HTMLImageElement {
-	if(target instanceof HTMLImageElement){
-		return target;
-	}
-	throw new TypeError(
-		`The given event target is not an image! Given event target: ${target}`
-	);
-}
 
-export function checkElemIsCellElem(elem: any): HTMLTableCellElement {
-	if(elem instanceof HTMLTableCellElement){
-		return elem;
-	}
-	throw new TypeError(
-		`The given item is not an instance of a HTMLTableCellElement. Given item: ${elem}`
-	);
-}
-
-export function checkElemIsSpanElem(elem: any): HTMLSpanElement {
+export function getSpanElemByID(ID: string): HTMLSpanElement {
+	const elem = document.getElementById(ID);
 	if(elem instanceof HTMLSpanElement){
 		return elem;
 	}
-	throw new TypeError(
-		`The given item is not an instance of a HTMLSpanElement. Given item: ${elem}`
-	);
+	throw new TypeError(`Failed to retrieve Span Element with ID: "${ID}". Instead, element is of type "${elem}"`);
 }
 
-export function checkElemIsDivElem(elem: any): HTMLDivElement {
+
+export function getDivElemByID(ID: string): HTMLDivElement {
+	const elem = document.getElementById(ID);
 	if(elem instanceof HTMLDivElement){
 		return elem;
 	}
-	throw new TypeError(
-		`The given item is not an instance of a HTMLDivElement. Given item: ${elem}`
-	);
-}
-
-export function checkElemIsImgElem(elem: any): HTMLImageElement {
-	if(elem instanceof HTMLImageElement){
-		return elem;
-	}
-	throw new TypeError(
-		`The given item is not an instance of a HTMLImageElement. Given item: ${elem}`
-	);
-}
-
-
-export function checkElemIsButtonElem(elem: any): HTMLButtonElement {
-	if(elem instanceof HTMLButtonElement){
-		return elem;
-	}
-	throw new TypeError(
-		`The given item is not an instance of a HTMLImageElement. Given item: ${elem}`
-	);
+	throw new TypeError(`Failed to retrieve Div Element with ID: "${ID}". Instead, element is of type "${elem}"`);
 }
 
 
 /* # ------------------------------------------- End of Type Getters ------------------------------------------- */
-
-export function _isPlaylistPage(): boolean {
-	/** On a playlist page the pathArr should be
-	 * ["", "playlists", "<playlist_name>] */
-	const pathArr = window.location.pathname.split("/");
-
-	if(pathArr[1] === "playlists"){
-		return true;
-	}
-	return false;
-}
-
-
-export function _isHomePage(): boolean {
-	/** The home page path Arr should be ["", "home", ""] */
-	const pathArr = window.location.pathname.split("/");
-
-	if(pathArr[1] === "home"){
-		return true;
-	}
-	return false;
-}

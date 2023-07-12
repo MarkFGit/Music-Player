@@ -1,13 +1,13 @@
 /* This file is used for general image stuff. Checking to see if an image exists or 
 setting images. This file is should be refactored in the future. */
 
-import { IMG_PATHS, removeFileExtension, getImgElemByID, checkElemIsImgElem, } from './../globals';
-import { table, getSongObjectByRowNum, } from './playlistGlobals'
+// This file will be removed in the next push, when the database is restructured.
+
+import { IMG_PATHS, removeFileExtension, } from './../globals';
 
 
-export async function getSongImage(index: number): Promise<string> {
-	const songObj = getSongObjectByRowNum(index);
-	const currentSongName = removeFileExtension(songObj.fileName);
+export async function getSongImage(songFileName: string): Promise<string> {
+	const currentSongName = removeFileExtension(songFileName);
 	const songCoverFileName = `${currentSongName}.jpeg`;
 
 	return fetch(
@@ -40,53 +40,4 @@ export async function getSongImage(index: number): Promise<string> {
 		);
 		return IMG_PATHS.noCoverImgSrc;
 	});
-}
-
-
-export async function setSongImageByRowNum(index: number): Promise<void> {
-	const songImgSrc = await getSongImage(index);
-	const elem = table.rows[index].firstElementChild.firstElementChild;
-	const currentSongImg = checkElemIsImgElem(elem);
-	currentSongImg.src = songImgSrc;
-}
-
-
-export async function fillPlaylistPreviewImages(): Promise<void> {
-	const numOfPlaylistSongs = table.rows.length;
-	let numOfFoundPreviewImages = 0;
-	const maxNumOfPreviews = 4;
-
-	for(let index = 0; index < numOfPlaylistSongs; index++){
-		const currentCoverSrc = await getSongImage(index);
-		if(currentCoverSrc !== IMG_PATHS.noCoverImgSrc){
-			getImgElemByID(`cover-preview-${numOfFoundPreviewImages}`).src = currentCoverSrc;
-			numOfFoundPreviewImages++;
-		}
-		if(numOfFoundPreviewImages === maxNumOfPreviews){
-			return; 
-		}
-	}
-	
-	while(numOfFoundPreviewImages < maxNumOfPreviews){
-		getImgElemByID(`cover-preview-${numOfFoundPreviewImages}`).src = IMG_PATHS.noCoverImgSrc;
-		numOfFoundPreviewImages++;
-	}
-}
-
-
-export function determineFooterPlayImgSrc(songIsPlaying: boolean): string {
-	const footerImgElement = getImgElemByID("footer-play-img");
-	const currSrc = footerImgElement.src;
-
-	if(songIsPlaying){
-		// the second condition here occurs when hovering over the main play button while a song is finishing
-		if(currSrc === IMG_PATHS.lowerBarPlayHoverImgSrc || currSrc === IMG_PATHS.lowerBarPauseHoverImgSrc){
-			return IMG_PATHS.lowerBarPauseHoverImgSrc;
-		}
-		return IMG_PATHS.lowerBarPauseImgSrc;
-	}
-	if(currSrc === IMG_PATHS.lowerBarPauseHoverImgSrc){
-		return IMG_PATHS.lowerBarPlayHoverImgSrc;
-	}
-	return IMG_PATHS.globalPlayImgSrc;
 }

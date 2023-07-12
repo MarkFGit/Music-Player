@@ -33374,8 +33374,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "addNewPlaylist": () => (/* binding */ addNewPlaylist),
 /* harmony export */   "deletePlaylist": () => (/* binding */ deletePlaylist),
-/* harmony export */   "handleServerError": () => (/* binding */ handleServerError),
-/* harmony export */   "resolve_playlist_names": () => (/* binding */ resolve_playlist_names)
+/* harmony export */   "handleError": () => (/* binding */ handleError),
+/* harmony export */   "resolvePlaylistNames": () => (/* binding */ resolvePlaylistNames)
 /* harmony export */ });
 /* harmony import */ var _renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./renderCustomTextBox */ "./static/scripts/renderCustomTextBox.tsx");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -33389,65 +33389,42 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 };
 // As the file name implies, this script talks to the server and can be used by any page in the app.
 
-/** Sends a clean error message to the user, sends all the details to the console.*/
-function handleServerError(technicalErrorMsg, userErrorMsg) {
+/** Sends a clean error message to the user, sends userError + technicalErrorMsg to the console.
+ * Later this function will also send error details to the server to record in a log file. */
+function handleError(userErrorMsg, technicalErrorMsg) {
     (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)(userErrorMsg);
-    console.error(`${technicalErrorMsg} ${userErrorMsg}`);
+    console.error(`${userErrorMsg} ${technicalErrorMsg}`);
 }
 /** Retrieves all playlist names from the DB. */
-function resolve_playlist_names() {
+function resolvePlaylistNames() {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield fetch("/getPlaylists", {
-            method: "POST",
-        })
-            .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error(`Failed with status: ${response.status}.`);
-        })
-            .then(data => {
-            return data["PlaylistNames"];
-        })
-            .catch(error => {
-            handleServerError(error, "Failed to retrieve playlist names from server.");
-        });
+        const response = yield fetch("/getPlaylists", { method: "POST" });
+        if (!response.ok) {
+            handleError("Failed to retrieve playlist names from server.", `Failed with status: ${response.status}.`);
+            return;
+        }
+        const data = yield response.json();
+        return data["PlaylistNames"];
     });
 }
 function addNewPlaylist(playlistName) {
     return __awaiter(this, void 0, void 0, function* () {
-        return fetch("/addPlaylist", {
-            method: "POST",
-            body: playlistName
-        })
-            .then(response => {
-            if (response.ok) {
-                (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)("Playlist added successfully.");
-                return;
-            }
-            throw new Error(`Failed with status: ${response.status}.`);
-        })
-            .catch(error => {
-            handleServerError(error, `Failed to add playlist: "${playlistName}"`);
-        });
+        const response = yield fetch("/addPlaylist", { method: "POST", body: playlistName });
+        if (!response.ok) {
+            handleError(`Failed to create playlist with name: "${playlistName}".`, `Failed with status: ${response.status}.`);
+            return;
+        }
+        (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)("Playlist added successfully.");
     });
 }
 function deletePlaylist(playlistName) {
     return __awaiter(this, void 0, void 0, function* () {
-        return fetch("/deletePlaylist", {
-            method: "POST",
-            body: playlistName
-        })
-            .then(response => {
-            if (response.ok) {
-                (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)("Playlist dropped successfully.");
-                return;
-            }
-            throw new Error(`Failed with status: ${response.status}.`);
-        })
-            .catch(error => {
-            handleServerError(error, `Failed to drop playlist: "${playlistName}".`);
-        });
+        const response = yield fetch("/deletePlaylist", { method: "POST", body: playlistName });
+        if (!response.ok) {
+            handleError(`Failed to drop playlist with name: "${playlistName}".`, `Failed with status: ${response.status}.`);
+            return;
+        }
+        (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__.renderCustomTextBox)("Playlist dropped succesfully.");
     });
 }
 
@@ -33464,17 +33441,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "IMG_PATHS": () => (/* binding */ IMG_PATHS),
 /* harmony export */   "PAGE_PROPERTIES": () => (/* binding */ PAGE_PROPERTIES),
-/* harmony export */   "_isHomePage": () => (/* binding */ _isHomePage),
-/* harmony export */   "_isPlaylistPage": () => (/* binding */ _isPlaylistPage),
 /* harmony export */   "addEscapeFeature": () => (/* binding */ addEscapeFeature),
-/* harmony export */   "checkElemIsButtonElem": () => (/* binding */ checkElemIsButtonElem),
-/* harmony export */   "checkElemIsCellElem": () => (/* binding */ checkElemIsCellElem),
-/* harmony export */   "checkElemIsDivElem": () => (/* binding */ checkElemIsDivElem),
-/* harmony export */   "checkElemIsImgElem": () => (/* binding */ checkElemIsImgElem),
-/* harmony export */   "checkElemIsSpanElem": () => (/* binding */ checkElemIsSpanElem),
+/* harmony export */   "getDivElemByID": () => (/* binding */ getDivElemByID),
 /* harmony export */   "getImgElemByID": () => (/* binding */ getImgElemByID),
-/* harmony export */   "getImgElemFromEventTarget": () => (/* binding */ getImgElemFromEventTarget),
 /* harmony export */   "getInputElemByID": () => (/* binding */ getInputElemByID),
+/* harmony export */   "getSpanElemByID": () => (/* binding */ getSpanElemByID),
 /* harmony export */   "getTextElemByID": () => (/* binding */ getTextElemByID),
 /* harmony export */   "isHomePage": () => (/* binding */ isHomePage),
 /* harmony export */   "isPlaylistPage": () => (/* binding */ isPlaylistPage),
@@ -33486,9 +33457,6 @@ class TypeError extends Error {
         super(msg);
     }
 }
-// this function has to exist because React decided to just up and change rendering to root.render
-// this is a solution to hide the warning that comes with using ReactDOM.render
-// this will no longer be needed once I leave React forever and go to something else.
 /** This const is only to be used with in the console.error suppress warning function. */
 const backup = console.error;
 console.error = function filterWarnings(msg) {
@@ -33497,8 +33465,10 @@ console.error = function filterWarnings(msg) {
         backup.apply(console, arguments);
     }
 };
-const isHomePage = _isHomePage();
-const isPlaylistPage = _isPlaylistPage();
+// The home page path Arr should be ["", "home", ""]
+const isHomePage = window.location.pathname.split("/")[1] === "home" ? true : false;
+// On a playlist page the pathArr should be ["", "playlists", "<playlist_name>]
+const isPlaylistPage = window.location.pathname.split("/")[1] === "playlists" ? true : false;
 const staticFolderPath = `${window.location.origin}/static`;
 const iconFolderPath = `${staticFolderPath}/media/icons/`;
 const PAGE_PROPERTIES = Object.freeze({
@@ -33550,8 +33520,7 @@ function getInputElemByID(ID) {
     if (elem instanceof HTMLInputElement) {
         return elem;
     }
-    throw new TypeError(`Failed to retrieve input elem with ID: "${ID}". `
-        + `Retrieved elem has typeof: ${typeof elem}`);
+    throw new TypeError(`Failed to retrieve input elem with ID: "${ID}". Retrieved elem has typeof: ${typeof elem}`);
 }
 // This function is never used, replace it with a func like getSpanElemByID
 function getTextElemByID(ID) {
@@ -33561,60 +33530,21 @@ function getTextElemByID(ID) {
     }
     throw new TypeError(`Failed to retrieve Text Element with ID: "${ID}". Element is of type "${elem}"`);
 }
-function getImgElemFromEventTarget(target) {
-    if (target instanceof HTMLImageElement) {
-        return target;
-    }
-    throw new TypeError(`The given event target is not an image! Given event target: ${target}`);
-}
-function checkElemIsCellElem(elem) {
-    if (elem instanceof HTMLTableCellElement) {
-        return elem;
-    }
-    throw new TypeError(`The given item is not an instance of a HTMLTableCellElement. Given item: ${elem}`);
-}
-function checkElemIsSpanElem(elem) {
+function getSpanElemByID(ID) {
+    const elem = document.getElementById(ID);
     if (elem instanceof HTMLSpanElement) {
         return elem;
     }
-    throw new TypeError(`The given item is not an instance of a HTMLSpanElement. Given item: ${elem}`);
+    throw new TypeError(`Failed to retrieve Span Element with ID: "${ID}". Instead, element is of type "${elem}"`);
 }
-function checkElemIsDivElem(elem) {
+function getDivElemByID(ID) {
+    const elem = document.getElementById(ID);
     if (elem instanceof HTMLDivElement) {
         return elem;
     }
-    throw new TypeError(`The given item is not an instance of a HTMLDivElement. Given item: ${elem}`);
+    throw new TypeError(`Failed to retrieve Div Element with ID: "${ID}". Instead, element is of type "${elem}"`);
 }
-function checkElemIsImgElem(elem) {
-    if (elem instanceof HTMLImageElement) {
-        return elem;
-    }
-    throw new TypeError(`The given item is not an instance of a HTMLImageElement. Given item: ${elem}`);
-}
-function checkElemIsButtonElem(elem) {
-    if (elem instanceof HTMLButtonElement) {
-        return elem;
-    }
-    throw new TypeError(`The given item is not an instance of a HTMLImageElement. Given item: ${elem}`);
-}
-/* # ------------------------------------------- End of Type Getters ------------------------------------------- */
-function _isPlaylistPage() {
-    /** On a playlist page the pathArr should be
-     * ["", "playlists", "<playlist_name>] */
-    const pathArr = window.location.pathname.split("/");
-    if (pathArr[1] === "playlists") {
-        return true;
-    }
-    return false;
-}
-function _isHomePage() {
-    /** The home page path Arr should be ["", "home", ""] */
-    const pathArr = window.location.pathname.split("/");
-    if (pathArr[1] === "home") {
-        return true;
-    }
-    return false;
-}
+/* # ------------------------------------------- End of Type Getters ------------------------------------------- */ 
 
 
 /***/ }),
@@ -33665,7 +33595,7 @@ function renderNewPlaylistScreenPrompt(renderGrid) {
                 const textBox = (0,_globals__WEBPACK_IMPORTED_MODULE_2__.getInputElemByID)("new-playlist-name-input-field");
                 yield _contactServerGlobals__WEBPACK_IMPORTED_MODULE_1__.addNewPlaylist(textBox.value);
                 (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_3__.removeScreenPrompt)();
-                if (renderGrid !== null) {
+                if (_globals__WEBPACK_IMPORTED_MODULE_2__.isHomePage) {
                     renderGrid();
                 }
             }) }, "Add Playlist"),
@@ -33687,39 +33617,40 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _findImages__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./findImages */ "./static/scripts/playlistScripts/findImages.ts");
-/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
-/* harmony import */ var _songOptions__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./songOptions */ "./static/scripts/playlistScripts/songOptions.tsx");
-/* harmony import */ var _basicSongOperations__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./basicSongOperations */ "./static/scripts/playlistScripts/basicSongOperations.tsx");
+/* harmony import */ var _songOptions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./songOptions */ "./static/scripts/playlistScripts/songOptions.tsx");
+/* harmony import */ var _playlist__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./playlist */ "./static/scripts/playlistScripts/playlist.ts");
+/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
+/* harmony import */ var _songs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./songs */ "./static/scripts/playlistScripts/songs.ts");
 
 
 
 
 
 /** Used when initalizing the playlist table or when adding a new song. */
-function RowContent({ rowNum }) {
-    const song = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.getSongObjectByRowNum)(rowNum);
-    const dateField = react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "date-field-container" },
+function RowContent({ rowIndex }) {
+    const song = _songs__WEBPACK_IMPORTED_MODULE_4__.playlistSongs.getSong(rowIndex);
+    // The "date" class allows the updating of the duration text. This class is not used in the css!
+    const dateField = react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "date-field-container date" },
         " ",
         song.date,
         " ");
-    (0,_findImages__WEBPACK_IMPORTED_MODULE_1__.setSongImageByRowNum)(rowNum);
+    (0,_playlist__WEBPACK_IMPORTED_MODULE_2__.setToCoverImg)(rowIndex);
     return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("td", { className: "song-container" },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", { className: "row-img", onClick: _basicSongOperations__WEBPACK_IMPORTED_MODULE_4__.songImgEventListener }),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "large-field-container" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", { className: "row-img", onClick: songImgEventListener }),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "large-field-container title" },
             " ",
             song.title,
             " "),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "row-add-playlist-button", onClick: e => (0,_songOptions__WEBPACK_IMPORTED_MODULE_3__.renderSongOptionsDropDown)(react__WEBPACK_IMPORTED_MODULE_0__.createElement(_songOptions__WEBPACK_IMPORTED_MODULE_3__.SongOptionsDropDown, { e: e })) }, "+"),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "generic-attrs" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "row-add-playlist-button", onClick: e => (0,_songOptions__WEBPACK_IMPORTED_MODULE_1__.renderSongOptionsDropDown)(react__WEBPACK_IMPORTED_MODULE_0__.createElement(_songOptions__WEBPACK_IMPORTED_MODULE_1__.SongOptionsDropDown, { e: e })) }, "+"),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "generic-attrs duration" },
             " ",
             song.duration,
             " "),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "medium-field-container" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "medium-field-container artist" },
             " ",
             song.artist,
             " "),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "medium-field-container" },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "medium-field-container album" },
             " ",
             song.album,
             " "),
@@ -33727,123 +33658,28 @@ function RowContent({ rowNum }) {
             " ",
             song.plays,
             " "),
-        _playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.isLastAddedPlaylist ? dateField : null));
+        _playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.isLastAddedPlaylist ? dateField : null));
 }
-
-
-/***/ }),
-
-/***/ "./static/scripts/playlistScripts/basicSongOperations.tsx":
-/*!****************************************************************!*\
-  !*** ./static/scripts/playlistScripts/basicSongOperations.tsx ***!
-  \****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "songImgEventListener": () => (/* binding */ songImgEventListener)
-/* harmony export */ });
-/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
-/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../globals */ "./static/scripts/globals.ts");
-/* harmony import */ var _findImages__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./findImages */ "./static/scripts/playlistScripts/findImages.ts");
-/* This file contains function for basic operability of songs. i.e. pausing and playing. */
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-
 function songImgEventListener(e) {
-    const rowNum = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.getRowIndexByEventTarget)(e.target);
-    const song = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.getSongObjectByRowNum)(rowNum);
-    const clickedOnSameSong = (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum === song.rowNum);
-    if (clickedOnSameSong) {
-        if (song.isPlaying) {
-            pauseSong(song);
+    const rowIndex = (0,_playlist__WEBPACK_IMPORTED_MODULE_2__.getRowIndexByEventTarget)(e.target);
+    const song = _songs__WEBPACK_IMPORTED_MODULE_4__.playlistSongs.getSong(rowIndex);
+    if (song.isThisSongCurrent) {
+        (0,_playlist__WEBPACK_IMPORTED_MODULE_2__.toggleSongPlay)();
+        // This is a case where we need to determine if the audio is playing or not
+        if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.audio.paused) {
+            (0,_playlist__WEBPACK_IMPORTED_MODULE_2__.setToCoverImg)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentRow.getIndex());
         }
         else {
-            playSong(song);
+            (0,_playlist__WEBPACK_IMPORTED_MODULE_2__.setToPlayingGif)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentRow.getIndex());
         }
         return;
     }
-    updateMediaSessionMetadata(song);
-    const songIsAlreadySelected = (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum !== null);
-    if (songIsAlreadySelected) { //revert previous song/row
-        (0,_findImages__WEBPACK_IMPORTED_MODULE_2__.setSongImageByRowNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum);
-        _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.table.rows[_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum].classList.remove("active-row");
-        const oldSong = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.getSongObjectByRowNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum);
-        oldSong.isPlaying = false;
+    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentRow.getIndex() !== null) {
+        (0,_playlist__WEBPACK_IMPORTED_MODULE_2__.revertRow)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentRow.getIndex());
     }
-    // Update page with the song just clicked on
-    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.updateLastSongNum)(rowNum);
-    updateLowerBarPlayingTitle(song);
-    document.getElementById("curr-song-duration-text").innerText = song.duration;
-    _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.table.rows[rowNum].classList.add("active-row");
-    scrollPlaylistIfNeeded(rowNum);
-    _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.audio.src = `${_globals__WEBPACK_IMPORTED_MODULE_1__.PAGE_PROPERTIES.staticFolderURL}/media/songs/${song.fileName}`;
-    // Finally... play the song.
-    playSong(song);
-}
-function pauseSong(song) {
-    const playPromise = _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.audio.play();
-    // In browsers that don’t yet support this functionality, playPromise won’t be defined
-    if (playPromise !== undefined) {
-        playPromise.then(() => {
-            _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.audio.pause();
-            song.isPlaying = false;
-            (0,_findImages__WEBPACK_IMPORTED_MODULE_2__.setSongImageByRowNum)(song.rowNum);
-            (0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footer-play-img").src = (0,_findImages__WEBPACK_IMPORTED_MODULE_2__.determineFooterPlayImgSrc)(song.isPlaying);
-        })
-            .catch(error => {
-            console.error(`${error}` + `Failed to pause song: ${song}`);
-        });
-    }
-}
-function playSong(song) {
-    _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.audio.play();
-    song.isPlaying = true;
-    const imgForRow = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.getImgByRow)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum);
-    imgForRow.src = _globals__WEBPACK_IMPORTED_MODULE_1__.IMG_PATHS.globalPlayingGifSrc;
-    (0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footer-play-img").src = (0,_findImages__WEBPACK_IMPORTED_MODULE_2__.determineFooterPlayImgSrc)(song.isPlaying);
-}
-/** This function changes the mediasession information. Mediasession information is displayed via media control pop-ups on different platforms
-(i.e. Windows/iOS/Android, etc.) */
-function updateMediaSessionMetadata(song) {
-    return __awaiter(this, void 0, void 0, function* () {
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: song.title,
-            artist: song.artist,
-            album: song.album,
-            artwork: [{ src: yield (0,_findImages__WEBPACK_IMPORTED_MODULE_2__.getSongImage)(song.rowNum) }]
-        });
-    });
-}
-function updateLowerBarPlayingTitle(song) {
-    const playingTitle = document.getElementById("playing-title");
-    if (song.artist === "" || song.title === "") {
-        playingTitle.innerText = `Playing: ${(0,_globals__WEBPACK_IMPORTED_MODULE_1__.removeFileExtension)(song.fileName)}`;
-    }
-    else {
-        playingTitle.innerText = `Playing: ${song.artist} - ${song.title}`;
-    }
-}
-function scrollPlaylistIfNeeded(rowNum) {
-    const playlistContainer = document.getElementById("playlist-content-container");
-    const playlistContainerCoords = playlistContainer.getBoundingClientRect();
-    const currentRowCoords = _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.table.rows[rowNum].getBoundingClientRect();
-    if (currentRowCoords.bottom > playlistContainerCoords.bottom) {
-        _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.table.rows[rowNum].scrollIntoView(false);
-        return;
-    }
-    if (currentRowCoords.top < playlistContainerCoords.top) {
-        _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.table.rows[rowNum].scrollIntoView();
-    }
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentNonPriorityRow.set(rowIndex);
+    (0,_playlist__WEBPACK_IMPORTED_MODULE_2__.playNewSong)(rowIndex);
+    (0,_playlist__WEBPACK_IMPORTED_MODULE_2__.setToPlayingGif)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentRow.getIndex());
 }
 
 
@@ -33861,10 +33697,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "deleteSongFromDB": () => (/* binding */ deleteSongFromDB),
 /* harmony export */   "getSong": () => (/* binding */ getSong),
 /* harmony export */   "getUpdatedPlaylistTime": () => (/* binding */ getUpdatedPlaylistTime),
-/* harmony export */   "incrementPlayCount": () => (/* binding */ incrementPlayCount),
-/* harmony export */   "removeSongFromCurrPlaylist": () => (/* binding */ removeSongFromCurrPlaylist),
-/* harmony export */   "sendSongFile": () => (/* binding */ sendSongFile),
-/* harmony export */   "updateSongInfo": () => (/* binding */ updateSongInfo)
+/* harmony export */   "removeSongFromCurrPlaylist": () => (/* binding */ removeSongFromCurrPlaylist)
 /* harmony export */ });
 /* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
 /* harmony import */ var _renderCustomTextBox__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../renderCustomTextBox */ "./static/scripts/renderCustomTextBox.tsx");
@@ -33882,90 +33715,17 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
-function sendSongFile(songFile) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (songFile === null) {
-            return;
-        }
-        // Checking if a file is of acceptable type should be done on the backend, not client-side.
-        if (isNotAcceptedFileUploadType(songFile.type))
-            return;
-        const form = new FormData();
-        form.append("file", songFile);
-        return fetch("/uploadSongFile", {
-            method: "POST",
-            body: form,
-        })
-            .then(response => {
-            if (response.ok) {
-                (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_1__.renderCustomTextBox)("Song successfully uploaded!");
-                return;
-            }
-            throw new Error(`Failed with status: ${response.status}.`);
-        })
-            .catch(error => {
-            const firstPart = `Failed to upload song with filename: "${songFile.name}". `;
-            const secondPart = "It is likely this file name already exists in the DB which is causing the error.";
-            const userErr = firstPart + secondPart;
-            (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleServerError)(error, userErr);
-        });
-    });
-}
-// This should really be checked on the backend
-function isNotAcceptedFileUploadType(fileType) {
-    const allowedFileTypes = ["audio/mpeg", "audio/x-m4a"];
-    if (allowedFileTypes.includes(fileType)) {
-        return false;
-    }
-    return true;
-}
-function incrementPlayCount(song) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return fetch("/updatePlays", {
-            method: "POST",
-            body: song.fileName
-        })
-            .then(response => {
-            if (!response.ok) {
-                throw new Error(`Failed to update with status: ${response.status}. `);
-            }
-            const row = _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.table.rows[song.rowNum];
-            const plays = row.querySelector(".plays");
-            if (plays instanceof HTMLSpanElement) {
-                song.plays += 1;
-                plays.innerText = song.plays.toString();
-                return;
-            }
-            throw new TypeError("Tried to update the row's play's count text but it failed. "
-                +
-                    `Instead got element "${plays}" of type "${plays.constructor.name}". `
-                +
-                    `Row given: ${row}, with song: ${song.fileName}`);
-        })
-            .catch(error => {
-            (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleServerError)(error, `Failed to update play count on song: "${song.fileName}". Song had ${song.plays} plays.`);
-        });
-    });
-}
 function addSongToPlaylist(songFileName, playlistName) {
     return __awaiter(this, void 0, void 0, function* () {
         const form = new FormData();
         form.append('fileName', songFileName);
         form.append('playlistName', playlistName);
-        return fetch("/insertNewSong", {
-            method: "POST",
-            body: form,
-        })
-            .then(response => {
-            if (response.ok) {
-                (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_1__.renderCustomTextBox)(`Successfully added to playlist: ${playlistName}`);
-                return;
-            }
-            throw new Error(`Failed with status: ${response.status}`);
-        })
-            .catch(error => {
-            (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleServerError)(error, `Failed to add song "${songFileName}" to playlist: "${playlistName}"`);
-        });
+        const response = yield fetch("/insertNewSong", { method: "POST", body: form });
+        if (response.ok) {
+            (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_1__.renderCustomTextBox)(`Successfully added to playlist: ${playlistName}`);
+            return;
+        }
+        (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleError)(`Failed to add song to playlist: ${playlistName}`, `Failed to add song: "${songFileName}" Failed with status: ${response.status}`);
     });
 }
 function removeSongFromCurrPlaylist(song) {
@@ -33973,20 +33733,13 @@ function removeSongFromCurrPlaylist(song) {
         const form = new FormData();
         form.append('songPlaylistIndex', song.dbIndex.toString());
         form.append('playlistName', _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.currPlaylistName);
-        return fetch("/removeSong", {
-            method: "POST",
-            body: form,
-        })
-            .then(response => {
-            if (response.ok) {
-                (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_1__.renderCustomTextBox)("Song removed from the current playlist successfully.");
-                return;
-            }
-            throw new Error(`Failed with status ${response.status}. Index of song in DB: ${song.dbIndex}.`);
-        })
-            .catch(error => {
-            (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleServerError)(error, `Failed to remove song "${song.fileName}" from the current playlist: "${_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.currPlaylistName}"`);
-        });
+        const response = yield fetch("/removeSong", { method: "POST", body: form });
+        if (response.ok) {
+            (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_1__.renderCustomTextBox)("Song removed from the current playlist successfully.");
+            return;
+        }
+        (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleError)("Failed to remove song from current playlist.", `Failed with status: ${response.status}, index of song in DB: ${song.dbIndex},` +
+            `song filename: ${song.fileName}, current playlist: ${_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.currPlaylistName}`);
     });
 }
 function deleteSongFromDB(songFileName, songName) {
@@ -33994,82 +33747,29 @@ function deleteSongFromDB(songFileName, songName) {
         const form = new FormData();
         form.append('songFileName', songFileName);
         form.append('songName', songName);
-        return fetch("/deleteSong", {
-            method: "POST",
-            body: form,
-        })
-            .then((response) => __awaiter(this, void 0, void 0, function* () {
-            if (response.ok) {
-                (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_1__.renderCustomTextBox)("Song successfully deleted.");
-                return;
-            }
-            throw new Error(`Failed with status ${response.status}.`);
-        }))
-            .catch(error => {
-            (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleServerError)(error, `An error was encounted while deleting song: "${songFileName}"`);
-        });
+        const response = yield fetch("/deleteSong", { method: "POST", body: form });
+        if (response.ok) {
+            (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_1__.renderCustomTextBox)("Song successfully deleted.");
+            return;
+        }
+        (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleError)("Failed to delete song.", `Failed with status: ${response.status} and on song with filename: ${songFileName}`);
     });
 }
 function getUpdatedPlaylistTime(playlistName) {
     return __awaiter(this, void 0, void 0, function* () {
-        return fetch("/getPlaylistTime", {
-            method: "POST",
-            body: playlistName,
-        })
-            .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error(`Failed with status: ${response.status}.`);
-        })
-            .then(data => {
-            return data["totalTime"];
-        })
-            .catch(error => {
-            (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleServerError)(error, `Failed to get most recent playlist time for playlist: ${playlistName}.`);
-        });
-    });
-}
-function updateSongInfo(newInfo, song_img, songFileName) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const form = new FormData();
-        form.append("songFileName", songFileName);
-        form.append("newInfo", JSON.stringify(newInfo));
-        if (song_img !== null) {
-            form.append("newSongImg", song_img, songFileName);
+        const response = yield fetch("/getPlaylistTime", { method: "POST", body: playlistName });
+        if (response.ok) {
+            const result = yield response.json();
+            return result["totalTime"];
         }
-        return fetch("/updateSongInfo", {
-            method: "POST",
-            body: form
-        })
-            .then(response => {
-            if (!response.ok) {
-                throw new Error(`Failed with status: ${response.status}.`);
-            }
-        })
-            .catch(error => {
-            (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleServerError)(error, `Failed to update song with filename: "${songFileName}"`);
-        });
+        (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleError)("Failed to get new playlist time.", `Failed with status: ${response.status} on current playlist: ${playlistName}`);
     });
 }
 function getSong(songFileName) {
     return __awaiter(this, void 0, void 0, function* () {
-        return fetch("/getSongInfo", {
-            method: "POST",
-            body: songFileName
-        })
-            .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error(`Failed with status: ${response.status}.`);
-        })
-            .then(data => {
-            return data["songObj"];
-        })
-            .catch(error => {
-            (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_2__.handleServerError)(error, `Failed to retrieve song with filename: "${songFileName}"`);
-        });
+        const response = yield fetch("/getSongInfo", { method: "POST", body: songFileName });
+        const result = yield response.json();
+        return result["songObj"];
     });
 }
 
@@ -34084,13 +33784,9 @@ function getSong(songFileName) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "determineFooterPlayImgSrc": () => (/* binding */ determineFooterPlayImgSrc),
-/* harmony export */   "fillPlaylistPreviewImages": () => (/* binding */ fillPlaylistPreviewImages),
-/* harmony export */   "getSongImage": () => (/* binding */ getSongImage),
-/* harmony export */   "setSongImageByRowNum": () => (/* binding */ setSongImageByRowNum)
+/* harmony export */   "getSongImage": () => (/* binding */ getSongImage)
 /* harmony export */ });
 /* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../globals */ "./static/scripts/globals.ts");
-/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
 /* This file is used for general image stuff. Checking to see if an image exists or
 setting images. This file is should be refactored in the future. */
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -34102,12 +33798,11 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+// This file will be removed in the next push, when the database is restructured.
 
-
-function getSongImage(index) {
+function getSongImage(songFileName) {
     return __awaiter(this, void 0, void 0, function* () {
-        const songObj = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.getSongObjectByRowNum)(index);
-        const currentSongName = (0,_globals__WEBPACK_IMPORTED_MODULE_0__.removeFileExtension)(songObj.fileName);
+        const currentSongName = (0,_globals__WEBPACK_IMPORTED_MODULE_0__.removeFileExtension)(songFileName);
         const songCoverFileName = `${currentSongName}.jpeg`;
         return fetch('/findImage', {
             method: 'POST',
@@ -34136,50 +33831,6 @@ function getSongImage(index) {
         });
     });
 }
-function setSongImageByRowNum(index) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const songImgSrc = yield getSongImage(index);
-        const elem = _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.table.rows[index].firstElementChild.firstElementChild;
-        const currentSongImg = (0,_globals__WEBPACK_IMPORTED_MODULE_0__.checkElemIsImgElem)(elem);
-        currentSongImg.src = songImgSrc;
-    });
-}
-function fillPlaylistPreviewImages() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const numOfPlaylistSongs = _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.table.rows.length;
-        let numOfFoundPreviewImages = 0;
-        const maxNumOfPreviews = 4;
-        for (let index = 0; index < numOfPlaylistSongs; index++) {
-            const currentCoverSrc = yield getSongImage(index);
-            if (currentCoverSrc !== _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.noCoverImgSrc) {
-                (0,_globals__WEBPACK_IMPORTED_MODULE_0__.getImgElemByID)(`cover-preview-${numOfFoundPreviewImages}`).src = currentCoverSrc;
-                numOfFoundPreviewImages++;
-            }
-            if (numOfFoundPreviewImages === maxNumOfPreviews) {
-                return;
-            }
-        }
-        while (numOfFoundPreviewImages < maxNumOfPreviews) {
-            (0,_globals__WEBPACK_IMPORTED_MODULE_0__.getImgElemByID)(`cover-preview-${numOfFoundPreviewImages}`).src = _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.noCoverImgSrc;
-            numOfFoundPreviewImages++;
-        }
-    });
-}
-function determineFooterPlayImgSrc(songIsPlaying) {
-    const footerImgElement = (0,_globals__WEBPACK_IMPORTED_MODULE_0__.getImgElemByID)("footer-play-img");
-    const currSrc = footerImgElement.src;
-    if (songIsPlaying) {
-        // the second condition here occurs when hovering over the main play button while a song is finishing
-        if (currSrc === _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.lowerBarPlayHoverImgSrc || currSrc === _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.lowerBarPauseHoverImgSrc) {
-            return _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.lowerBarPauseHoverImgSrc;
-        }
-        return _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.lowerBarPauseImgSrc;
-    }
-    if (currSrc === _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.lowerBarPauseHoverImgSrc) {
-        return _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.lowerBarPlayHoverImgSrc;
-    }
-    return _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.globalPlayImgSrc;
-}
 
 
 /***/ }),
@@ -34197,10 +33848,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
-/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
-/* harmony import */ var _findImages__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./findImages */ "./static/scripts/playlistScripts/findImages.ts");
-/* harmony import */ var _RowContent__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./RowContent */ "./static/scripts/playlistScripts/RowContent.tsx");
-/* harmony import */ var _contactServer__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./contactServer */ "./static/scripts/playlistScripts/contactServer.ts");
+/* harmony import */ var _playlist__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./playlist */ "./static/scripts/playlistScripts/playlist.ts");
+/* harmony import */ var _songs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./songs */ "./static/scripts/playlistScripts/songs.ts");
+/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
+/* harmony import */ var _renderCustomTextBox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../renderCustomTextBox */ "./static/scripts/renderCustomTextBox.tsx");
+/* harmony import */ var _contactServerGlobals__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../contactServerGlobals */ "./static/scripts/contactServerGlobals.ts");
+/* harmony import */ var _RowContent__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./RowContent */ "./static/scripts/playlistScripts/RowContent.tsx");
+/* harmony import */ var _contactServer__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./contactServer */ "./static/scripts/playlistScripts/contactServer.ts");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34216,6 +33870,9 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
+
+
+
 function handleFileDrop(e) {
     return __awaiter(this, void 0, void 0, function* () {
         e.preventDefault();
@@ -34224,15 +33881,28 @@ function handleFileDrop(e) {
         if (!e.dataTransfer.items)
             return;
         const files = [...e.dataTransfer.items].map(item => item.getAsFile());
-        for (const file of files) {
-            if (file === null)
+        for (const songFile of files) {
+            if (songFile === null)
                 break;
+            // Checking if a file is of acceptable type should be done on the backend, not client-side.
+            const allowedFileTypes = ["audio/mpeg", "audio/x-m4a"];
+            if (!allowedFileTypes.includes(songFile.type)) {
+                break;
+            }
+            const form = new FormData();
+            form.append("file", songFile);
             // This await is necessary, otherwise the SQL server recieves to many requests and will crash.
             // Wrap the this function call in a try catch block.
             // That way if uploading multiple files, one fails but the rest can attempt to go through.
-            yield _contactServer__WEBPACK_IMPORTED_MODULE_5__.sendSongFile(file);
-            const newSongObj = yield _contactServer__WEBPACK_IMPORTED_MODULE_5__.getSong(file.name);
-            const newTotalTime = yield _contactServer__WEBPACK_IMPORTED_MODULE_5__.getUpdatedPlaylistTime(_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.currPlaylistName);
+            const response = yield fetch("/uploadSongFile", { method: "POST", body: form });
+            if (!response.ok) {
+                (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_6__.handleError)(`Failed to upload song with filename: "${songFile.name}".`
+                    + "It is likely this file name already exists in the DB which is causing the error.", `Failed with status: ${response.status}.`);
+                return;
+            }
+            (0,_renderCustomTextBox__WEBPACK_IMPORTED_MODULE_5__.renderCustomTextBox)("Song successfully uploaded!");
+            const newSongObj = yield _contactServer__WEBPACK_IMPORTED_MODULE_8__.getSong(songFile.name);
+            const newTotalTime = yield _contactServer__WEBPACK_IMPORTED_MODULE_8__.getUpdatedPlaylistTime(_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.currPlaylistName);
             updatePageForNewRow(newSongObj, newTotalTime);
         }
     });
@@ -34241,18 +33911,241 @@ function handleFileDrop(e) {
 // This is used when the page is already loaded, a song is dropped and added to the table
 function updatePageForNewRow(newSongObj, newTotalTime) {
     document.getElementById("playlist-total-time").innerText = newTotalTime;
-    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.addNewSongObjectFromDictData)(newSongObj);
-    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.lastSongNum !== null) {
-        (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.updateLastSongNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.lastSongNum + 1);
+    _songs__WEBPACK_IMPORTED_MODULE_3__.playlistSongs.addSong(newSongObj);
+    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.currentRow.getIndex() !== null) {
+        _playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.currentRow.set(_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.currentRow.getIndex() + 1);
     }
-    // rowNums here are all 0 because adding a song adds it to Last Added.
-    // Obviously, the song just added is the most recent. So it will be at the top of Last Added.
-    const newRow = _playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.table.insertRow(0);
+    // rowIndex here is 0 because adding a song adds it to Last Added.
+    // Obviously, the song just added is the most recent, so it will be at the top of Last Added.
+    const newRow = _playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.table.insertRow(0);
     newRow.classList.add("song-row");
-    const rowNum = 0;
-    const container = newRow;
-    react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement(_RowContent__WEBPACK_IMPORTED_MODULE_4__.RowContent, { rowNum: rowNum }), container);
-    (0,_findImages__WEBPACK_IMPORTED_MODULE_3__.fillPlaylistPreviewImages)();
+    react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement(_RowContent__WEBPACK_IMPORTED_MODULE_7__.RowContent, { rowIndex: 0 }), newRow);
+    (0,_playlist__WEBPACK_IMPORTED_MODULE_2__.fillPlaylistPreviewImages)();
+}
+
+
+/***/ }),
+
+/***/ "./static/scripts/playlistScripts/playlist.ts":
+/*!****************************************************!*\
+  !*** ./static/scripts/playlistScripts/playlist.ts ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "fillPlaylistPreviewImages": () => (/* binding */ fillPlaylistPreviewImages),
+/* harmony export */   "getImgByRow": () => (/* binding */ getImgByRow),
+/* harmony export */   "getRowIndexByEventTarget": () => (/* binding */ getRowIndexByEventTarget),
+/* harmony export */   "handleFindingNextSong": () => (/* binding */ handleFindingNextSong),
+/* harmony export */   "playNewSong": () => (/* binding */ playNewSong),
+/* harmony export */   "revertPageToNoSong": () => (/* binding */ revertPageToNoSong),
+/* harmony export */   "revertRow": () => (/* binding */ revertRow),
+/* harmony export */   "scrollPlaylistIfNeeded": () => (/* binding */ scrollPlaylistIfNeeded),
+/* harmony export */   "setToCoverImg": () => (/* binding */ setToCoverImg),
+/* harmony export */   "setToPlayingGif": () => (/* binding */ setToPlayingGif),
+/* harmony export */   "toggleSongPlay": () => (/* binding */ toggleSongPlay)
+/* harmony export */ });
+/* harmony import */ var _songs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./songs */ "./static/scripts/playlistScripts/songs.ts");
+/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
+/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../globals */ "./static/scripts/globals.ts");
+/* harmony import */ var _findImages__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./findImages */ "./static/scripts/playlistScripts/findImages.ts");
+// This file is used to manipulate the state of the playlist
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.ontimeupdate = () => {
+    const songPosition = _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.currentTime / _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.duration;
+    if (isNaN(songPosition))
+        return;
+    const seekBarProgress = document.getElementById("seek-bar-progress");
+    seekBarProgress.style.width = `${songPosition * 100}%`;
+    const minutes = Math.floor(_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.currentTime / 60);
+    const seconds = Math.floor(_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.currentTime % 60);
+    let secondsStr = seconds.toString();
+    if (seconds < 10) {
+        secondsStr = `0${seconds}`;
+    }
+    const updateCurrentTime = document.getElementById("current-time-stamp");
+    updateCurrentTime.innerText = `${minutes}:${secondsStr}`;
+};
+_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.onended = () => {
+    document.getElementById("seek-bar-progress").style.width = '0%';
+    const finishedSong = _songs__WEBPACK_IMPORTED_MODULE_0__.playlistSongs.getSong(_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.currentRow.getIndex());
+    finishedSong.setPlayCount(finishedSong.plays + 1);
+    revertRow(_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.currentRow.getIndex());
+    handleFindingNextSong();
+};
+/** Function invoked by autoplay and the play next button. */
+function handleFindingNextSong() {
+    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.currentRow.getIndex() === null) {
+        console.error("Error: Cannot play next song.");
+        return;
+    }
+    if (_songs__WEBPACK_IMPORTED_MODULE_0__.prioritySongs.isEmpty()) {
+        // Continue down the playlist as normal
+        // If the current song is the last song in the playlist
+        if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.currentNonPriorityRow.getIndex() === _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.table.rows.length - 1) {
+            revertPageToNoSong();
+            return;
+        }
+        // Otherwise, play the next song in the playlist
+        const nextSongNum = _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.currentNonPriorityRow.getIndex() + 1;
+        playNewSong(nextSongNum);
+        _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.currentNonPriorityRow.set(nextSongNum);
+        return;
+    }
+    playNewSong(_songs__WEBPACK_IMPORTED_MODULE_0__.prioritySongs.getNextRowIndex());
+    _songs__WEBPACK_IMPORTED_MODULE_0__.prioritySongs.dequeueNextSong();
+}
+function playNewSong(rowIndex) {
+    // update playlist table stuff
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.currentRow.set(rowIndex);
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.table.rows[rowIndex].classList.add("active-row");
+    scrollPlaylistIfNeeded(rowIndex);
+    // Then update the page accordingly to the newly selected song
+    const newSong = _songs__WEBPACK_IMPORTED_MODULE_0__.playlistSongs.getSong(rowIndex);
+    // update lower bar text
+    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.setPlayingDisplayTitle)(newSong.artist, newSong.title, newSong.fileName);
+    document.getElementById("curr-song-duration-text").innerText = newSong.duration;
+    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.updateMediaSessionMetadata)(newSong.title, newSong.artist, newSong.album, newSong.fileName);
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.src = `${_globals__WEBPACK_IMPORTED_MODULE_2__.PAGE_PROPERTIES.staticFolderURL}/media/songs/${newSong.fileName}`;
+    // Finally... play the song.
+    playSong();
+}
+function toggleSongPlay() {
+    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.paused) {
+        playSong();
+        return;
+    }
+    // Otherwise, pause the song.
+    const playPromise = _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.play();
+    // In browsers that don’t yet support this functionality, playPromise won’t be defined
+    if (playPromise === undefined) {
+        throw Error(`playPromise is undefined! Unable to pause song.`);
+    }
+    playPromise.then(() => {
+        _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.pause();
+        setToCoverImg(_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.currentRow.getIndex());
+        setFooterPlayImgSrc();
+    })
+        .catch(error => {
+        console.error(`${error}` + ` Failed to pause song.`);
+    });
+}
+function playSong() {
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.play();
+    setToPlayingGif(_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.currentRow.getIndex());
+    setFooterPlayImgSrc();
+}
+// the table.rows line needs to moved into a seperate func so that this func can be moved into page.ts
+function revertPageToNoSong() {
+    (0,_globals__WEBPACK_IMPORTED_MODULE_2__.getImgElemByID)("footer-play-img").src = _globals__WEBPACK_IMPORTED_MODULE_2__.IMG_PATHS.globalPlayImgSrc;
+    (0,_globals__WEBPACK_IMPORTED_MODULE_2__.getSpanElemByID)("current-time-stamp").innerText = '-:--';
+    (0,_globals__WEBPACK_IMPORTED_MODULE_2__.getSpanElemByID)("playing-title").innerText = 'Playing:';
+    (0,_globals__WEBPACK_IMPORTED_MODULE_2__.getSpanElemByID)("curr-song-duration-text").innerText = '-:--';
+    (0,_globals__WEBPACK_IMPORTED_MODULE_2__.getDivElemByID)("seek-bar-progress").style.width = '0%';
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.table.rows[_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.table.rows.length - 1].setAttribute("style", "background-color: ;");
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.src = "";
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.pause();
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.currentRow.set(null);
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.currentNonPriorityRow.set(null);
+}
+function revertRow(rowIndex) {
+    setToCoverImg(rowIndex);
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.table.rows[_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.currentRow.getIndex()].classList.remove("active-row");
+}
+/** Returns the image for a song for the given row in the playlist table. */
+function getImgByRow(rowIndex) {
+    const elem = _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.table.rows[rowIndex].firstElementChild.firstElementChild;
+    if (elem instanceof HTMLImageElement) {
+        return elem;
+    }
+    throw new DOMException(`Failed to retrieve song Img for the row with row number: ${rowIndex}`);
+}
+function getRowIndexByEventTarget(t) {
+    if (t instanceof HTMLButtonElement || t instanceof HTMLImageElement) {
+        t = t.parentElement;
+        if (t instanceof HTMLTableCellElement) {
+            t = t.parentElement;
+            if (t instanceof HTMLTableRowElement) {
+                return t.rowIndex;
+            }
+        }
+    }
+    throw new Error(`Failed to get rowIndex. Failed with target t: ${t}`);
+}
+function scrollPlaylistIfNeeded(rowIndex) {
+    const playlistContainer = document.getElementById("playlist-content-container");
+    const playlistContainerCoords = playlistContainer.getBoundingClientRect();
+    const currentRowCoords = _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.table.rows[rowIndex].getBoundingClientRect();
+    if (currentRowCoords.bottom > playlistContainerCoords.bottom) {
+        _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.table.rows[rowIndex].scrollIntoView(false);
+        return;
+    }
+    if (currentRowCoords.top < playlistContainerCoords.top) {
+        _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.table.rows[rowIndex].scrollIntoView();
+    }
+}
+function setToPlayingGif(rowIndex) {
+    getImgByRow(rowIndex).src = _globals__WEBPACK_IMPORTED_MODULE_2__.IMG_PATHS.globalPlayingGifSrc;
+}
+function setToCoverImg(rowIndex) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const song = _songs__WEBPACK_IMPORTED_MODULE_0__.playlistSongs.getSong(rowIndex);
+        // for some reason this const is needed
+        const imgSrc = yield (0,_findImages__WEBPACK_IMPORTED_MODULE_3__.getSongImage)(song.fileName);
+        getImgByRow(rowIndex).src = imgSrc;
+    });
+}
+function fillPlaylistPreviewImages() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const numOfPlaylistSongs = _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.table.rows.length;
+        let numOfFoundPreviewImages = 0;
+        const maxNumOfPreviews = 4;
+        for (let index = 0; index < numOfPlaylistSongs; index++) {
+            const song = _songs__WEBPACK_IMPORTED_MODULE_0__.playlistSongs.getSong(index);
+            const currentCoverSrc = yield (0,_findImages__WEBPACK_IMPORTED_MODULE_3__.getSongImage)(song.fileName);
+            if (currentCoverSrc !== _globals__WEBPACK_IMPORTED_MODULE_2__.IMG_PATHS.noCoverImgSrc) {
+                (0,_globals__WEBPACK_IMPORTED_MODULE_2__.getImgElemByID)(`cover-preview-${numOfFoundPreviewImages}`).src = currentCoverSrc;
+                numOfFoundPreviewImages++;
+            }
+            if (numOfFoundPreviewImages === maxNumOfPreviews) {
+                return;
+            }
+        }
+        for (numOfFoundPreviewImages; numOfFoundPreviewImages < maxNumOfPreviews; numOfFoundPreviewImages++) {
+            (0,_globals__WEBPACK_IMPORTED_MODULE_2__.getImgElemByID)(`cover-preview-${numOfFoundPreviewImages}`).src = _globals__WEBPACK_IMPORTED_MODULE_2__.IMG_PATHS.noCoverImgSrc;
+        }
+    });
+}
+function setFooterPlayImgSrc() {
+    (0,_globals__WEBPACK_IMPORTED_MODULE_2__.getImgElemByID)("footer-play-img").src = determineFooterPlayImgSrc();
+    function determineFooterPlayImgSrc() {
+        const footerImgElement = (0,_globals__WEBPACK_IMPORTED_MODULE_2__.getImgElemByID)("footer-play-img");
+        const currSrc = footerImgElement.src;
+        if (!_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.paused) {
+            // the second condition here occurs when hovering over the main play button while a song is finishing
+            if (currSrc === _globals__WEBPACK_IMPORTED_MODULE_2__.IMG_PATHS.lowerBarPlayHoverImgSrc || currSrc === _globals__WEBPACK_IMPORTED_MODULE_2__.IMG_PATHS.lowerBarPauseHoverImgSrc) {
+                return _globals__WEBPACK_IMPORTED_MODULE_2__.IMG_PATHS.lowerBarPauseHoverImgSrc;
+            }
+            return _globals__WEBPACK_IMPORTED_MODULE_2__.IMG_PATHS.lowerBarPauseImgSrc;
+        }
+        if (currSrc === _globals__WEBPACK_IMPORTED_MODULE_2__.IMG_PATHS.lowerBarPauseHoverImgSrc) {
+            return _globals__WEBPACK_IMPORTED_MODULE_2__.IMG_PATHS.lowerBarPlayHoverImgSrc;
+        }
+        return _globals__WEBPACK_IMPORTED_MODULE_2__.IMG_PATHS.globalPlayImgSrc;
+    }
 }
 
 
@@ -34266,275 +34159,116 @@ function updatePageForNewRow(newSongObj, newTotalTime) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Song": () => (/* binding */ Song),
-/* harmony export */   "addNewSongObjectFromDictData": () => (/* binding */ addNewSongObjectFromDictData),
 /* harmony export */   "audio": () => (/* binding */ audio),
-/* harmony export */   "clickSongByRowNum": () => (/* binding */ clickSongByRowNum),
 /* harmony export */   "currPlaylistName": () => (/* binding */ currPlaylistName),
-/* harmony export */   "getImgByRow": () => (/* binding */ getImgByRow),
-/* harmony export */   "getNumOfSongs": () => (/* binding */ getNumOfSongs),
-/* harmony export */   "getRowIndexByEventTarget": () => (/* binding */ getRowIndexByEventTarget),
-/* harmony export */   "getSongObjectByRowNum": () => (/* binding */ getSongObjectByRowNum),
-/* harmony export */   "isDraggingSong": () => (/* binding */ isDraggingSong),
+/* harmony export */   "currentNonPriorityRow": () => (/* binding */ currentNonPriorityRow),
+/* harmony export */   "currentRow": () => (/* binding */ currentRow),
 /* harmony export */   "isLastAddedPlaylist": () => (/* binding */ isLastAddedPlaylist),
-/* harmony export */   "lastSongNum": () => (/* binding */ lastSongNum),
-/* harmony export */   "removeObjFromSongObjectsList": () => (/* binding */ removeObjFromSongObjectsList),
-/* harmony export */   "replaceObjInSongObjList": () => (/* binding */ replaceObjInSongObjList),
-/* harmony export */   "revertPageToNoSong": () => (/* binding */ revertPageToNoSong),
-/* harmony export */   "setDraggingSong": () => (/* binding */ setDraggingSong),
+/* harmony export */   "setPlayingDisplayTitle": () => (/* binding */ setPlayingDisplayTitle),
 /* harmony export */   "table": () => (/* binding */ table),
-/* harmony export */   "updateLastSongNum": () => (/* binding */ updateLastSongNum)
+/* harmony export */   "updateMediaSessionMetadata": () => (/* binding */ updateMediaSessionMetadata)
 /* harmony export */ });
-/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../globals */ "./static/scripts/globals.ts");
-// This file is used for globals which are used *only* within pages that start with /playlist/
+/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../globals */ "./static/scripts/globals.ts");
+/* harmony import */ var _findImages__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./findImages */ "./static/scripts/playlistScripts/findImages.ts");
+// File for anything that both the playlist and songs can read/write to.
+// For example, the current playlist name is
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 
-/** Object used to store a song's attributes. So far only data is kept here, no functions yet.
- * This class is exported only for typing purposes. Do not use this constructor outside this file! */
-class Song {
-    constructor(songObj) {
-        this.isPlaying = false; // Default is false because when page loads nothing is playing!
-        /** This value is zero indexed. Additionally, the default rowNum is 0.
-         * This value will be incorrect for all songs except the first in a playlist.
-         * To fix this error, retrieve song objects ONLY via the "getSongObjectByRowNum" function.
-         * This function sets the rowNum to the appropriate number before returning.
-         * Having the rowNum set up this way means rowNums never need to be updated when
-         * deleting/adding new songs. (or when songs get rearranged, this will be in the future) */
-        this.rowNum = 0;
-        this.album = songObj["album"];
-        this.artist = songObj["artist"];
-        this.date = songObj["date"];
-        this.dbIndex = songObj["dbIndex"];
-        this.duration = songObj["duration"];
-        this.fileName = songObj["fileName"];
-        this.plays = songObj["plays"];
-        this.title = songObj["title"];
-    }
-}
-/** Number of the song that was last playing. Or current playing????? */
-/** Only import this var to compare. Update its val with updateLastSongNum().
- * This var is zero indexed. */
-let lastSongNum = null;
-/** Keeps track of if the seekBarHandle is being dragged.
- * i.e. the song time is being moved manually. */
-let isDraggingSong = false;
-const currPlaylistName = _getPlaylistName();
-const isLastAddedPlaylist = (_getPlaylistName() === "Last Added");
+
+const currPlaylistName = (() => {
+    // On a playlist page the pathArr should be ["", "playlists", "<playlist_name>"]
+    const pathArr = window.location.pathname.split("/");
+    return decodeURI(pathArr[2]);
+})();
+const isLastAddedPlaylist = (currPlaylistName === "Last Added");
 /** This const refers to the element with id "songTable".
  *
- * - This is the table which is the playlist that a user interacts with. */
-const table = _getPlaylistTable();
-/** This const refers to the element with id "mainAudio".
- *
- * - This is the element which is responsible for the current playing song. */
-const audio = _getMainAudio();
-/** List of all song objects for the entire page.
- * This list is in the same order as the playlist. */
-const _songs = JSON.parse(document.getElementById("script-tag").getAttribute("songObjectList")).map((dictSongObject) => new Song(dictSongObject));
-function updateLastSongNum(newNum) {
-    lastSongNum = newNum;
-}
-function setDraggingSong(isDraggingSong) {
-    isDraggingSong = isDraggingSong;
-}
-/** Unused function but may be useful in the future.. */
-function getNumOfSongs() {
-    return _getPlaylistTable().rows.length;
-}
-/** Grabs the "songTable" element. This element should really be renamed to playlistTable.
- * This table throws a NoSongTableError if the element is not found.
- * The function is designed as such so it always returns a HTMLTableElement.
- * Thus there is never a need to check for null.*/
-function _getPlaylistTable() {
+ * - This is the table that contains all the songs for the playlist. */
+const table = (() => {
     const elem = document.getElementById("song-table");
     if (elem instanceof HTMLTableElement) {
         return elem;
     }
     throw new DOMException(`Failed to retrieve songTable element.`);
-}
-/** This is denoted as private since this should only be used to get the 'main-audio' element. */
-function _getMainAudio() {
+})();
+/** This const refers to the element with id "mainAudio".
+ *
+ * - This is the element which is responsible for the current playing song. */
+const audio = (() => {
     const elem = document.getElementById("main-audio");
     if (elem instanceof HTMLAudioElement) {
         return elem;
     }
     throw new DOMException(`Failed to retrieve the "main-audio" element.`);
-}
-/** Returns the image for a song for the given row in the playlist table. */
-function getImgByRow(rowNum) {
-    const elem = table.rows[rowNum].firstElementChild.firstElementChild;
-    if (elem instanceof HTMLImageElement) {
-        return elem;
-    }
-    throw new DOMException(`Failed to retrieve song Img for the row with row number: ${rowNum}`);
-}
-function getRowIndexByEventTarget(t) {
-    if (t instanceof HTMLButtonElement || t instanceof HTMLImageElement) {
-        t = t.parentElement;
-        if (t instanceof HTMLTableCellElement) {
-            t = t.parentElement;
-            if (t instanceof HTMLTableRowElement) {
-                return t.rowIndex;
+})();
+const currentRow = (() => {
+    let _currentRow = null;
+    return {
+        set: function (rowIndex) {
+            if (rowIndex === null) {
+                _currentRow = null;
+                return;
             }
-        }
+            _currentRow = table.rows[rowIndex];
+        },
+        getIndex: function () {
+            if (_currentRow === null)
+                return null;
+            return _currentRow.rowIndex;
+        },
+    };
+})();
+/** Keeps track of the last used non-priority song row. */
+const currentNonPriorityRow = (() => {
+    /** Example of how this is used:
+     * 	 Say that song #2 is playing (not a priority song)
+     * 	 Before that song has finished, song #4 is queued.
+     * 	 Song #4 will play next, and when it finishes it should move to song #3, NOT song #5. */
+    let _currentNonPriorityRow = null;
+    return {
+        set: function (rowIndex) {
+            if (rowIndex === null) {
+                _currentNonPriorityRow = null;
+                return;
+            }
+            _currentNonPriorityRow = table.rows[rowIndex];
+        },
+        getIndex: function () {
+            if (_currentNonPriorityRow === null)
+                return null;
+            return _currentNonPriorityRow.rowIndex;
+        },
+    };
+})();
+function setPlayingDisplayTitle(artist, title, fileName) {
+    const playingTitle = document.getElementById("playing-title");
+    if (artist === "" || title === "") {
+        playingTitle.innerText = `Playing: ${(0,_globals__WEBPACK_IMPORTED_MODULE_0__.removeFileExtension)(fileName)}`;
     }
-    throw new DOMException(`Failed to get rowIndex. Failed with t: ${t}`);
-}
-function _getPlaylistName() {
-    /** On a playlist page the pathArr should be
-     * ["", "playlists", "<playlist_name>] */
-    const pathArr = window.location.pathname.split("/");
-    return decodeURI(pathArr[2]);
-}
-function addNewSongObjectFromDictData(dictSong) {
-    addToSongObjectsList(new Song(dictSong));
-}
-/** Adds a new song object to the list at the beginning of the array. */
-function addToSongObjectsList(newSongObj) {
-    _songs.unshift(newSongObj);
-}
-function clickSongByRowNum(rowNum) {
-    getImgByRow(rowNum).click();
-}
-function removeObjFromSongObjectsList(index) {
-    _songs.splice(index, 1);
-}
-function getSongObjectByRowNum(rowNum) {
-    const song = _songs[rowNum];
-    // Assigns correct rowNum to the song object here.
-    song.rowNum = rowNum;
-    return song;
-}
-function replaceObjInSongObjList(newSongObj, index) {
-    _songs[index] = newSongObj;
-}
-function revertPageToNoSong() {
-    (0,_globals__WEBPACK_IMPORTED_MODULE_0__.getImgElemByID)("footer-play-img").src = _globals__WEBPACK_IMPORTED_MODULE_0__.IMG_PATHS.globalPlayImgSrc;
-    document.getElementById("current-time-stamp").innerText = '-:--';
-    document.getElementById("playing-title").innerText = 'Playing:';
-    document.getElementById("curr-song-duration-text").innerText = '-:--';
-    document.getElementById("seek-bar-progress").style.width = '0%';
-    table.rows[table.rows.length - 1].setAttribute("style", "background-color: ;");
-    audio.src = "";
-    updateLastSongNum(null);
-}
-
-
-/***/ }),
-
-/***/ "./static/scripts/playlistScripts/playlistPageEvents.ts":
-/*!**************************************************************!*\
-  !*** ./static/scripts/playlistScripts/playlistPageEvents.ts ***!
-  \**************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "nextTrackButtonHandler": () => (/* binding */ nextTrackButtonHandler),
-/* harmony export */   "playPauseButtonHandler": () => (/* binding */ playPauseButtonHandler),
-/* harmony export */   "previousTrackButtonHandler": () => (/* binding */ previousTrackButtonHandler)
-/* harmony export */ });
-/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
-/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../globals */ "./static/scripts/globals.ts");
-// This file is used to set the event listeners on static fields
-// Ex: back, play, forward images at the bottom of the playlist page.
-// All of these funcs can probably just sit at the global level. They only ever need to be run once.
-
-
-const websiteOrigin = window.location.origin;
-const staticFolderURL = `${websiteOrigin}/static`;
-const iconFolderPath = `${staticFolderURL}/media/icons`;
-/** This should be the only function called from this file.
- * This func exists purely so it can be imported from another module thus, the global code is below is run. */
-// -=-=-=-=-=-=-=-=-=-=-=-=-=-= prepare header buttons with listeners =-=-=-=-=-=-=-=-=-=-=-=-=-=-
-const headerPlayIcon = (0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("header-play-icon");
-headerPlayIcon.addEventListener('click', () => {
-    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum === null) {
-        (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.clickSongByRowNum)(0);
+    else {
+        playingTitle.innerText = `Playing: ${artist} - ${title}`;
     }
-});
-headerPlayIcon.addEventListener('mouseover', () => {
-    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum === null) {
-        headerPlayIcon.src = _globals__WEBPACK_IMPORTED_MODULE_1__.IMG_PATHS.lowerBarPlayHoverImgSrc;
-        headerPlayIcon.style.cursor = 'pointer';
-    }
-});
-headerPlayIcon.addEventListener('mouseout', () => {
-    headerPlayIcon.src = _globals__WEBPACK_IMPORTED_MODULE_1__.IMG_PATHS.globalPlayImgSrc;
-    headerPlayIcon.style.cursor = 'default';
-});
-// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-= prepare footer buttons with listeners =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-(0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footer-prev-img").addEventListener('click', previousTrackButtonHandler);
-(0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footer-play-img").addEventListener('click', playPauseButtonHandler);
-(0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)("footer-next-img").addEventListener('click', nextTrackButtonHandler);
-function previousTrackButtonHandler() {
-    const canPlayPreviousSong = (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum !== null && _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum > 0);
-    if (canPlayPreviousSong)
-        return (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.clickSongByRowNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum - 1);
-    console.error("Error: Cannot play previous song.");
 }
-/** Handles clicking the play/pause button. */
-function playPauseButtonHandler() {
-    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum === null)
-        return (console.error("Error: Cannot play song when no song has been selected."));
-    const currentSongNum = _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum;
-    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.clickSongByRowNum)(currentSongNum);
-}
-function nextTrackButtonHandler() {
-    const canPlayNextSong = (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum !== null && _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum + 1 < _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.table.rows.length);
-    if (canPlayNextSong)
-        return (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.clickSongByRowNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum + 1);
-    console.error("Error: Cannot play next song.");
-}
-const footerImgInfo = {
-    prev: {
-        id: "footer-prev-img",
-        srcs: {
-            normal: `${iconFolderPath}/prev.png`,
-            hover: `${iconFolderPath}/prevHover.png`
-        }
-    },
-    play: {
-        id: "footer-play-img",
-        srcs: {
-            normal: `${iconFolderPath}/play.png`,
-            hover: `${iconFolderPath}/playHover.png`,
-            pause: `${iconFolderPath}/pause.png`,
-            pauseHover: `${iconFolderPath}/pauseHover.png`
-        }
-    },
-    next: {
-        id: "footer-next-img",
-        srcs: {
-            normal: `${iconFolderPath}/next.png`,
-            hover: `${iconFolderPath}/nextHover.png`
-        }
-    }
-};
-for (const [current] of Object.entries(footerImgInfo)) {
-    const currentID = (0,_globals__WEBPACK_IMPORTED_MODULE_1__.getImgElemByID)(footerImgInfo[current].id);
-    const currentSrcs = footerImgInfo[current].srcs;
-    const hasPauseImg = ('pause' in footerImgInfo[current].srcs);
-    currentID.addEventListener('mouseover', () => {
-        if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_0__.lastSongNum === null)
-            return;
-        if (currentID.src === currentSrcs.normal) {
-            currentID.src = currentSrcs.hover;
-        }
-        if (hasPauseImg && currentID.src === currentSrcs.pause) {
-            currentID.src = currentSrcs.pauseHover;
-        }
-    });
-    currentID.addEventListener('mouseout', () => {
-        if (currentID.src === currentSrcs.hover) {
-            currentID.src = currentSrcs.normal;
-        }
-        if (hasPauseImg && currentID.src === currentSrcs.pauseHover) {
-            currentID.src = currentSrcs.pause;
-        }
+/** This function changes the mediasession information. Mediasession information is displayed via media control pop-ups on different platforms
+(i.e. Windows/iOS/Android, etc.) */
+function updateMediaSessionMetadata(title, artist, album, fileName) {
+    return __awaiter(this, void 0, void 0, function* () {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: title,
+            artist: artist,
+            album: album,
+            artwork: [{ src: yield (0,_findImages__WEBPACK_IMPORTED_MODULE_1__.getSongImage)(fileName) }]
+        });
     });
 }
-// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
 /***/ }),
@@ -34556,11 +34290,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
 /* harmony import */ var _contactServer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./contactServer */ "./static/scripts/playlistScripts/contactServer.ts");
 /* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./../globals */ "./static/scripts/globals.ts");
-/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
-/* harmony import */ var _renderScreenPrompt__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./../renderScreenPrompt */ "./static/scripts/renderScreenPrompt.tsx");
-/* harmony import */ var _ScreenPromptCancelButton__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../ScreenPromptCancelButton */ "./static/scripts/ScreenPromptCancelButton.tsx");
-/* harmony import */ var _contactServerGlobals__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./../contactServerGlobals */ "./static/scripts/contactServerGlobals.ts");
-/* harmony import */ var _findImages__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./findImages */ "./static/scripts/playlistScripts/findImages.ts");
+/* harmony import */ var _playlist__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./playlist */ "./static/scripts/playlistScripts/playlist.ts");
+/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
+/* harmony import */ var _songs__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./songs */ "./static/scripts/playlistScripts/songs.ts");
+/* harmony import */ var _renderScreenPrompt__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./../renderScreenPrompt */ "./static/scripts/renderScreenPrompt.tsx");
+/* harmony import */ var _ScreenPromptCancelButton__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../ScreenPromptCancelButton */ "./static/scripts/ScreenPromptCancelButton.tsx");
+/* harmony import */ var _contactServerGlobals__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./../contactServerGlobals */ "./static/scripts/contactServerGlobals.ts");
+/* harmony import */ var _findImages__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./findImages */ "./static/scripts/playlistScripts/findImages.ts");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34570,6 +34306,8 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
+
 
 
 
@@ -34598,117 +34336,111 @@ function unmountSongOptionsContainer() {
     const container = document.getElementById("song-options-prompt-container");
     react_dom__WEBPACK_IMPORTED_MODULE_1__.unmountComponentAtNode(container);
 }
+function SongOption(optionText, onClickFunc) {
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "song-option", onClick: onClickFunc, key: optionText },
+        " ",
+        optionText,
+        " "));
+}
 function SongOptionsDropDown({ e }) {
-    const rowNum = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.getRowIndexByEventTarget)(e.target);
-    const button = (0,_globals__WEBPACK_IMPORTED_MODULE_3__.checkElemIsButtonElem)(e.target);
+    const button = e.target;
     const buttonPos = button.getBoundingClientRect();
-    const renderNearClickPos = {
+    const renderNearClickPosition = {
         left: buttonPos.x + 'px',
         top: (buttonPos.y + 20) + 'px'
     };
-    const song = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.getSongObjectByRowNum)(rowNum);
-    const removeSongOption = react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "song-option", onClick: () => __awaiter(this, void 0, void 0, function* () {
-            yield _contactServer__WEBPACK_IMPORTED_MODULE_2__.removeSongFromCurrPlaylist(song);
-            const newPlaylistTime = yield _contactServer__WEBPACK_IMPORTED_MODULE_2__.getUpdatedPlaylistTime(_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.currPlaylistName);
-            updatePageForDeletedRow(rowNum, newPlaylistTime);
+    const rowNum = (0,_playlist__WEBPACK_IMPORTED_MODULE_4__.getRowIndexByEventTarget)(e.target);
+    const song = _songs__WEBPACK_IMPORTED_MODULE_6__.playlistSongs.getSong(rowNum);
+    const removeSongOption = SongOption("Remove Song From Playlist", () => __awaiter(this, void 0, void 0, function* () {
+        yield _contactServer__WEBPACK_IMPORTED_MODULE_2__.removeSongFromCurrPlaylist(song);
+        const newPlaylistTime = yield _contactServer__WEBPACK_IMPORTED_MODULE_2__.getUpdatedPlaylistTime(_playlistGlobals__WEBPACK_IMPORTED_MODULE_5__.currPlaylistName);
+        updatePageForDeletedRow(rowNum, newPlaylistTime);
+        unmountSongOptionsContainer();
+    }));
+    const editSongOption = SongOption("Edit Song Info", () => {
+        renderEditSongWindow(song.rowIndex);
+        unmountSongOptionsContainer();
+    });
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "song-drop-down", style: renderNearClickPosition },
+        SongOption("Add to Priority Queue", () => {
+            _songs__WEBPACK_IMPORTED_MODULE_6__.prioritySongs.addSong(song);
             unmountSongOptionsContainer();
-            (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.fillPlaylistPreviewImages)();
-        }) }, "Remove song from playlist");
-    const editSongOption = react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "song-option", onClick: () => {
-            renderEditSongWindow(song.rowNum);
+        }),
+        SongOption("Add Song to Playlist", e => renderPlaylistNamesDropDown(e, song.fileName)),
+        _playlistGlobals__WEBPACK_IMPORTED_MODULE_5__.isLastAddedPlaylist ? null : removeSongOption,
+        SongOption("Delete Song", () => {
+            renderDeleteSongScreenPrompt(song.rowIndex, song.fileName);
             unmountSongOptionsContainer();
-        } }, "Edit Song Info");
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "song-drop-down", style: renderNearClickPos },
-        _playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.isLastAddedPlaylist ? null : removeSongOption,
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "song-option", onClick: () => {
-                renderDeleteSongScreenPrompt(song.fileName);
-                unmountSongOptionsContainer();
-            } }, "Delete song"),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "song-option", onClick: e => renderPlaylistNamesDropDown(e, song.fileName) }, "Add song to playlist"),
-        _playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.isLastAddedPlaylist ? editSongOption : null));
+        }),
+        _playlistGlobals__WEBPACK_IMPORTED_MODULE_5__.isLastAddedPlaylist ? editSongOption : null));
 }
 function renderPlaylistNamesDropDown(e, songFileName) {
     return __awaiter(this, void 0, void 0, function* () {
-        const playlistNames = yield (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_7__.resolve_playlist_names)();
+        const playlistNames = yield (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_9__.resolvePlaylistNames)();
         const index = playlistNames.indexOf("Last Added");
         if (index > -1) {
             playlistNames.splice(index, 1);
         }
-        const currentPlaylistIndex = playlistNames.indexOf(_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.currPlaylistName);
+        const currentPlaylistIndex = playlistNames.indexOf(_playlistGlobals__WEBPACK_IMPORTED_MODULE_5__.currPlaylistName);
         if (currentPlaylistIndex !== -1) {
             playlistNames.splice(currentPlaylistIndex, 1); //remove current playlist from playlists to choose from
         }
-        const songOption = (0,_globals__WEBPACK_IMPORTED_MODULE_3__.checkElemIsSpanElem)(e.target);
-        const optionsDropDown = (0,_globals__WEBPACK_IMPORTED_MODULE_3__.checkElemIsDivElem)(songOption.parentElement);
+        const songOption = e.target;
+        const optionsDropDown = songOption.parentElement;
         const parentPos = optionsDropDown.getBoundingClientRect();
         const stylePos = Object.freeze({
             left: parentPos.left + 'px',
             top: parentPos.top + 'px'
         });
         renderSongOptionsDropDown(react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "song-drop-down", style: stylePos }, playlistNames.map((name) => {
-            return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "song-option", key: name, onClick: () => _contactServer__WEBPACK_IMPORTED_MODULE_2__.addSongToPlaylist(songFileName, name) }, name));
+            return (SongOption(name, () => _contactServer__WEBPACK_IMPORTED_MODULE_2__.addSongToPlaylist(songFileName, name)));
         })));
     });
 }
 function updatePageForDeletedRow(rowIndex, newTotalTime) {
+    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_5__.currentRow.getIndex() === rowIndex) {
+        (0,_playlist__WEBPACK_IMPORTED_MODULE_4__.revertPageToNoSong)();
+    }
+    _songs__WEBPACK_IMPORTED_MODULE_6__.playlistSongs.removeSong(rowIndex);
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_5__.table.deleteRow(rowIndex);
+    (0,_playlist__WEBPACK_IMPORTED_MODULE_4__.fillPlaylistPreviewImages)();
     document.getElementById("playlist-total-time").innerText = newTotalTime;
-    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.removeObjFromSongObjectsList)(rowIndex);
-    _playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.table.deleteRow(rowIndex);
-    (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.fillPlaylistPreviewImages)();
-    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.lastSongNum === null) {
-        return;
-    }
-    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.lastSongNum === rowIndex) {
-        (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.revertPageToNoSong)();
-        return;
-    }
-    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.lastSongNum > rowIndex) {
-        (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.updateLastSongNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.lastSongNum - 1);
-    }
 }
-function renderDeleteSongScreenPrompt(songFileName) {
+function renderDeleteSongScreenPrompt(songRowIndex, songFileName) {
     const songName = (0,_globals__WEBPACK_IMPORTED_MODULE_3__.removeFileExtension)(songFileName);
-    (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_5__.renderScreenPrompt)(react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+    (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_7__.renderScreenPrompt)(react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "screen-prompt-text" },
             "Are you sure you want to delete the song \"",
             songName,
             "\" from your account?"),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "screen-prompt-positive-button", onClick: () => __awaiter(this, void 0, void 0, function* () {
                 yield _contactServer__WEBPACK_IMPORTED_MODULE_2__.deleteSongFromDB(songFileName, songName);
-                const newTotalTime = yield _contactServer__WEBPACK_IMPORTED_MODULE_2__.getUpdatedPlaylistTime(_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.currPlaylistName);
-                updatePageForDeletedSong(songFileName, newTotalTime);
-                (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_5__.removeScreenPrompt)();
+                const newTotalTime = yield _contactServer__WEBPACK_IMPORTED_MODULE_2__.getUpdatedPlaylistTime(_playlistGlobals__WEBPACK_IMPORTED_MODULE_5__.currPlaylistName);
+                updatePageForDeletedSong(songRowIndex, songFileName, newTotalTime);
+                (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_7__.removeScreenPrompt)();
             }) }, "Delete Song"),
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ScreenPromptCancelButton__WEBPACK_IMPORTED_MODULE_6__.ScreenPromptCancelButton, null)));
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ScreenPromptCancelButton__WEBPACK_IMPORTED_MODULE_8__.ScreenPromptCancelButton, null)));
 }
-function updatePageForDeletedSong(deletedSongFileName, newTotalTime) {
+function updatePageForDeletedSong(songRowIndex, deletedSongFileName, newTotalTime) {
     document.getElementById("playlist-total-time").innerText = newTotalTime;
-    let i = 0;
-    while (i < _playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.table.rows.length) {
-        const currSongFileName = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.getSongObjectByRowNum)(i).fileName;
-        if (currSongFileName === deletedSongFileName) {
-            (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.removeObjFromSongObjectsList)(i);
-            _playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.table.deleteRow(i);
-            if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.lastSongNum === null) {
-                continue;
-            }
-            if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.lastSongNum > i) {
-                (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.updateLastSongNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.lastSongNum - 1);
-                continue;
-            }
-            if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.lastSongNum === i) {
-                (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.revertPageToNoSong)();
-            }
-        }
-        else {
-            i++;
-        }
+    if (songRowIndex === _playlistGlobals__WEBPACK_IMPORTED_MODULE_5__.currentRow.getIndex()) {
+        (0,_playlist__WEBPACK_IMPORTED_MODULE_4__.revertPageToNoSong)();
     }
-    (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.fillPlaylistPreviewImages)();
+    // Iterating over the whole playlist must be done, because in all playlists other than 'Last Added' a particular song could appear multiple times.
+    Array.from(_playlistGlobals__WEBPACK_IMPORTED_MODULE_5__.table.rows).forEach(row => {
+        const song = _songs__WEBPACK_IMPORTED_MODULE_6__.playlistSongs.getSong(row.rowIndex);
+        if (song.fileName === deletedSongFileName) {
+            _songs__WEBPACK_IMPORTED_MODULE_6__.playlistSongs.removeSong(row.rowIndex);
+            _playlistGlobals__WEBPACK_IMPORTED_MODULE_5__.table.deleteRow(row.rowIndex);
+        }
+    });
+    // need to go through priority songs too
+    _songs__WEBPACK_IMPORTED_MODULE_6__.prioritySongs.updateForDeletedSong(deletedSongFileName);
+    (0,_playlist__WEBPACK_IMPORTED_MODULE_4__.fillPlaylistPreviewImages)();
 }
 function renderEditSongWindow(rowNum) {
-    const song = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.getSongObjectByRowNum)(rowNum);
-    (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_5__.renderScreenPrompt)(react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
+    const song = _songs__WEBPACK_IMPORTED_MODULE_6__.playlistSongs.getSong(rowNum);
+    (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_7__.renderScreenPrompt)(react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null,
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", { className: "screen-prompt-text" }, " Edit Song Info "),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { type: "file", accept: "image/*", id: "img-upload", style: { display: "none" }, onChange: () => {
                 const newImgFile = (0,_globals__WEBPACK_IMPORTED_MODULE_3__.getInputElemByID)("img-upload").files[0];
@@ -34728,13 +34460,13 @@ function renderEditSongWindow(rowNum) {
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { className: "generic-textbox", type: "date" })),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { className: "generic-attrs" },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", { className: "screen-prompt-positive-button", onClick: () => __awaiter(this, void 0, void 0, function* () {
-                    yield handleSongEdit(song.fileName, rowNum);
-                    (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_5__.removeScreenPrompt)();
+                    yield handleSongEdit(rowNum);
+                    (0,_renderScreenPrompt__WEBPACK_IMPORTED_MODULE_7__.removeScreenPrompt)();
                 }) }, "Confirm"),
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ScreenPromptCancelButton__WEBPACK_IMPORTED_MODULE_6__.ScreenPromptCancelButton, null))));
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ScreenPromptCancelButton__WEBPACK_IMPORTED_MODULE_8__.ScreenPromptCancelButton, null))));
     const setImgSrc = () => __awaiter(this, void 0, void 0, function* () {
         const editPreviewImg = (0,_globals__WEBPACK_IMPORTED_MODULE_3__.getImgElemByID)("edit-prompt-img");
-        editPreviewImg.src = yield (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.getSongImage)(rowNum);
+        editPreviewImg.src = yield (0,_findImages__WEBPACK_IMPORTED_MODULE_10__.getSongImage)(song.fileName);
     });
     setImgSrc();
 }
@@ -34748,48 +34480,297 @@ function SongEditTextField({ props }) {
             ": "),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { className: "generic-textbox", type: "text", defaultValue: defaultVal })));
 }
+function hasFieldBeenEditted(field) {
+    return (field.defaultValue !== field.value);
+}
 /** Gathers data from all fields, sends it to the backend.
- * Retrieve the new song information and update local page. */
-function handleSongEdit(songFileName, rowNum) {
+ * Retrieve the new song information and update local page.
+ *
+ * @param rowNum - index of the row that is having its data updated.
+ *
+ * */
+function handleSongEdit(rowNum) {
     return __awaiter(this, void 0, void 0, function* () {
         const promptElem = document.getElementById("base-screen-prompt");
         const editFields = promptElem.querySelectorAll(".generic-textbox");
-        const newInfo = Object.freeze({
-            newTitle: editFields[0].value,
-            newArtist: editFields[1].value,
-            newAlbum: editFields[2].value,
-            newDate: editFields[3].value,
-        });
+        const [titleField, artistField, albumField, dateField] = editFields;
+        const song = _songs__WEBPACK_IMPORTED_MODULE_6__.playlistSongs.getSong(rowNum);
+        if (hasFieldBeenEditted(titleField))
+            yield song.setTitle(titleField.value);
+        if (hasFieldBeenEditted(artistField))
+            yield song.setArtist(artistField.value);
+        if (hasFieldBeenEditted(albumField))
+            yield song.setAlbum(albumField.value);
+        if (hasFieldBeenEditted(dateField))
+            yield song.setDate(dateField.value);
         const files = (0,_globals__WEBPACK_IMPORTED_MODULE_3__.getInputElemByID)("img-upload").files;
-        // if no image is chosen, imgFile will be of length 0.
-        if (files.length === 0) {
-            yield _contactServer__WEBPACK_IMPORTED_MODULE_2__.updateSongInfo(newInfo, null, songFileName);
+        if (files.length > 1) {
+            throw new Error(`Got more than one song image file while trying to edit song with filename: ${song.fileName}`);
         }
-        else if (files.length === 1) {
-            const song_img = files[0];
-            yield _contactServer__WEBPACK_IMPORTED_MODULE_2__.updateSongInfo(newInfo, song_img, songFileName);
+        if (files.length === 1) {
+            yield song.setSongCoverImage(files[0]);
+            if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_5__.audio.paused || rowNum !== _playlistGlobals__WEBPACK_IMPORTED_MODULE_5__.currentRow.getIndex()) {
+                (0,_playlist__WEBPACK_IMPORTED_MODULE_4__.setToCoverImg)(rowNum);
+            }
+            (0,_playlist__WEBPACK_IMPORTED_MODULE_4__.fillPlaylistPreviewImages)();
         }
-        else {
-            throw new Error(`Got more than one song image file while trying to edit song with filename: ${songFileName}`);
-        }
-        (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.replaceObjInSongObjList)(yield _contactServer__WEBPACK_IMPORTED_MODULE_2__.getSong(songFileName), rowNum);
-        const currSong = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.getSongObjectByRowNum)(rowNum);
-        if (!currSong.isPlaying) {
-            (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.setSongImageByRowNum)(rowNum);
-        }
-        const row = (0,_globals__WEBPACK_IMPORTED_MODULE_3__.checkElemIsCellElem)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_4__.table.rows[rowNum].firstElementChild);
-        updateSongRowProperties(row, currSong);
-        (0,_findImages__WEBPACK_IMPORTED_MODULE_8__.fillPlaylistPreviewImages)();
     });
 }
-/** This only updates front-end text. This does not update the backend. */
-function updateSongRowProperties(row, newSong) {
-    const rowFields = row.querySelectorAll("*");
-    rowFields[1].innerText = newSong.title;
-    rowFields[4].innerText = newSong.artist;
-    rowFields[5].innerText = newSong.album;
-    rowFields[7].innerText = newSong.date;
+
+
+/***/ }),
+
+/***/ "./static/scripts/playlistScripts/songs.ts":
+/*!*************************************************!*\
+  !*** ./static/scripts/playlistScripts/songs.ts ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Song": () => (/* binding */ Song),
+/* harmony export */   "playlistSongs": () => (/* binding */ playlistSongs),
+/* harmony export */   "prioritySongs": () => (/* binding */ prioritySongs)
+/* harmony export */ });
+/* harmony import */ var _contactServerGlobals__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../contactServerGlobals */ "./static/scripts/contactServerGlobals.ts");
+/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../globals */ "./static/scripts/globals.ts");
+/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+/** Object used to store a song's attributes. So far only data is kept here, no functions yet.
+ * This class is exported only for typing purposes. Do not use this constructor outside this file!
+ *
+ * At some point in the future, I'd like to have all attributes be private and only retrievable via getters and update functions
+ * */
+class Song {
+    constructor(songObj, index) {
+        /** This attribute will be used in the future when viewing a playlist as a queue is possible.  */
+        this.isSkipped = false;
+        this.album = songObj["album"];
+        this.artist = songObj["artist"];
+        this.date = songObj["date"];
+        this.dbIndex = songObj["dbIndex"];
+        this.duration = songObj["duration"];
+        this.fileName = songObj["fileName"];
+        this.plays = songObj["plays"];
+        this.row = _playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.table.rows[index];
+        this.title = songObj["title"];
+    }
+    get rowIndex() {
+        return this.row.rowIndex;
+    }
+    get isThisSongCurrent() {
+        return (_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.currentRow.getIndex() === this.rowIndex);
+    }
+    setAlbum(newAlbum) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.updateAttribute("album", newAlbum);
+            if (!response.ok) {
+                this.handleUpdatingSongServerError("Unable to update album.", newAlbum, response);
+                return;
+            }
+            this.album = newAlbum;
+            // No need to check if the current page is a playlist page, because an update to a title can only happen in a playlist page.
+            this.updateSongRowText(".album", newAlbum);
+            if (this.isThisSongCurrent) {
+                // update media session metadata
+                (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.updateMediaSessionMetadata)(this.title, this.artist, this.album, this.fileName);
+            }
+        });
+    }
+    setArtist(newArtist) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.updateAttribute("artist", newArtist);
+            if (!response.ok) {
+                this.handleUpdatingSongServerError("Failed to update artist.", newArtist, response);
+                return;
+            }
+            this.artist = newArtist;
+            // No need to check if the current page is a playlist page, because an update to a title can only happen in a playlist page.
+            this.updateSongRowText(".artist", newArtist);
+            if (this.isThisSongCurrent) {
+                // update the lower bar info
+                (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.setPlayingDisplayTitle)(this.artist, this.title, this.fileName);
+                // update media session metadata
+                (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.updateMediaSessionMetadata)(this.title, this.artist, this.album, this.fileName);
+            }
+        });
+    }
+    setDate(newDate) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.updateAttribute("date", newDate);
+            if (!response.ok) {
+                this.handleUpdatingSongServerError("Failed to update date.", newDate, response);
+                return;
+            }
+            // Example, with '2023-09-02' this obtains '23'
+            const year = newDate.substring(2, 4);
+            let month = newDate.substring(5, 7);
+            let day = newDate.substring(8, 10);
+            if (parseInt(month) < 10)
+                month = month[1];
+            if (parseInt(day) < 10)
+                day = day[1];
+            // Final date is '9/2/23'
+            const newTextDate = `${month}/${day}/${year}`;
+            this.date = newTextDate;
+            if (!_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.isLastAddedPlaylist)
+                return;
+            this.updateSongRowText(".date", newTextDate);
+        });
+    }
+    setTitle(newTitle) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.updateAttribute("title", newTitle);
+            if (!response.ok) {
+                this.handleUpdatingSongServerError("Failed to update title.", newTitle, response);
+                return;
+            }
+            this.title = newTitle;
+            if (this.isThisSongCurrent) {
+                // update the lower bar info
+                (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.setPlayingDisplayTitle)(this.artist, this.title, this.fileName);
+                // update media session metadata
+                (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.updateMediaSessionMetadata)(this.title, this.artist, this.album, this.fileName);
+            }
+            // No need to check if the current page is a playlist page, because an update to a title can only happen in a playlist page.
+            this.updateSongRowText(".title", newTitle);
+        });
+    }
+    setSongCoverImage(songImg) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const form = new FormData();
+            form.append('songFileName', this.fileName);
+            form.append('newSongImage', songImg);
+            const response = yield fetch('/updateSongImage', { method: "POST", body: form });
+            if (!response.ok) {
+                throw new Error();
+            }
+            if (this.isThisSongCurrent) {
+                // update media session metadata
+                (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.updateMediaSessionMetadata)(this.title, this.artist, this.album, this.fileName);
+            }
+        });
+    }
+    /** Used to change the play count of a song. Right now this is only used for incrementing the play count when a song ends. */
+    setPlayCount(newPlayCount) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.updateAttribute("plays", newPlayCount.toString());
+            if (!response.ok) {
+                this.handleUpdatingSongServerError("Failed to update play count.", newPlayCount.toString(), response);
+                return;
+            }
+            this.plays += 1;
+            if (!_globals__WEBPACK_IMPORTED_MODULE_1__.isPlaylistPage)
+                return;
+            this.updateSongRowText(".plays", newPlayCount.toString());
+        });
+    }
+    updateSongRowText(selector, newValue) {
+        const elem = this.row.querySelector(selector);
+        if (elem instanceof HTMLSpanElement) {
+            elem.innerText = newValue;
+            return;
+        }
+        (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_0__.handleError)(`Updating ${selector} field on frontend failed.`, `Instead got element "${elem}" of type "${elem === null || elem === void 0 ? void 0 : elem.constructor.name}". `
+            +
+                `Row given: ${this.rowIndex}, with song: ${this.fileName}, within playlist: ${_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.currPlaylistName}`);
+    }
+    /** Appends songFileName, attribute, and newValue to a form and sends it up to the server.
+     * A response is returned to validate that the update to the server was succesful.*/
+    updateAttribute(attributeType, newValue) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const form = new FormData();
+            form.append('songFileName', this.fileName);
+            form.append('attribute', attributeType);
+            form.append('newValue', newValue);
+            return yield fetch('/updateSongInfo', { method: "POST", body: form });
+        });
+    }
+    /** Only invoke this function when a server error occured while trying to update an attribute of the song.
+     * @param userError - A basic description of the error that will be displayed to the user as a notification.
+     *
+     * @param attemptedNewValue - The value that was attempted to put into the database.
+     * This value will be the most likely cause for the error (violation of a schema's rules).
+     *
+     * @param response - Used to display the response.status */
+    handleUpdatingSongServerError(userError, attemptedNewValue, response) {
+        (0,_contactServerGlobals__WEBPACK_IMPORTED_MODULE_0__.handleError)(userError, `Attempted to change this attribute to a value of: ${attemptedNewValue}` +
+            `\nFailed with:\n\tStatus: ${response.status}\n\tFile name of song: ${this.fileName}\n\tPlaylist name: ${_playlistGlobals__WEBPACK_IMPORTED_MODULE_2__.currPlaylistName}`);
+    }
 }
+const playlistSongs = (() => {
+    /** List of all song objects for the entire page. This list is in the same order as the playlist. */
+    const _allSongs = [];
+    let _initialized = false;
+    return {
+        /** Called ONLY on page load AFTER the basic table structure has been created.
+         * Throws error if intialize is called more than once. */
+        initialize: function () {
+            if (_initialized === true) {
+                throw Error("Tried to initilize playlist songs more than once.");
+            }
+            const dictObjects = JSON.parse(document.getElementById("script-tag").getAttribute("songObjectList"));
+            dictObjects.forEach((dictSongObject, index) => _allSongs.push(new Song(dictSongObject, index)));
+            _initialized = true;
+            // No longer need the information of this attribute once the songs array is initialized.
+            document.getElementById("script-tag").removeAttribute("songObjectList");
+        },
+        addSong: function (dictionarySong) {
+            _allSongs.unshift(new Song(dictionarySong, 0));
+        },
+        removeSong: function (rowIndex) {
+            _allSongs.splice(rowIndex, 1);
+        },
+        getSong: function (rowIndex) {
+            return _allSongs[rowIndex];
+        },
+    };
+})();
+/** List of songs in the priority "queue" used for the "play next" feature.
+ * This is not an actual "queue" data structure. Just referred as one for the user. */
+const prioritySongs = (() => {
+    /** List of songs in the priority "queue" used for the "play next" feature.
+    * This is not an actual "queue" data structure. Just referred as one for the user. */
+    const _prioritySongs = [];
+    return {
+        isEmpty: function () {
+            return (_prioritySongs.length === 0);
+        },
+        addSong: function (song) {
+            _prioritySongs.push(song);
+        },
+        getNextRowIndex: function () {
+            if (this.isEmpty()) { // will want to check that this works properly...
+                throw new Error("Tried to get next priority song, but priority songs is empty.");
+            }
+            return _prioritySongs[0].rowIndex;
+        },
+        dequeueNextSong: function () {
+            _prioritySongs.splice(0, 1);
+        },
+        updateForDeletedSong: function (deletedSongFileName) {
+            // If the array.filter method didn't return a new array, it would be used here.
+            let i = 0;
+            for (const prioritySong of _prioritySongs) {
+                if (prioritySong.fileName === deletedSongFileName) {
+                    _prioritySongs.splice(i, 1);
+                }
+                i++;
+            }
+        },
+    };
+})();
 
 
 /***/ }),
@@ -34947,18 +34928,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
 /* harmony import */ var _newPlaylistScreenPrompt__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../newPlaylistScreenPrompt */ "./static/scripts/newPlaylistScreenPrompt.tsx");
-/* harmony import */ var _playlistPageEvents__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./playlistPageEvents */ "./static/scripts/playlistScripts/playlistPageEvents.ts");
-/* harmony import */ var _contactServer__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./contactServer */ "./static/scripts/playlistScripts/contactServer.ts");
-/* harmony import */ var _findImages__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./findImages */ "./static/scripts/playlistScripts/findImages.ts");
-/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./../globals */ "./static/scripts/globals.ts");
-/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
-/* harmony import */ var _RowContent__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./RowContent */ "./static/scripts/playlistScripts/RowContent.tsx");
-/* harmony import */ var _handleFileDrop__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./handleFileDrop */ "./static/scripts/playlistScripts/handleFileDrop.tsx");
+/* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
+/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./../globals */ "./static/scripts/globals.ts");
+/* harmony import */ var _songs__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./songs */ "./static/scripts/playlistScripts/songs.ts");
+/* harmony import */ var _playlist__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./playlist */ "./static/scripts/playlistScripts/playlist.ts");
+/* harmony import */ var _RowContent__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./RowContent */ "./static/scripts/playlistScripts/RowContent.tsx");
+/* harmony import */ var _handleFileDrop__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./handleFileDrop */ "./static/scripts/playlistScripts/handleFileDrop.tsx");
 // This file is the entry point for all code in any page with URL: <server>/playlists/<playlist_name>
-// Where the playlist_name is a valid playlist name.
 // Functions defined in this file should only be for the intial page load.
-// Functions which are _generally_ more complex than this should be in the 'playlistComponents' file.
-// Adding a new song is handled in this file. It may be moved in future.
 
 
 
@@ -34970,119 +34947,180 @@ __webpack_require__.r(__webpack_exports__);
 
 
 window["dragOverHandler"] = (e) => { e.preventDefault(); };
-window["fileDropHandler"] = _handleFileDrop__WEBPACK_IMPORTED_MODULE_9__.handleFileDrop;
+window["fileDropHandler"] = _handleFileDrop__WEBPACK_IMPORTED_MODULE_8__.handleFileDrop;
 window.onload = () => {
-    generateTable();
-    (0,_findImages__WEBPACK_IMPORTED_MODULE_5__.fillPlaylistPreviewImages)();
-    navigator.mediaSession.setActionHandler("previoustrack", _playlistPageEvents__WEBPACK_IMPORTED_MODULE_3__.previousTrackButtonHandler);
-    navigator.mediaSession.setActionHandler("play", _playlistPageEvents__WEBPACK_IMPORTED_MODULE_3__.playPauseButtonHandler);
-    navigator.mediaSession.setActionHandler("pause", _playlistPageEvents__WEBPACK_IMPORTED_MODULE_3__.playPauseButtonHandler);
-    navigator.mediaSession.setActionHandler("nexttrack", _playlistPageEvents__WEBPACK_IMPORTED_MODULE_3__.nextTrackButtonHandler);
+    // Create the table with empty rows
+    const numOfPlaylistSongs = parseInt(document.getElementById("script-tag").getAttribute("numOfSongs"));
+    const songNums = [...Array(numOfPlaylistSongs).keys()];
+    const songTableBody = document.getElementById("song-table-body");
+    react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, songNums.map((_, rowIndex) => react__WEBPACK_IMPORTED_MODULE_0__.createElement("tr", { className: "song-row", key: rowIndex }))), songTableBody);
+    // Then, create the song object array 
+    // We do this after generateTable so that way the row attribute of each song points to its actual row
+    _songs__WEBPACK_IMPORTED_MODULE_5__.playlistSongs.initialize();
+    // Add content to the rows
+    for (let i = 0; i < _playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.table.rows.length; i++) {
+        react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement(_RowContent__WEBPACK_IMPORTED_MODULE_7__.RowContent, { rowIndex: i }), _playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.table.rows[i]);
+    }
+    (0,_playlist__WEBPACK_IMPORTED_MODULE_6__.fillPlaylistPreviewImages)();
+    navigator.mediaSession.setActionHandler("previoustrack", previousTrackButtonHandler);
+    navigator.mediaSession.setActionHandler("play", playPauseButtonHandler);
+    navigator.mediaSession.setActionHandler("pause", playPauseButtonHandler);
+    navigator.mediaSession.setActionHandler("nexttrack", nextTrackButtonHandler);
+    (0,_newPlaylistScreenPrompt__WEBPACK_IMPORTED_MODULE_2__.addNewPlaylistScreenPromptEventlistener)(null);
 };
-(0,_newPlaylistScreenPrompt__WEBPACK_IMPORTED_MODULE_2__.addNewPlaylistScreenPromptEventlistener)(null);
+function previousTrackButtonHandler() {
+    // Null means no song is selected, 0 means we are at the first song in the playlist.
+    // We do not check currentNonPriorityRow because priority songs are removed 
+    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentRow.getIndex() === null || _playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentRow.getIndex() === 0) {
+        console.error("Error: Cannot play previous song.");
+        return;
+    }
+    (0,_playlist__WEBPACK_IMPORTED_MODULE_6__.revertRow)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentRow.getIndex());
+    const prevSongNum = _playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentRow.getIndex() - 1;
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentNonPriorityRow.set(prevSongNum);
+    (0,_playlist__WEBPACK_IMPORTED_MODULE_6__.playNewSong)(prevSongNum);
+}
+/** Handles clicking the play/pause button. */
+function playPauseButtonHandler() {
+    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentRow.getIndex() === null)
+        return console.error("Error: Cannot play song when no song has been selected.");
+    (0,_playlist__WEBPACK_IMPORTED_MODULE_6__.toggleSongPlay)();
+}
+function nextTrackButtonHandler() {
+    const isLastPlaylistSong = (_playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentNonPriorityRow.getIndex() === _playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.table.rows.length - 1);
+    // Can't play next when no song is chosen OR if the priority queue is empty and we are on the last playlist song
+    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentRow.getIndex() === null || (_songs__WEBPACK_IMPORTED_MODULE_5__.prioritySongs.isEmpty() && isLastPlaylistSong)) {
+        console.error("Error: Cannot play next song.");
+        return;
+    }
+    (0,_playlist__WEBPACK_IMPORTED_MODULE_6__.revertRow)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentRow.getIndex());
+    (0,_playlist__WEBPACK_IMPORTED_MODULE_6__.handleFindingNextSong)();
+}
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+const staticFolderURL = `${window.location.origin}/static`;
+const iconFolderPath = `${staticFolderURL}/media/icons`;
+// -=-=-=-=-=-=-=-=-=-=-=-=- prepare header buttons with listeners =-=-=-=-=-=-=-=-=-=-=-=-=-
+const headerPlayIcon = (0,_globals__WEBPACK_IMPORTED_MODULE_4__.getImgElemByID)("header-play-icon");
+headerPlayIcon.addEventListener('click', () => {
+    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentRow.getIndex() === null) {
+        (0,_playlist__WEBPACK_IMPORTED_MODULE_6__.getImgByRow)(0).click();
+    }
+});
+headerPlayIcon.addEventListener('mouseover', () => {
+    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentRow.getIndex() === null) {
+        headerPlayIcon.src = _globals__WEBPACK_IMPORTED_MODULE_4__.IMG_PATHS.lowerBarPlayHoverImgSrc;
+        headerPlayIcon.style.cursor = 'pointer';
+    }
+});
+headerPlayIcon.addEventListener('mouseout', () => {
+    headerPlayIcon.src = _globals__WEBPACK_IMPORTED_MODULE_4__.IMG_PATHS.globalPlayImgSrc;
+    headerPlayIcon.style.cursor = 'default';
+});
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+document.getElementById("seek-bar").addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentRow.getIndex() === null) {
+        return console.error("Error: Cannot use seekbar when no song is selected.");
+    }
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.audio.pause();
+    setSeekBarWidth(e);
+    // Even though this is called on onmouseup, this call also needs to be here for some reason.
+    updateCurrentSongTime();
+    document.onmouseup = e => {
+        e.preventDefault();
+        document.onmouseup = null;
+        document.onmousemove = null;
+        updateCurrentSongTime();
+        const currentSongSrc = (0,_playlist__WEBPACK_IMPORTED_MODULE_6__.getImgByRow)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentRow.getIndex()).src;
+        const pausedFromDragging = (currentSongSrc === _globals__WEBPACK_IMPORTED_MODULE_4__.IMG_PATHS.globalPlayingGifSrc);
+        if (pausedFromDragging)
+            _playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.audio.play();
+    };
+    document.onmousemove = e => {
+        e.preventDefault();
+        setSeekBarWidth(e);
+    };
+    function updateCurrentSongTime() {
+        const seekBarProgress = document.getElementById("seek-bar-progress");
+        _playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.audio.currentTime = (parseFloat(seekBarProgress.style.width) / 100) * _playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.audio.duration;
+    }
+    function setSeekBarWidth(e) {
+        const seekBar = document.getElementById("seek-bar");
+        const seekBarWidth = parseFloat(window.getComputedStyle(seekBar).getPropertyValue("width"));
+        const clickedPos = e.clientX;
+        const seekBarLeftOffset = seekBar.getBoundingClientRect().left;
+        const seekBarHandle = document.getElementById("seek-bar-handle");
+        const middleOfHandle = seekBarHandle.getBoundingClientRect().width / 2;
+        const clickedWidth = clickedPos - seekBarLeftOffset - middleOfHandle;
+        const seekBarProgress = document.getElementById("seek-bar-progress");
+        seekBarProgress.style.width = `${(clickedWidth / seekBarWidth) * 100}%`;
+    }
+});
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-= prepare footer buttons with listeners =-=-=-=-=-=-=-=-=-=-=-
 document.getElementById("volume-range").addEventListener("input", () => {
     const volRange = document.getElementById("volume-range");
     const volLevel = parseFloat(volRange.value);
     if (isNaN(volLevel)) { // this shouldn't happen, but just in case it does...
         return;
     }
-    _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.volume = volLevel;
+    _playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.audio.volume = volLevel;
     // round is needed because sometimes numbers come out as xx.000000001 or xx.99999999
     // this is probably due to unavoidable floating point arithmetic errors
     const volInt = Math.round(volLevel * 100);
     document.getElementById("volume-text").innerText = volInt.toString() + "%";
 });
-_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.addEventListener('timeupdate', () => {
-    const songPosition = _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.currentTime / _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.duration;
-    if (isNaN(songPosition))
-        return;
-    updatePlayingSongTimestamp(songPosition);
-    const playingSongEndedNaturally = (songPosition == 1 && !_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.isDraggingSong);
-    if (playingSongEndedNaturally) {
-        document.getElementById("seek-bar-progress").style.width = '0%';
-        const song = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.getSongObjectByRowNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.lastSongNum);
-        _contactServer__WEBPACK_IMPORTED_MODULE_4__.incrementPlayCount(song);
-        const isLastPlaylistSong = (song.rowNum === _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.table.rows.length - 1);
-        if (isLastPlaylistSong) {
-            song.isPlaying = false;
-            (0,_findImages__WEBPACK_IMPORTED_MODULE_5__.setSongImageByRowNum)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.lastSongNum);
-            (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.revertPageToNoSong)();
-            return;
+(0,_globals__WEBPACK_IMPORTED_MODULE_4__.getImgElemByID)("footer-prev-img").addEventListener('click', previousTrackButtonHandler);
+(0,_globals__WEBPACK_IMPORTED_MODULE_4__.getImgElemByID)("footer-play-img").addEventListener('click', playPauseButtonHandler);
+(0,_globals__WEBPACK_IMPORTED_MODULE_4__.getImgElemByID)("footer-next-img").addEventListener('click', nextTrackButtonHandler);
+const footerImgInfo = {
+    prev: {
+        id: "footer-prev-img",
+        srcs: {
+            normal: `${iconFolderPath}/prev.png`,
+            hover: `${iconFolderPath}/prevHover.png`
         }
-        const nextSongNum = _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.lastSongNum + 1;
-        (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.clickSongByRowNum)(nextSongNum);
+    },
+    play: {
+        id: "footer-play-img",
+        srcs: {
+            normal: `${iconFolderPath}/play.png`,
+            hover: `${iconFolderPath}/playHover.png`,
+            pause: `${iconFolderPath}/pause.png`,
+            pauseHover: `${iconFolderPath}/pauseHover.png`
+        }
+    },
+    next: {
+        id: "footer-next-img",
+        srcs: {
+            normal: `${iconFolderPath}/next.png`,
+            hover: `${iconFolderPath}/nextHover.png`
+        }
     }
-});
-function updatePlayingSongTimestamp(songPosition) {
-    const seekBarProgress = document.getElementById("seek-bar-progress");
-    seekBarProgress.style.width = `${songPosition * 100}%`;
-    const minutes = Math.floor(_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.currentTime / 60);
-    const seconds = Math.floor(_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.currentTime % 60);
-    let secondsStr = seconds.toString();
-    if (seconds < 10) {
-        secondsStr = `0${seconds}`;
-    }
-    const updateCurrentTime = document.getElementById("current-time-stamp");
-    updateCurrentTime.innerText = `${minutes}:${secondsStr}`;
+};
+for (const [current] of Object.entries(footerImgInfo)) {
+    const currentImage = (0,_globals__WEBPACK_IMPORTED_MODULE_4__.getImgElemByID)(footerImgInfo[current].id);
+    const currentSrcs = footerImgInfo[current].srcs;
+    const hasPauseImg = ('pause' in footerImgInfo[current].srcs);
+    currentImage.addEventListener('mouseover', () => {
+        if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_3__.currentRow.getIndex() === null)
+            return;
+        if (currentImage.src === currentSrcs.normal) {
+            currentImage.src = currentSrcs.hover;
+        }
+        if (hasPauseImg && currentImage.src === currentSrcs.pause) {
+            currentImage.src = currentSrcs.pauseHover;
+        }
+    });
+    currentImage.addEventListener('mouseout', () => {
+        if (currentImage.src === currentSrcs.hover) {
+            currentImage.src = currentSrcs.normal;
+        }
+        if (hasPauseImg && currentImage.src === currentSrcs.pauseHover) {
+            currentImage.src = currentSrcs.pause;
+        }
+    });
 }
-document.getElementById("seek-bar").addEventListener("mousedown", (e) => {
-    if (_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.lastSongNum === null) {
-        return console.error("Error: Cannot use seekbar when no song is selected.");
-    }
-    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.setDraggingSong)(true);
-    _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.pause();
-    e.preventDefault();
-    setSeekBarWidth(e);
-    updateCurrentSongTime();
-    document.onmouseup = stopDragElement;
-    document.onmousemove = dragElement;
-});
-function dragElement(e) {
-    e.preventDefault();
-    setSeekBarWidth(e);
-    updateCurrentSongTime();
-}
-function updateCurrentSongTime() {
-    const seekBarProgress = document.getElementById("seek-bar-progress");
-    _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.currentTime = (parseFloat(seekBarProgress.style.width) / 100) * _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.duration;
-}
-function stopDragElement() {
-    document.onmouseup = null;
-    document.onmousemove = null;
-    (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.setDraggingSong)(false);
-    const currentSongSrc = (0,_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.getImgByRow)(_playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.lastSongNum).src;
-    const pausedFromDragging = (currentSongSrc === _globals__WEBPACK_IMPORTED_MODULE_6__.IMG_PATHS.globalPlayingGifSrc);
-    if (pausedFromDragging)
-        _playlistGlobals__WEBPACK_IMPORTED_MODULE_7__.audio.play();
-}
-function setSeekBarWidth(e) {
-    const seekBar = document.getElementById("seek-bar");
-    const seekBarWidth = parseFloat(window.getComputedStyle(seekBar).getPropertyValue("width"));
-    const clickedPos = e.clientX;
-    const seekBarLeftOffset = seekBar.getBoundingClientRect().left;
-    const seekBarHandle = document.getElementById("seek-bar-handle");
-    const middleOfHandle = seekBarHandle.getBoundingClientRect().width / 2;
-    const clickedWidth = clickedPos - seekBarLeftOffset - middleOfHandle;
-    const seekBarProgress = document.getElementById("seek-bar-progress");
-    seekBarProgress.style.width = `${(clickedWidth / seekBarWidth) * 100}%`;
-}
-function generateTable() {
-    const numOfPlaylistSongs = parseInt(document.getElementById("script-tag").getAttribute("numOfSongs"));
-    const songNums = [...Array(numOfPlaylistSongs).keys()];
-    const rows = [];
-    for (let rowNum = 0; rowNum < numOfPlaylistSongs; rowNum++) {
-        rows.push(react__WEBPACK_IMPORTED_MODULE_0__.createElement(Row, { key: rowNum, rowNum: rowNum }));
-    }
-    const container = document.getElementById("song-table-body");
-    react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, songNums.map((_, rowNum) => {
-        return react__WEBPACK_IMPORTED_MODULE_0__.createElement(Row, { key: rowNum, rowNum: rowNum });
-    })), container);
-}
-/** This is used to create a Row only in the initial page load. */
-function Row({ rowNum }) {
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("tr", { className: "song-row" },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_RowContent__WEBPACK_IMPORTED_MODULE_8__.RowContent, { rowNum: rowNum })));
-}
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 })();
 

@@ -84,7 +84,7 @@ def playlist_page_load(playlist: str) -> str:
 	formatted_total_time = results[1]
 
 	return render_template(
-		"index.html", 
+		"playlist.html", 
 		playlistName = playlist,
 		playlistCreateDate = playlist_create_date,
 		formattedTotalTime = formatted_total_time,
