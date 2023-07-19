@@ -16,16 +16,50 @@ import { currentRow, } from './playlistGlobals';
 import { playlistSongs, prioritySongs, } from './songs';
 
 import { 
-	fillPlaylistPreviewImages, toggleSongPlay, handleFindingNextSong, playNewSong, revertRow, getImgByRow,
+	fillPlaylistPreviewImages, toggleSongPlay, handleFindingNextSong, playNewSong, revertRow, getImgByRow, setTotalPlaylistTimeText,
 } from './playlist';
 
 import { RowContent, } from './RowContent';
 
-import { handleFileDrop, } from './handleFileDrop';
+import * as contactServer from './contactServer';
 
 
 window["dragOverHandler"] = (e: DragEvent) => {e.preventDefault()};
-window["fileDropHandler"] = handleFileDrop;
+window["fileDropHandler"] = async (e: DragEvent) => {
+	e.preventDefault();
+
+	if(e.dataTransfer === null) return;
+	if(!e.dataTransfer.items) return;
+
+	const files = [...e.dataTransfer.items].map(item => item.getAsFile());
+
+	for(const songFile of files){
+		if(songFile === null) break;
+
+		// Checking if a file is of acceptable type should be done on the backend, not client-side.
+		const allowedFileTypes = ["audio/mpeg", "audio/x-m4a"];
+
+		if(!allowedFileTypes.includes(songFile.type)){
+			break;
+		}
+
+		await contactServer.uploadSongFile(songFile);
+
+		// rowIndex here is 0 because adding a song adds it to Last Added.
+		// Obviously, the song just added is the most recent, so it will be at the top of Last Added.
+		const newRow = table.insertRow(0);
+		newRow.classList.add("song-row");
+
+		// Make new song object AFTER the new row has been put in, but BEFORE the row content is put in.
+		playlistSongs.addSong(await contactServer.getSong(songFile.name));
+		setTotalPlaylistTimeText();
+
+		// Insert row content
+		ReactDOM.render(<RowContent rowIndex={0}/>, newRow);
+
+		fillPlaylistPreviewImages();
+	}
+}
 
 
 
@@ -56,6 +90,7 @@ window.onload = () => {
 	}
 
 	fillPlaylistPreviewImages();
+	setTotalPlaylistTimeText();
 
 	navigator.mediaSession.setActionHandler("previoustrack", previousTrackButtonHandler);
 	navigator.mediaSession.setActionHandler("play", playPauseButtonHandler);

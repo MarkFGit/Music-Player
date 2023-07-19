@@ -1,8 +1,7 @@
 // File for anything that both the playlist and songs can read/write to.
 // For example, the current playlist name is
 
-import { removeFileExtension, } from "../globals";
-import { getSongImage, } from "./findImages";
+import { getSpanElemByID, removeFileExtension, } from "../globals";
 
 
 export const currPlaylistName = (() => {
@@ -89,23 +88,11 @@ export const currentNonPriorityRow = (() => {
 
 
 export function setPlayingDisplayTitle(artist: string, title: string, fileName: string){
-	const playingTitle = <HTMLSpanElement> document.getElementById("playing-title");
+	const playingTitle = getSpanElemByID("playing-title");
 	if(artist === "" || title === ""){
 		playingTitle.innerText = `Playing: ${removeFileExtension(fileName)}`;
 	}
 	else{
 		playingTitle.innerText = `Playing: ${artist} - ${title}`;
 	}
-}
-
-
-/** This function changes the mediasession information. Mediasession information is displayed via media control pop-ups on different platforms
-(i.e. Windows/iOS/Android, etc.) */
-export async function updateMediaSessionMetadata(title: string, artist: string, album: string, fileName: string){
-	navigator.mediaSession.metadata = new MediaMetadata({
-		title: title,
-		artist: artist,
-		album: album,
-		artwork: [{src: await getSongImage(fileName)}]
-	})
 }

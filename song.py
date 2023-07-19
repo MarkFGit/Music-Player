@@ -2,19 +2,12 @@
 # any class/function which is only used by song methods
 
 
-from configparser import Error
 from flask import request, jsonify, Blueprint
 from dataclasses import dataclass
 from abc import ABC
 from PIL import Image, UnidentifiedImageError
 from io import BytesIO
-import jsonpickle
 import os
-import sys
-
-# Imports used to type variables ---------------------------------------------
-from datetime import datetime
-# ----------------------------------------------------------------------------
 
 
 # Imports from local scripts -------------------------------------------------
@@ -35,6 +28,7 @@ class Song(ABC):
 	artist: str
 	album: str
 	plays: int
+	hasCoverImage: bool
 
 	def __init__(self, songInfo):
 		self.fileName = songInfo[0]
@@ -43,6 +37,7 @@ class Song(ABC):
 		self.artist = songInfo[3]
 		self.album = songInfo[4]
 		self.plays = songInfo[5]
+		self.hasCoverImage = songInfo[6]
 
 
 @dataclass
@@ -52,17 +47,17 @@ class LastAddedPlaylistSong(Song):
 	date: str
 	def __init__(self, songInfo):
 		Song.__init__(self, songInfo)
-		self.date = format_date(songInfo[6])
+		self.date = format_date(songInfo[7])
 
 
 @dataclass
 class CustomPlaylistSong(Song):
 	"""Stores info for any song rendered in a playlist which isn't `Last Added` """
 
-	dbIndex: int
+	indexInPlaylist: int
 	def __init__(self, songInfo):
 		Song.__init__(self, songInfo)
-		self.dbIndex = songInfo[6]
+		self.indexInPlaylist = songInfo[7]
 
 
 def get_title(song_title: str | None, song_name: str) -> str:
@@ -71,34 +66,26 @@ def get_title(song_title: str | None, song_name: str) -> str:
 	return remove_file_extension(song_name)
 
 
-def get_time_of_song(file_name: str) -> int:
-	db_ptr = get_db_cursor()
-	db_ptr.execute("SELECT `Song Time Seconds` FROM `Last Added` WHERE `File Name` = %s", (file_name,))
-	results = db_ptr.fetchall()
-
-	if(len(results) == 0):
-		raise DataBaseDataIntegrityError(f"Song with file name: `{file_name}` was not present even though it should've been.")
-	return results[0][0]
-
-
 @song_routes.route("/getSongInfo", methods=["POST"])
 def get_song_obj_info() -> dict:
+	""" Used to get the official song info of a song that has just been uploaded. """
 	song_file_name = request.data.decode("utf-8")
 
 	db_ptr = get_db_cursor()
 	db_ptr.execute(
 		"""SELECT 
-		`File Name`, 
-		Title, 
-		`Formatted Song Time`,
-		Artist, 
-		Album, 
-		Plays, 
-		`Date Created`
-		FROM `Last Added` WHERE `File Name` = %s""", (song_file_name,)
+		file_name, 
+		title, 
+		duration_seconds,
+		artist, 
+		album, 
+		plays,
+		has_cover_image,
+		datetime_created
+		FROM songs WHERE file_name = %s""", (song_file_name,)
 	)
 
-	song_info = db_ptr.fetchall()[0]
+	song_info = db_ptr.fetchone()
 	song_obj = jsonify(LastAddedPlaylistSong(song_info)).get_json()
 
 	return {"songObj": song_obj}
@@ -115,15 +102,15 @@ def update_song_info() -> str:
 
 	match attribute:
 		case "album":
-			db_ptr.execute("UPDATE `Last Added` SET album = %s WHERE `File Name` = %s", (new_value,	song_file_name))
+			db_ptr.execute("UPDATE songs SET album = %s WHERE file_name = %s", (new_value,	song_file_name))
 		case "artist":
-			db_ptr.execute("UPDATE `Last Added` SET artist = %s WHERE `File Name` = %s", (new_value, song_file_name))
+			db_ptr.execute("UPDATE songs SET artist = %s WHERE file_name = %s", (new_value, song_file_name))
 		case "date":
-			db_ptr.execute("UPDATE `Last Added` SET `Date Created` = %s WHERE `File Name` = %s", (new_value, song_file_name))
+			db_ptr.execute("UPDATE songs SET datetime_created = %s WHERE file_name = %s", (new_value, song_file_name))
 		case "plays":
-			db_ptr.execute("UPDATE `Last Added` SET plays = %s WHERE `File Name` = %s", (new_value,	song_file_name))
+			db_ptr.execute("UPDATE songs SET plays = %s WHERE file_name = %s", (new_value,	song_file_name))
 		case "title":
-			db_ptr.execute("UPDATE `Last Added` SET title = %s WHERE `File Name` = %s", (new_value,	song_file_name))
+			db_ptr.execute("UPDATE songs SET title = %s WHERE file_name = %s", (new_value,	song_file_name))
 		case _:
 			raise Exception(f"Invalid attribute type, got attribute: {attribute}")
 
@@ -142,23 +129,32 @@ def update_song_cover_img() -> str:
 	return "OK"
 
 
+# Nuke this function once everything looks good...
 @song_routes.route("/findImage", methods=["POST"])
 def find_image_on_server() -> dict:
 	song_cover_name = request.data.decode("utf-8")
 	song_cover_path = os.path.join(song_routes.root_path, f"static/media/songCovers/{song_cover_name}")
 
+	# NEED TO CREATE ANOTHER ATTRIBUTE ON songs TABLE FOR LAST MODIFIED TIME
+	# Instead could add another attribute named something like: number_of_times_cover_image_modified (lol so long)
+	# May NOT need this attribute, try testing the following:
+		# Have song objects on the front end have this attr, initialized to 0
+		# Have the image path be {image_path}?{number_of_times_cover_image_modified}
+		# Test this: Does, upon page refresh, the image use the newest image or does it used the cached, out-of-date image?
 	if(os.path.exists(song_cover_path)):
 		return {"imageFound": True, "lastModTime": os.path.getmtime(song_cover_path)}
 	return {"imageFound": False}
 
 
-def save_cover_img_to_file_system(file_name: str, cover_image_data: bytes) -> None:
+# Returns a bool, True means successful, False means unsuccessful
+def save_cover_img_to_file_system(file_name: str, cover_image_data: bytes) -> bool:
 	cover_path_folder = os.path.join(song_routes.root_path, "static/media/songCovers")
 	song_cover_name = f"{remove_file_extension(file_name)}.jpeg"
 
 	try:
 		coverBytes = Image.open(BytesIO(cover_image_data))
 		coverBytes.save(f"{cover_path_folder}/{song_cover_name}")
+		return True
 	except UnidentifiedImageError:
 		print(
 			f"""
@@ -167,17 +163,36 @@ def save_cover_img_to_file_system(file_name: str, cover_image_data: bytes) -> No
 			"""
 		)
 
+		return False
 
-def delete_associated_song_files(song_file_name: str, song_name: str) -> None:
+
+@song_routes.route("/deleteSong", methods=["POST"])
+def delete_song_from_db() -> str:
+	song_file_name = request.form.to_dict()["songFileName"]
+
+	db_ptr = get_db_cursor()
+	db_ptr.execute("DELETE FROM songs WHERE file_name = %s", (song_file_name,))
+	if(db_ptr.rowcount == 0):
+		raise DataBaseDataIntegrityError(
+			f"Attempted to delete a song which does not exist. Song filename: {song_file_name}"
+		)	
+
+	song_name = remove_file_extension(song_file_name)
+
 	song_file_path = f"./static/media/songs/{song_file_name}"
 	song_cover_file_path = f"./static/media/songCovers/{song_name}.jpeg"
 
 	if(not os.path.exists(song_file_path)):
 		raise DataBaseDataIntegrityError(
-			f"Tried to delete a song which doesn't exist. Song filename: {song_file_name}"
+			f"Attempted to delete a song's associated files that don't exist. Song filename: {song_file_name}"
 		)
+
 	os.remove(song_file_path)
 
 	if(os.path.exists(song_cover_file_path)):
 		os.remove(song_cover_file_path)
 
+	db = get_db_conn()
+	db.commit()
+
+	return "OK"

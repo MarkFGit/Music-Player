@@ -20,7 +20,7 @@ module.exports = {
 		// For some reason it's incredibly hard to have only the scss file generate.
 		// So that's why this is named this way.
 		doNotUse: glob.sync('./static/scss/**.scss'),
-		playlists: './static/scripts/playlistScripts/script.tsx',
+		playlists: './static/scripts/playlistScripts/setupPlaylistPage.tsx',
 		home: './static/scripts/homepageScripts/homePage.tsx',
 	},
 	output: {

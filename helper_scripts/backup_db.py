@@ -1,7 +1,4 @@
-import schedule
-import time
-from datetime import datetime, timedelta
-from datetime import time as datetime_time
+from datetime import datetime
 import os
 import subprocess
 import shutil
@@ -11,12 +8,19 @@ import sys
 import backend_env
 # --------------------------------------
 
-def back_up_db(db_name: str, backups_folder: str) -> None:
+def back_up_db(db_name: str) -> None:
 	"""
 	Backups the database (and any possible errors) 
 	to a local location within the website folder
 	and to a cloud location (within Mega).
 	"""
+	website_folder = sys.path[0]
+	backups_folder = f"{website_folder}/local backups"
+
+	# If the backups folder doesn't exist, make it
+	if(not os.path.isdir(backups_folder)):
+		os.mkdir(backups_folder)
+
 	date_file_name = str(datetime.now()).replace("-", "_").replace(":", "_")
 	
 	new_dir_path = os.path.join(backups_folder, date_file_name)
@@ -60,31 +64,3 @@ def copy_backup_to_MEGA(loc_norm_file_path: str, loc_err_file_path: str, date_fi
 
 	if os.path.isfile(loc_err_file_path):
 		shutil.copy2(loc_err_file_path, mega_err_path)
-
-
-
-def start_db_backup_process(db_name: str) -> None:
-	""" Runs the db backup process to happen every day. """
-
-	website_folder = sys.path[0]
-	backups_folder = f"{website_folder}/local backups"
-
-	# If the backups folder doesn't exist, make it
-	if(not os.path.isdir(backups_folder)):
-		os.mkdir(backups_folder)
-
-	print("Backup cycle starting...")
-
-	schedule.every().day.at("00:00:00").do(lambda: back_up_db(db_name, backups_folder))
-	while True:
-		schedule.run_pending()
-		# Back up db "tomorrow" at 1 minute after midnight.
-		tonight_at_midnight = datetime.combine(datetime.now().date(), datetime_time(0, 1)) + timedelta(1)
-		sleep_until(tonight_at_midnight) 
-
-
-def sleep_until(target: datetime) -> None:
-	delta = target - datetime.now()
-
-	if(delta > timedelta(0)):
-		time.sleep(delta.total_seconds())

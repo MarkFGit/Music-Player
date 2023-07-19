@@ -1,15 +1,12 @@
 // This file is used to manipulate the state of the playlist
 
-import { Song, playlistSongs, prioritySongs, } from "./songs";
+import { Song, playlistSongs, prioritySongs, updateMediaSessionMetadata } from "./songs";
 
 import { 
-	audio, table, setPlayingDisplayTitle, updateMediaSessionMetadata, currentRow, currentNonPriorityRow,
+	audio, table, setPlayingDisplayTitle, currentRow, currentNonPriorityRow,
 } from "./playlistGlobals";
 
-import { IMG_PATHS, getImgElemByID, PAGE_PROPERTIES, getSpanElemByID, getDivElemByID, } from "./../globals";
-
-import { getSongImage, } from "./findImages";
-
+import { IMG_PATHS, getImgElemByID, PAGE_PROPERTIES, getSpanElemByID, getDivElemByID, formatTime, } from "./../globals";
 
 audio.ontimeupdate = () => {
 	const songPosition = audio.currentTime / audio.duration;
@@ -55,6 +52,7 @@ export function handleFindingNextSong(){
 
 		// If the current song is the last song in the playlist
 		if(currentNonPriorityRow.getIndex() === table.rows.length - 1){
+			revertRow(table.rows.length - 1);
 			revertPageToNoSong();
 			return;
 		}
@@ -83,10 +81,10 @@ export function playNewSong(rowIndex: number){
 
 	// update lower bar text
 	setPlayingDisplayTitle(newSong.artist, newSong.title, newSong.fileName);
-	document.getElementById("curr-song-duration-text").innerText = newSong.duration;
+	getSpanElemByID("curr-song-duration-text").innerText = newSong.duration;
 
 
-	updateMediaSessionMetadata(newSong.title, newSong.artist, newSong.album, newSong.fileName);
+	updateMediaSessionMetadata(newSong);
 	audio.src = `${PAGE_PROPERTIES.staticFolderURL}/media/songs/${newSong.fileName}`;
 	
 	// Finally... play the song.
@@ -111,7 +109,9 @@ export function toggleSongPlay(){
 
 	playPromise.then(() => {
 		audio.pause();
-		setToCoverImg(currentRow.getIndex());
+
+		const song = playlistSongs.getSong(currentRow.getIndex());
+		getImgByRow(currentRow.getIndex()).src = song.coverImagePath;
 		setFooterPlayImgSrc();
 	})
 	.catch(error => {
@@ -122,12 +122,11 @@ export function toggleSongPlay(){
 
 function playSong(){
 	audio.play();
-	setToPlayingGif(currentRow.getIndex());
+	getImgByRow(currentRow.getIndex()).src = IMG_PATHS.globalPlayingGifSrc;
 	setFooterPlayImgSrc();
 }
 
 
-// the table.rows line needs to moved into a seperate func so that this func can be moved into page.ts
 export function revertPageToNoSong(){
 	getImgElemByID("footer-play-img").src = IMG_PATHS.globalPlayImgSrc;
 	getSpanElemByID("current-time-stamp").innerText = '-:--';
@@ -135,7 +134,6 @@ export function revertPageToNoSong(){
 	getSpanElemByID("curr-song-duration-text").innerText = '-:--';
 	getDivElemByID("seek-bar-progress").style.width = '0%';
 
-	table.rows[table.rows.length - 1].setAttribute("style", "background-color: ;");
 	audio.src = "";
 	audio.pause();
 
@@ -145,8 +143,9 @@ export function revertPageToNoSong(){
 
 
 export function revertRow(rowIndex: number){
-	setToCoverImg(rowIndex);
-	table.rows[currentRow.getIndex()].classList.remove("active-row");
+	const song = playlistSongs.getSong(rowIndex);
+	getImgByRow(rowIndex).src = song.coverImagePath;
+	table.rows[rowIndex].classList.remove("active-row");
 }
 
 
@@ -196,15 +195,6 @@ export function setToPlayingGif(rowIndex: number): void {
 }
 
 
-export async function setToCoverImg(rowIndex: number): Promise<void> {
-	const song = playlistSongs.getSong(rowIndex);
-
-	// for some reason this const is needed
-	const imgSrc = await getSongImage(song.fileName);
-	getImgByRow(rowIndex).src = imgSrc;
-} 
-
-
 export async function fillPlaylistPreviewImages(): Promise<void> {
 	const numOfPlaylistSongs = table.rows.length;
 	let numOfFoundPreviewImages = 0;
@@ -212,9 +202,8 @@ export async function fillPlaylistPreviewImages(): Promise<void> {
 
 	for(let index = 0; index < numOfPlaylistSongs; index++){
 		const song = playlistSongs.getSong(index);
-		const currentCoverSrc = await getSongImage(song.fileName);
-		if(currentCoverSrc !== IMG_PATHS.noCoverImgSrc){
-			getImgElemByID(`cover-preview-${numOfFoundPreviewImages}`).src = currentCoverSrc;
+		if(song.hasCoverImage){
+			getImgElemByID(`cover-preview-${numOfFoundPreviewImages}`).src = song.coverImagePath;
 			numOfFoundPreviewImages++;
 		}
 		if(numOfFoundPreviewImages === maxNumOfPreviews){
@@ -247,4 +236,11 @@ function setFooterPlayImgSrc(): void {
 		}
 		return IMG_PATHS.globalPlayImgSrc;
 	}
+}
+
+
+export function setTotalPlaylistTimeText(): void {
+	const playlist_time = playlistSongs.getPlaylistTimeInSeconds()
+
+	getSpanElemByID("playlist-total-time").innerText = formatTime(playlist_time);
 }

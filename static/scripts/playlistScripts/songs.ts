@@ -1,8 +1,8 @@
 import { handleError as handleError } from "../contactServerGlobals";
-import { isPlaylistPage } from "../globals";
+import { formatTime, IMG_PATHS, isPlaylistPage, removeFileExtension } from "../globals";
 
 import { 
-	currPlaylistName, isLastAddedPlaylist, table, setPlayingDisplayTitle, updateMediaSessionMetadata, currentRow,
+	currPlaylistName, isLastAddedPlaylist, table, setPlayingDisplayTitle, currentRow, audio,
 } from "./playlistGlobals";
 
 
@@ -10,37 +10,44 @@ import {
 /** Object used to store a song's attributes. So far only data is kept here, no functions yet. 
  * This class is exported only for typing purposes. Do not use this constructor outside this file! 
  * 
- * At some point in the future, I'd like to have all attributes be private and only retrievable via getters and update functions
  * */
 export class Song{
-	album: string;
-	artist: string;
+	private _album: string;
+	private _artist: string;
 	// Should probably change this to Date type in the future...
-	date: string;
+	private _date: string;
 	/** This attribute is the index of the song in corresponding playlist table. 
 	 * Note: indices are not in `Last Added` so this is null for Last Added */
-	dbIndex: number;
+	private _dbIndex: number;
 	readonly duration: string;
+	readonly duration_seconds: number; 
 	readonly fileName: string;
+	private _hasCoverImage: boolean;
+	/** This attribute should only be read in 'get coverImagePath'. It's used to avoid the caching problem in browsers. */
+	private _coverImageNumberOfUpdates: number;
 	/** This attribute will be used in the future when viewing a playlist as a queue is possible.  */
 	isSkipped: boolean = false;
-	plays: number;
+	private _plays: number;
 	/** This attribute points the song's respective row in a table and is used solely to acccess the rowIndex via the rowIndex function.
 	 * It allows for a song's rowIndex to be updated automatically via the inner workings of how a table manages its rows, so
 	 * this means deleting/adding a song to the table requires no extra effort to maintain correct row indexes. */
 	private readonly row: HTMLTableRowElement;
-	title: string;
+	private _title: string;
+
 
 	constructor(songObj: object, index: number){
-		this.album = songObj["album"];
-		this.artist = songObj["artist"];
-		this.date = songObj["date"];
-		this.dbIndex = songObj["dbIndex"];
-		this.duration = songObj["duration"];
-		this.fileName = songObj["fileName"];  
-		this.plays = songObj["plays"];
+		this._album = songObj["album"];
+		this._artist = songObj["artist"];
+		this._date = songObj["date"];
+		this._dbIndex = songObj["indexInPlaylist"];
+		this.duration = formatTime(songObj["duration"]);
+		this.duration_seconds = songObj["duration"];
+		this.fileName = songObj["fileName"];
+		this._hasCoverImage = songObj["hasCoverImage"];
+		this._coverImageNumberOfUpdates = 0;
+		this._plays = songObj["plays"];
 		this.row = table.rows[index];
-		this.title = songObj["title"];
+		this._title = songObj["title"];
 	}
 
 	get rowIndex(): number {
@@ -51,6 +58,40 @@ export class Song{
 		return (currentRow.getIndex() === this.rowIndex);
 	}
 
+	get album(): string {
+		return this._album;
+	}
+
+	get artist(): string {
+		return this._artist;
+	}
+
+	get date(): string {
+		return this._date;
+	}
+
+	get coverImagePath(): string {
+		if(this._hasCoverImage) return `/static/media/songCovers/${removeFileExtension(this.fileName)}.jpeg?${this._coverImageNumberOfUpdates}`;
+		
+		return IMG_PATHS.noCoverImgSrc;
+	}
+
+	get dbIndex(): number {
+		return this._dbIndex;
+	}
+
+	get hasCoverImage(): boolean {
+		return this._hasCoverImage;
+	}
+
+	get plays(): number {
+		return this._plays;
+	}
+
+	get title(): string {
+		return this._title;
+	}
+
 	async setAlbum(newAlbum: string): Promise<void> {
 		const response = await this.updateAttribute("album", newAlbum);
 
@@ -59,14 +100,12 @@ export class Song{
 			return;
 		}
 
-		this.album = newAlbum;
+		this._album = newAlbum;
 
-		// No need to check if the current page is a playlist page, because an update to a title can only happen in a playlist page.
 		this.updateSongRowText(".album", newAlbum);
 
 		if(this.isThisSongCurrent){
-			// update media session metadata
-			updateMediaSessionMetadata(this.title, this.artist, this.album, this.fileName);
+			updateMediaSessionMetadata(this);
 		}
 	}
 
@@ -78,17 +117,15 @@ export class Song{
 			return;
 		}
 
-		this.artist = newArtist;
+		this._artist = newArtist;
 
-		// No need to check if the current page is a playlist page, because an update to a title can only happen in a playlist page.
 		this.updateSongRowText(".artist", newArtist);
 		
 		if(this.isThisSongCurrent){
 			// update the lower bar info
-			setPlayingDisplayTitle(this.artist, this.title, this.fileName);
+			setPlayingDisplayTitle(this._artist, this._title, this.fileName);
 
-			// update media session metadata
-			updateMediaSessionMetadata(this.title, this.artist, this.album, this.fileName);
+			updateMediaSessionMetadata(this);
 		}
 	}
 
@@ -110,7 +147,7 @@ export class Song{
 		// Final date is '9/2/23'
 		const newTextDate = `${month}/${day}/${year}`;
 
-		this.date = newTextDate;
+		this._date = newTextDate;
 
 		if(!isLastAddedPlaylist) return;
 
@@ -125,17 +162,14 @@ export class Song{
 			return;
 		}
 
-		this.title = newTitle;
+		this._title = newTitle;
 
 		if(this.isThisSongCurrent){
 			// update the lower bar info
-			setPlayingDisplayTitle(this.artist, this.title, this.fileName);
+			setPlayingDisplayTitle(this._artist, this._title, this.fileName);
 
-			// update media session metadata
-			updateMediaSessionMetadata(this.title, this.artist, this.album, this.fileName);
+			updateMediaSessionMetadata(this);
 		}
-
-		// No need to check if the current page is a playlist page, because an update to a title can only happen in a playlist page.
 		
 		this.updateSongRowText(".title", newTitle)
 	}
@@ -152,9 +186,11 @@ export class Song{
 			throw new Error();
 		}
 
+		this._hasCoverImage = true;
+		this._coverImageNumberOfUpdates += 1;
+
 		if(this.isThisSongCurrent){
-			// update media session metadata
-			updateMediaSessionMetadata(this.title, this.artist, this.album, this.fileName);
+			updateMediaSessionMetadata(this);
 		}
 	}
 
@@ -167,7 +203,7 @@ export class Song{
 			return;
 		}
 
-		this.plays += 1;
+		this._plays += 1;
 
 		if(!isPlaylistPage) return;
 
@@ -254,6 +290,15 @@ export const playlistSongs = (() => {
 		getSong: function(rowIndex: number): Song {
 			return _allSongs[rowIndex];
 		},
+
+		getPlaylistTimeInSeconds: function(): number {
+			let sum = 0
+			for(const song of _allSongs){
+				sum += song.duration_seconds;
+			}
+
+			return sum;
+		}
 	};
 })();
 
@@ -299,3 +344,16 @@ export const prioritySongs = (() => {
 		},
 	}
 })();
+
+
+
+/** This function changes the mediasession information. Mediasession information is displayed via media control pop-ups on different platforms
+(i.e. Windows/iOS/Android, etc.) */
+export async function updateMediaSessionMetadata(song: Song){
+	navigator.mediaSession.metadata = new MediaMetadata({
+		title: song.title,
+		artist: song.artist,
+		album: song.album,
+		artwork: [{src: song.coverImagePath}]
+	})
+}

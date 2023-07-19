@@ -59,6 +59,24 @@ export function removeFileExtension(fileName: string): string {
 }
 
 
+/** Takes a duration of time in seconds and converts it to hh:mm:ss or mm:ss format */
+export function formatTime(time_seconds: number): string {
+	const hours = Math.floor(time_seconds / 3600);
+	const remaining_time = time_seconds - (hours * 3600);
+	let minutes = (Math.floor(remaining_time / 60)).toString();
+	let seconds = (remaining_time % 60).toString();
+
+	if(parseInt(seconds) < 10) seconds = `0${seconds}`;
+
+	if(hours == 0) return `${minutes}:${seconds}`;
+
+	if(parseInt(minutes) < 10) minutes = `0${minutes}`;
+
+	return `${hours}:${minutes}:${seconds}`;
+}
+
+
+
 /** Adds the ability to exit a screen prompt by pressing the escape key. 
  * @param removeCurrentPromptFunc - Invoked when the escape key is pressed which in turn removes the current prompt.
  * Examples include: Exiting a screen prompt which prevents you from doing anything else from the page.

@@ -1,6 +1,5 @@
 # This file serves to make updating dev to prod smoother such that:
 	# No modifications are necessary when moving updated python files to another environment.
-# The app will fail at the start if 
 
 import os
 import sys

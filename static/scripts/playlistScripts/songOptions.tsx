@@ -7,7 +7,7 @@ import {
 } from './../globals';
 
 import { 
-	getRowIndexByEventTarget, fillPlaylistPreviewImages, revertPageToNoSong, setToCoverImg,
+	getRowIndexByEventTarget, fillPlaylistPreviewImages, revertPageToNoSong, getImgByRow, setTotalPlaylistTimeText,
 } from './playlist';
 
 import { table, currPlaylistName, isLastAddedPlaylist, audio, currentRow, } from './playlistGlobals';
@@ -18,7 +18,6 @@ import { Song, playlistSongs, prioritySongs, } from './songs';
 import { renderScreenPrompt, removeScreenPrompt, } from "./../renderScreenPrompt";
 import { ScreenPromptCancelButton, } from '../ScreenPromptCancelButton';
 import { resolvePlaylistNames, } from './../contactServerGlobals';
-import { getSongImage, } from './findImages';
 
 
 /** Generic prompt which is generated for a particular row.
@@ -68,13 +67,12 @@ export function SongOptionsDropDown({e}: {e: React.MouseEvent}): JSX.Element {
 		top: (buttonPos.y + 20) + 'px'
 	};
 
-	const rowNum = getRowIndexByEventTarget(e.target);
-	const song = playlistSongs.getSong(rowNum);
+	const rowIndex = getRowIndexByEventTarget(e.target);
+	const song = playlistSongs.getSong(rowIndex);
 
 	const removeSongOption = SongOption("Remove Song From Playlist", async () => {
 		await contactServer.removeSongFromCurrPlaylist(song);
-		const newPlaylistTime = await contactServer.getUpdatedPlaylistTime(currPlaylistName);
-		updatePageForDeletedRow(rowNum, newPlaylistTime);
+		updatePageForDeletedRow(rowIndex);
 		unmountSongOptionsContainer();
 	});
 
@@ -135,7 +133,7 @@ async function renderPlaylistNamesDropDown(e: React.SyntheticEvent, songFileName
 }
 
 
-function updatePageForDeletedRow(rowIndex: number, newTotalTime: string){
+function updatePageForDeletedRow(rowIndex: number){
 	if(currentRow.getIndex() === rowIndex){
 		revertPageToNoSong();
 	}
@@ -144,24 +142,22 @@ function updatePageForDeletedRow(rowIndex: number, newTotalTime: string){
 	table.deleteRow(rowIndex);
 	fillPlaylistPreviewImages();
 
-	document.getElementById("playlist-total-time").innerText = newTotalTime;
+	setTotalPlaylistTimeText();
 }
 
 
 
 function renderDeleteSongScreenPrompt(songRowIndex: number, songFileName: string): void {
-	const songName = removeFileExtension(songFileName);
 	renderScreenPrompt(
         <>
             <span className="screen-prompt-text"> 
-            	Are you sure you want to delete the song "{songName}" from your account? 
+            	Are you sure you want to delete the song "{removeFileExtension(songFileName)}" from your account? 
             </span>
             <button
                 className="screen-prompt-positive-button"
                 onClick={async () => {
-                    await contactServer.deleteSongFromDB(songFileName, songName);
-                    const newTotalTime = await contactServer.getUpdatedPlaylistTime(currPlaylistName);
-                    updatePageForDeletedSong(songRowIndex, songFileName, newTotalTime);
+                    await contactServer.deleteSongFromDB(songFileName);
+                    updatePageForDeletedSong(songRowIndex, songFileName);
                     removeScreenPrompt();
                 }}
             >
@@ -173,8 +169,8 @@ function renderDeleteSongScreenPrompt(songRowIndex: number, songFileName: string
 }
 
 
-function updatePageForDeletedSong(songRowIndex: number, deletedSongFileName: string, newTotalTime: string){
-	document.getElementById("playlist-total-time").innerText = newTotalTime;
+function updatePageForDeletedSong(songRowIndex: number, deletedSongFileName: string){
+	setTotalPlaylistTimeText();
 
 	if(songRowIndex === currentRow.getIndex()){
 		revertPageToNoSong();
@@ -189,6 +185,8 @@ function updatePageForDeletedSong(songRowIndex: number, deletedSongFileName: str
 			table.deleteRow(row.rowIndex);
 		}
 	});
+
+	setTotalPlaylistTimeText();
 
 	// need to go through priority songs too
 	prioritySongs.updateForDeletedSong(deletedSongFileName);
@@ -221,6 +219,7 @@ function renderEditSongWindow(rowNum: number): void {
 				<img 
 					id="edit-prompt-img"
 					className="row-img"
+					src={song.coverImagePath}
 					/* will want some onHover effect in the future */
 				>
 				</img>
@@ -249,13 +248,6 @@ function renderEditSongWindow(rowNum: number): void {
 			</div>
 		</>
 	);
-
-	const setImgSrc = async () => {
-		const editPreviewImg = getImgElemByID("edit-prompt-img");
-		editPreviewImg.src = await getSongImage(song.fileName);
-	};
-
-	setImgSrc();
 }
 
 
@@ -314,7 +306,7 @@ async function handleSongEdit(rowNum: number): Promise<void> {
 		await song.setSongCoverImage(files[0]);
 
 		if(audio.paused || rowNum !== currentRow.getIndex()){
-			setToCoverImg(rowNum);
+			getImgByRow(rowNum).src = song.coverImagePath;
 		}
 		fillPlaylistPreviewImages();
 	}

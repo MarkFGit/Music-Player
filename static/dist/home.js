@@ -33442,6 +33442,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "IMG_PATHS": () => (/* binding */ IMG_PATHS),
 /* harmony export */   "PAGE_PROPERTIES": () => (/* binding */ PAGE_PROPERTIES),
 /* harmony export */   "addEscapeFeature": () => (/* binding */ addEscapeFeature),
+/* harmony export */   "formatTime": () => (/* binding */ formatTime),
 /* harmony export */   "getDivElemByID": () => (/* binding */ getDivElemByID),
 /* harmony export */   "getImgElemByID": () => (/* binding */ getImgElemByID),
 /* harmony export */   "getInputElemByID": () => (/* binding */ getInputElemByID),
@@ -33490,6 +33491,20 @@ const IMG_PATHS = Object.freeze({
 });
 function removeFileExtension(fileName) {
     return fileName.slice(0, fileName.lastIndexOf("."));
+}
+/** Takes a duration of time in seconds and converts it to hh:mm:ss or mm:ss format */
+function formatTime(time_seconds) {
+    const hours = Math.floor(time_seconds / 3600);
+    const remaining_time = time_seconds - (hours * 3600);
+    let minutes = (Math.floor(remaining_time / 60)).toString();
+    let seconds = (remaining_time % 60).toString();
+    if (parseInt(seconds) < 10)
+        seconds = `0${seconds}`;
+    if (hours == 0)
+        return `${minutes}:${seconds}`;
+    if (parseInt(minutes) < 10)
+        minutes = `0${minutes}`;
+    return `${hours}:${minutes}:${seconds}`;
 }
 /** Adds the ability to exit a screen prompt by pressing the escape key.
  * @param removeCurrentPromptFunc - Invoked when the escape key is pressed which in turn removes the current prompt.

@@ -69,21 +69,3 @@ def format_date(song_date: datetime) -> str:
 def remove_file_extension(file_name: str) -> str:
 	file_extension_dot_pos = file_name.rindex(".")
 	return file_name[:file_extension_dot_pos]
-
-
-def format_duration_text(song_duration: int) -> str:
-	"""Takes a duration of time in seconds and converts it to hh:mm:ss or mm:ss format"""
-
-	hours = int(song_duration / 3600)
-	remaining_time = song_duration - (hours * 3600)
-	minutes = int(remaining_time / 60)
-	seconds = int(remaining_time % 60)
-
-	if(seconds < 10):
-		seconds = f"0{seconds}"
-	if(hours == 0):
-		return f"{minutes}:{seconds}"
-
-	if(minutes < 10):
-		minutes = f"0{minutes}"
-	return f"{hours}:{minutes}:{seconds}"

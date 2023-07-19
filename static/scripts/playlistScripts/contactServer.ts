@@ -25,7 +25,7 @@ export async function addSongToPlaylist(songFileName: string, playlistName: stri
 
 export async function removeSongFromCurrPlaylist(song: Song): Promise<void> {
 	const form = new FormData();
-	form.append('songPlaylistIndex', song.dbIndex.toString());
+	form.append('indexInPlaylist', song.dbIndex.toString());
 	form.append('playlistName', currPlaylistName);
 
 	const response = await fetch("/removeSong", {method: "POST", body: form});
@@ -41,10 +41,9 @@ export async function removeSongFromCurrPlaylist(song: Song): Promise<void> {
 }
 
 
-export async function deleteSongFromDB(songFileName: string, songName: string): Promise<void> {
+export async function deleteSongFromDB(songFileName: string): Promise<void> {
 	const form = new FormData();
 	form.append('songFileName', songFileName);
-	form.append('songName', songName);
 
 	const response = await fetch("/deleteSong", {method: "POST", body: form});
 
@@ -57,21 +56,31 @@ export async function deleteSongFromDB(songFileName: string, songName: string): 
 }
 
 
-export async function getUpdatedPlaylistTime(playlistName: string): Promise<string> {
-	const response = await fetch("/getPlaylistTime", {method: "POST", body: playlistName});
-	
-	if(response.ok){
-		const result = await response.json();
-		return result["totalTime"];
-	}
-
-	handleError("Failed to get new playlist time.", `Failed with status: ${response.status} on current playlist: ${playlistName}`);
-}
-
-
 export async function getSong(songFileName: string){
 	const response = await fetch("/getSongInfo", {method: "POST", body: songFileName});
 	
 	const result = await response.json();
 	return result["songObj"];
+}
+
+
+export async function uploadSongFile(songFile: File){
+	const form = new FormData();
+	form.append("file", songFile);
+
+	// This await is necessary, otherwise the SQL server recieves to many requests and will crash.
+	// Wrap the this function call in a try catch block.
+	// That way if uploading multiple files, one fails but the rest can attempt to go through.
+	const response = await fetch("/uploadSongFile", { method: "POST", body: form });
+
+	if(!response.ok){
+		handleError(
+			`Failed to upload song with filename: "${songFile.name}".` 
+			+ "It is likely this file name already exists in the DB which is causing the error.",
+			`Failed with status: ${response.status}.`
+		);
+		return;
+	}
+
+	renderCustomTextBox("Song successfully uploaded!");
 }

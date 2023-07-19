@@ -1,8 +1,8 @@
 import * as React from 'react';
 
 import { renderSongOptionsDropDown, SongOptionsDropDown, } from "./songOptions";
-import { getRowIndexByEventTarget, toggleSongPlay, revertRow, playNewSong, setToCoverImg, setToPlayingGif, } from "./playlist";
-import { isLastAddedPlaylist, audio, currentRow, currentNonPriorityRow, } from './playlistGlobals';
+import { getRowIndexByEventTarget, toggleSongPlay, revertRow, playNewSong, } from "./playlist";
+import { isLastAddedPlaylist, currentRow, currentNonPriorityRow, } from './playlistGlobals';
 import { playlistSongs, } from "./songs";
 
 /** Used when initalizing the playlist table or when adding a new song. */
@@ -11,11 +11,14 @@ export function RowContent({ rowIndex }: { rowIndex: number; }): JSX.Element {
     // The "date" class allows the updating of the duration text. This class is not used in the css!
     const dateField = <span className="date-field-container date"> {song.date} </span>;
 
-    setToCoverImg(rowIndex);
-
     return (
         <td className="song-container">
-            <img className="row-img" onClick={songImgEventListener}/>
+            <img 
+                data-lazysrc
+                className="row-img" 
+                onClick={songImgEventListener}
+                src={song.coverImagePath}
+            />
             {/* The "title" class allows the updating of the title text. This class is not used in the css! */}
             <span className="large-field-container title"> {song.title} </span>
             <button
@@ -43,13 +46,6 @@ function songImgEventListener(e: React.SyntheticEvent){
 
     if(song.isThisSongCurrent){
         toggleSongPlay();
-        // This is a case where we need to determine if the audio is playing or not
-        if(audio.paused){
-            setToCoverImg(currentRow.getIndex());
-        }
-        else{
-            setToPlayingGif(currentRow.getIndex());
-        }
         return;
     }
 
@@ -59,5 +55,4 @@ function songImgEventListener(e: React.SyntheticEvent){
 
     currentNonPriorityRow.set(rowIndex);
     playNewSong(rowIndex);
-    setToPlayingGif(currentRow.getIndex());
 }
