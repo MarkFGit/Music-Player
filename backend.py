@@ -5,6 +5,7 @@
 from flask import Flask, render_template, send_from_directory
 from datetime import datetime
 import os
+from pathlib import Path
 
 # Documentation about APSchedular can be found here https://apscheduler.readthedocs.io/en/master/userguide.html
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -109,6 +110,15 @@ if __name__ == "__main__":
 	print("Backup cycle starting...")
 
 	create_init_tables_if_needed()
+	media_path = Path(playlist_routes.root_path + "/static/media")
+
+	if not media_path.joinpath("songs").exists():
+		media_path.joinpath("songs").mkdir()
+	if not media_path.joinpath("songCovers").exists():
+		media_path.joinpath("songCovers").mkdir()
+
+	if not Path(playlist_routes.root_path + "/local backups").exists():
+		Path(playlist_routes.root_path + "/local backups").mkdir()
 
 	app.run(port=backend_env.PORT, debug=backend_env.DEBUG_OPTION)
 	
