@@ -187,10 +187,10 @@ def add_song_to_DB() -> str:
 	if(song_name is None):
 		raise NoneException()
 
-	song_folder = os.path.join(playlist_routes.root_path, "static\\media\\songs")
-	song_file.save(f"{song_folder}\\{song_name}")
+	song_folder = os.path.join(playlist_routes.root_path, "static/media/songs")
+	song_file.save(f"{song_folder}/{song_name}")
 
-	song_data: TinyTag = TinyTag.get(f"{song_folder}\\{song_name}", image=True)
+	song_data: TinyTag = TinyTag.get(f"{song_folder}/{song_name}", image=True)
 	cover_image_data = song_data.get_image()
 
 	has_cover_image = False
