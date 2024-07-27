@@ -63,7 +63,7 @@ def create_init_tables_if_needed() -> None:
 			title VARCHAR(100),
 			duration_seconds SMALLINT UNSIGNED NOT NULL,
 			artist VARCHAR(100), 
-			album VARCHAR(50), 
+			album VARCHAR(100), 
 			datetime_created DATETIME NOT NULL, 
 			plays SMALLINT UNSIGNED NOT NULL,
 			has_cover_image BIT NOT NULL
