@@ -2,6 +2,9 @@
 
 ### Rules for running these scripts 
 - Run from the base folder. (where backend.py is)
+	- This means both:
+		- Be in this directory when running the script
+		- Move this file temporarily to the base folder and run it there. This avoids the messiness of python imports from a parent folder.
 
 ### Migration script naming convention
 - Naming convention for restructuring the DB should be restructure_DB_\<migration_number>
@@ -11,7 +14,7 @@
 - Give a commit message of DB Restructured: Migration #`migration_number`
     - This way it is easy to find when a specific migration occurred.
 
-### Retoring a MYSQL Backup
+### Restoring a MYSQL Backup
 1. Locate the mysql backup file of your choosing (file should end in .sql)
 2. If you can, get mysql.exe added to PATH congrats. Skip to step #4
 3. Bring the backup file to the MYSQL bin folder (for me it's: 'C:\Program Files\MySQL\MySQL Server 8.0\bin')
@@ -20,3 +23,7 @@
 5. Choose the database you want to import to by running: use \<db_name>
 6. Then import the file by running: source \<db_backup_name.sql>
 7. Finally, you can quit the MySQL terminal by typing: quit
+
+
+### To Do:
+- Make instructions for restoring a MySQL backup on Linux.
