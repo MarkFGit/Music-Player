@@ -33,7 +33,6 @@ def back_up_db(db_name: str) -> None:
 	error_file_path = f"{new_dir_path}/ERROR_{date_file_name}.sql"
 
 	backup_db_to_local_dir(db_name, normal_file_path, error_file_path)
-	# copy_backup_to_MEGA(normal_file_path, error_file_path, date_file_name)
 
 	print(f"Backed up at {date_file_name}")
 
@@ -67,18 +66,3 @@ def backup_db_to_local_dir(db_name: str, normal_file_path: str, error_file_path:
 	no_error = (os.stat(error_file_path).st_size == 0)
 	if no_error:
 		os.remove(error_file_path)
-
-
-def copy_backup_to_MEGA(loc_norm_file_path: str, loc_err_file_path: str, date_file_name: str) -> None:
-	""" Copies the local backup files just made to the MEGA folder, which is synced up to the cloud. """
-	mega_backups_path = f"{os.path.expanduser('~')}/Documents/MEGA/DB Backups/{backend_env.ENV_NAME}"
-	new_dir_path = f"{mega_backups_path}/{date_file_name}"
-	
-	os.mkdir(new_dir_path)
-	mega_norm_path = f"{new_dir_path}/{date_file_name}.sql"
-	mega_err_path = f"{new_dir_path}/ERROR_{date_file_name}.sql"
-
-	shutil.copy2(loc_norm_file_path, mega_norm_path)
-
-	if os.path.isfile(loc_err_file_path):
-		shutil.copy2(loc_err_file_path, mega_err_path)
