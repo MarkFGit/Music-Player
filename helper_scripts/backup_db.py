@@ -58,7 +58,6 @@ def backup_db_to_local_dir(db_name: str, normal_file_path: str, error_file_path:
 			stdout=open(normal_file_path, "w"),
 			stderr=open(error_file_path, "w")
 		)
-		# Also suppress error password error? (Delete file if password text present)
 	else:
 		print("Failed to make a local backup!")
 		return
