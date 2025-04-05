@@ -3,6 +3,9 @@ $text-color: #cecece;
 
 .lower-bar
 {
+    position: sticky;
+    bottom: 0;
+
     width: calc(100vw - 20px);
     height: 100px;
     padding: 0 10px;

@@ -268,6 +268,8 @@
   !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./static/scss/lower-bar-styles.scss ***!
   \****************************************************************************************************************************/
 .lower-bar {
+  position: sticky;
+  bottom: 0;
   width: calc(100vw - 20px);
   height: 100px;
   padding: 0 10px;
