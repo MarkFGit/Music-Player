@@ -8,6 +8,10 @@ import {
 
 import { IMG_PATHS, getImgElemByID, PAGE_PROPERTIES, getSpanElemByID, getDivElemByID, formatTime, } from "./../globals";
 
+
+let wakeLock = null;
+
+
 audio.ontimeupdate = () => {
 	const songPosition = audio.currentTime / audio.duration;
 	if(isNaN(songPosition)) return;
@@ -113,6 +117,7 @@ export function toggleSongPlay(){
 		const song = playlistSongs.getSong(currentRow.getIndex());
 		getImgByRow(currentRow.getIndex()).src = song.coverImagePath;
 		setFooterPlayImgSrc();
+		releaseWakeLock();
 	})
 	.catch(error => {
 		console.error(`${error}` + ` Failed to pause song.`);
@@ -120,11 +125,36 @@ export function toggleSongPlay(){
 }
 
 
-function playSong(){
+async function playSong(){
 	audio.play();
+	
+	if(wakeLock === null){
+		const nav = navigator
+		if('wakeLock' in navigator){
+			try{
+				wakeLock = await nav['wakeLock'].request("screen");
+			}
+			catch (err) {
+				// Console log for now, but later make this into a notification error/message.
+				// - Not necessarily an error, maybe due to something system related, like the device being low on battery.
+				console.log(`${err.name}, ${err.message}`);
+			}
+		}
+	}
+	
+
 	getImgByRow(currentRow.getIndex()).src = IMG_PATHS.globalPlayingGifSrc;
 	setFooterPlayImgSrc();
 }
+
+
+async function releaseWakeLock(){
+	if(wakeLock !== null){
+		await wakeLock.release()
+		wakeLock = null;
+	}
+}
+
 
 
 export function revertPageToNoSong(){
@@ -139,6 +169,9 @@ export function revertPageToNoSong(){
 
 	currentRow.set(null);
 	currentNonPriorityRow.set(null);
+
+
+	releaseWakeLock();
 }
 
 

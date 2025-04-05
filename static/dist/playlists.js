@@ -33350,7 +33350,7 @@ if (false) {} else {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "ScreenPromptCancelButton": () => (/* binding */ ScreenPromptCancelButton)
+/* harmony export */   ScreenPromptCancelButton: () => (/* binding */ ScreenPromptCancelButton)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
@@ -33372,10 +33372,10 @@ function ScreenPromptCancelButton() {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "addNewPlaylist": () => (/* binding */ addNewPlaylist),
-/* harmony export */   "deletePlaylist": () => (/* binding */ deletePlaylist),
-/* harmony export */   "handleError": () => (/* binding */ handleError),
-/* harmony export */   "resolvePlaylistNames": () => (/* binding */ resolvePlaylistNames)
+/* harmony export */   addNewPlaylist: () => (/* binding */ addNewPlaylist),
+/* harmony export */   deletePlaylist: () => (/* binding */ deletePlaylist),
+/* harmony export */   handleError: () => (/* binding */ handleError),
+/* harmony export */   resolvePlaylistNames: () => (/* binding */ resolvePlaylistNames)
 /* harmony export */ });
 /* harmony import */ var _renderCustomTextBox__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./renderCustomTextBox */ "./static/scripts/renderCustomTextBox.tsx");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -33439,18 +33439,18 @@ function deletePlaylist(playlistName) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "IMG_PATHS": () => (/* binding */ IMG_PATHS),
-/* harmony export */   "PAGE_PROPERTIES": () => (/* binding */ PAGE_PROPERTIES),
-/* harmony export */   "addEscapeFeature": () => (/* binding */ addEscapeFeature),
-/* harmony export */   "formatTime": () => (/* binding */ formatTime),
-/* harmony export */   "getDivElemByID": () => (/* binding */ getDivElemByID),
-/* harmony export */   "getImgElemByID": () => (/* binding */ getImgElemByID),
-/* harmony export */   "getInputElemByID": () => (/* binding */ getInputElemByID),
-/* harmony export */   "getSpanElemByID": () => (/* binding */ getSpanElemByID),
-/* harmony export */   "getTextElemByID": () => (/* binding */ getTextElemByID),
-/* harmony export */   "isHomePage": () => (/* binding */ isHomePage),
-/* harmony export */   "isPlaylistPage": () => (/* binding */ isPlaylistPage),
-/* harmony export */   "removeFileExtension": () => (/* binding */ removeFileExtension)
+/* harmony export */   IMG_PATHS: () => (/* binding */ IMG_PATHS),
+/* harmony export */   PAGE_PROPERTIES: () => (/* binding */ PAGE_PROPERTIES),
+/* harmony export */   addEscapeFeature: () => (/* binding */ addEscapeFeature),
+/* harmony export */   formatTime: () => (/* binding */ formatTime),
+/* harmony export */   getDivElemByID: () => (/* binding */ getDivElemByID),
+/* harmony export */   getImgElemByID: () => (/* binding */ getImgElemByID),
+/* harmony export */   getInputElemByID: () => (/* binding */ getInputElemByID),
+/* harmony export */   getSpanElemByID: () => (/* binding */ getSpanElemByID),
+/* harmony export */   getTextElemByID: () => (/* binding */ getTextElemByID),
+/* harmony export */   isHomePage: () => (/* binding */ isHomePage),
+/* harmony export */   isPlaylistPage: () => (/* binding */ isPlaylistPage),
+/* harmony export */   removeFileExtension: () => (/* binding */ removeFileExtension)
 /* harmony export */ });
 // The purpose of this file is to provide global constants and functions to be used in multiple other files.
 class TypeError extends Error {
@@ -33572,7 +33572,7 @@ function getDivElemByID(ID) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "addNewPlaylistScreenPromptEventlistener": () => (/* binding */ addNewPlaylistScreenPromptEventlistener)
+/* harmony export */   addNewPlaylistScreenPromptEventlistener: () => (/* binding */ addNewPlaylistScreenPromptEventlistener)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
@@ -33628,7 +33628,7 @@ function renderNewPlaylistScreenPrompt(renderGrid) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "RowContent": () => (/* binding */ RowContent)
+/* harmony export */   RowContent: () => (/* binding */ RowContent)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
@@ -33699,11 +33699,11 @@ function songImgEventListener(e) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "addSongToPlaylist": () => (/* binding */ addSongToPlaylist),
-/* harmony export */   "deleteSongFromDB": () => (/* binding */ deleteSongFromDB),
-/* harmony export */   "getSong": () => (/* binding */ getSong),
-/* harmony export */   "removeSongFromCurrPlaylist": () => (/* binding */ removeSongFromCurrPlaylist),
-/* harmony export */   "uploadSongFile": () => (/* binding */ uploadSongFile)
+/* harmony export */   addSongToPlaylist: () => (/* binding */ addSongToPlaylist),
+/* harmony export */   deleteSongFromDB: () => (/* binding */ deleteSongFromDB),
+/* harmony export */   getSong: () => (/* binding */ getSong),
+/* harmony export */   removeSongFromCurrPlaylist: () => (/* binding */ removeSongFromCurrPlaylist),
+/* harmony export */   uploadSongFile: () => (/* binding */ uploadSongFile)
 /* harmony export */ });
 /* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
 /* harmony import */ var _renderCustomTextBox__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../renderCustomTextBox */ "./static/scripts/renderCustomTextBox.tsx");
@@ -33795,17 +33795,17 @@ function uploadSongFile(songFile) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "fillPlaylistPreviewImages": () => (/* binding */ fillPlaylistPreviewImages),
-/* harmony export */   "getImgByRow": () => (/* binding */ getImgByRow),
-/* harmony export */   "getRowIndexByEventTarget": () => (/* binding */ getRowIndexByEventTarget),
-/* harmony export */   "handleFindingNextSong": () => (/* binding */ handleFindingNextSong),
-/* harmony export */   "playNewSong": () => (/* binding */ playNewSong),
-/* harmony export */   "revertPageToNoSong": () => (/* binding */ revertPageToNoSong),
-/* harmony export */   "revertRow": () => (/* binding */ revertRow),
-/* harmony export */   "scrollPlaylistIfNeeded": () => (/* binding */ scrollPlaylistIfNeeded),
-/* harmony export */   "setToPlayingGif": () => (/* binding */ setToPlayingGif),
-/* harmony export */   "setTotalPlaylistTimeText": () => (/* binding */ setTotalPlaylistTimeText),
-/* harmony export */   "toggleSongPlay": () => (/* binding */ toggleSongPlay)
+/* harmony export */   fillPlaylistPreviewImages: () => (/* binding */ fillPlaylistPreviewImages),
+/* harmony export */   getImgByRow: () => (/* binding */ getImgByRow),
+/* harmony export */   getRowIndexByEventTarget: () => (/* binding */ getRowIndexByEventTarget),
+/* harmony export */   handleFindingNextSong: () => (/* binding */ handleFindingNextSong),
+/* harmony export */   playNewSong: () => (/* binding */ playNewSong),
+/* harmony export */   revertPageToNoSong: () => (/* binding */ revertPageToNoSong),
+/* harmony export */   revertRow: () => (/* binding */ revertRow),
+/* harmony export */   scrollPlaylistIfNeeded: () => (/* binding */ scrollPlaylistIfNeeded),
+/* harmony export */   setToPlayingGif: () => (/* binding */ setToPlayingGif),
+/* harmony export */   setTotalPlaylistTimeText: () => (/* binding */ setTotalPlaylistTimeText),
+/* harmony export */   toggleSongPlay: () => (/* binding */ toggleSongPlay)
 /* harmony export */ });
 /* harmony import */ var _songs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./songs */ "./static/scripts/playlistScripts/songs.ts");
 /* harmony import */ var _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./playlistGlobals */ "./static/scripts/playlistScripts/playlistGlobals.ts");
@@ -33823,6 +33823,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
+let wakeLock = null;
 _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.ontimeupdate = () => {
     const songPosition = _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.currentTime / _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.duration;
     if (isNaN(songPosition))
@@ -33899,15 +33900,39 @@ function toggleSongPlay() {
         const song = _songs__WEBPACK_IMPORTED_MODULE_0__.playlistSongs.getSong(_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.currentRow.getIndex());
         getImgByRow(_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.currentRow.getIndex()).src = song.coverImagePath;
         setFooterPlayImgSrc();
+        releaseWakeLock();
     })
         .catch(error => {
         console.error(`${error}` + ` Failed to pause song.`);
     });
 }
 function playSong() {
-    _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.play();
-    getImgByRow(_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.currentRow.getIndex()).src = _globals__WEBPACK_IMPORTED_MODULE_2__.IMG_PATHS.globalPlayingGifSrc;
-    setFooterPlayImgSrc();
+    return __awaiter(this, void 0, void 0, function* () {
+        _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.play();
+        if (wakeLock === null) {
+            const nav = navigator;
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = yield nav['wakeLock'].request("screen");
+                }
+                catch (err) {
+                    // Console log for now, but later make this into a notification error/message.
+                    // - Not necessarily an error, maybe due to something system related, like the device being low on battery.
+                    console.log(`${err.name}, ${err.message}`);
+                }
+            }
+        }
+        getImgByRow(_playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.currentRow.getIndex()).src = _globals__WEBPACK_IMPORTED_MODULE_2__.IMG_PATHS.globalPlayingGifSrc;
+        setFooterPlayImgSrc();
+    });
+}
+function releaseWakeLock() {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (wakeLock !== null) {
+            yield wakeLock.release();
+            wakeLock = null;
+        }
+    });
 }
 function revertPageToNoSong() {
     (0,_globals__WEBPACK_IMPORTED_MODULE_2__.getImgElemByID)("footer-play-img").src = _globals__WEBPACK_IMPORTED_MODULE_2__.IMG_PATHS.globalPlayImgSrc;
@@ -33919,6 +33944,7 @@ function revertPageToNoSong() {
     _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.audio.pause();
     _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.currentRow.set(null);
     _playlistGlobals__WEBPACK_IMPORTED_MODULE_1__.currentNonPriorityRow.set(null);
+    releaseWakeLock();
 }
 function revertRow(rowIndex) {
     const song = _songs__WEBPACK_IMPORTED_MODULE_0__.playlistSongs.getSong(rowIndex);
@@ -34014,13 +34040,13 @@ function setTotalPlaylistTimeText() {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "audio": () => (/* binding */ audio),
-/* harmony export */   "currPlaylistName": () => (/* binding */ currPlaylistName),
-/* harmony export */   "currentNonPriorityRow": () => (/* binding */ currentNonPriorityRow),
-/* harmony export */   "currentRow": () => (/* binding */ currentRow),
-/* harmony export */   "isLastAddedPlaylist": () => (/* binding */ isLastAddedPlaylist),
-/* harmony export */   "setPlayingDisplayTitle": () => (/* binding */ setPlayingDisplayTitle),
-/* harmony export */   "table": () => (/* binding */ table)
+/* harmony export */   audio: () => (/* binding */ audio),
+/* harmony export */   currPlaylistName: () => (/* binding */ currPlaylistName),
+/* harmony export */   currentNonPriorityRow: () => (/* binding */ currentNonPriorityRow),
+/* harmony export */   currentRow: () => (/* binding */ currentRow),
+/* harmony export */   isLastAddedPlaylist: () => (/* binding */ isLastAddedPlaylist),
+/* harmony export */   setPlayingDisplayTitle: () => (/* binding */ setPlayingDisplayTitle),
+/* harmony export */   table: () => (/* binding */ table)
 /* harmony export */ });
 /* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../globals */ "./static/scripts/globals.ts");
 // File for anything that both the playlist and songs can read/write to.
@@ -34112,9 +34138,9 @@ function setPlayingDisplayTitle(artist, title, fileName) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "SongOptionsDropDown": () => (/* binding */ SongOptionsDropDown),
-/* harmony export */   "renderSongOptionsDropDown": () => (/* binding */ renderSongOptionsDropDown),
-/* harmony export */   "unmountSongOptionsContainer": () => (/* binding */ unmountSongOptionsContainer)
+/* harmony export */   SongOptionsDropDown: () => (/* binding */ SongOptionsDropDown),
+/* harmony export */   renderSongOptionsDropDown: () => (/* binding */ renderSongOptionsDropDown),
+/* harmony export */   unmountSongOptionsContainer: () => (/* binding */ unmountSongOptionsContainer)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
@@ -34350,10 +34376,10 @@ function handleSongEdit(rowNum) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Song": () => (/* binding */ Song),
-/* harmony export */   "playlistSongs": () => (/* binding */ playlistSongs),
-/* harmony export */   "prioritySongs": () => (/* binding */ prioritySongs),
-/* harmony export */   "updateMediaSessionMetadata": () => (/* binding */ updateMediaSessionMetadata)
+/* harmony export */   Song: () => (/* binding */ Song),
+/* harmony export */   playlistSongs: () => (/* binding */ playlistSongs),
+/* harmony export */   prioritySongs: () => (/* binding */ prioritySongs),
+/* harmony export */   updateMediaSessionMetadata: () => (/* binding */ updateMediaSessionMetadata)
 /* harmony export */ });
 /* harmony import */ var _contactServerGlobals__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../contactServerGlobals */ "./static/scripts/contactServerGlobals.ts");
 /* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../globals */ "./static/scripts/globals.ts");
@@ -34648,7 +34674,7 @@ function updateMediaSessionMetadata(song) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "renderCustomTextBox": () => (/* binding */ renderCustomTextBox)
+/* harmony export */   renderCustomTextBox: () => (/* binding */ renderCustomTextBox)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
@@ -34679,8 +34705,8 @@ function renderCustomTextBox(customText) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "removeScreenPrompt": () => (/* binding */ removeScreenPrompt),
-/* harmony export */   "renderScreenPrompt": () => (/* binding */ renderScreenPrompt)
+/* harmony export */   removeScreenPrompt: () => (/* binding */ removeScreenPrompt),
+/* harmony export */   renderScreenPrompt: () => (/* binding */ renderScreenPrompt)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
@@ -34783,8 +34809,6 @@ function removeScreenPrompt() {
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
-(() => {
 /*!**************************************************************!*\
   !*** ./static/scripts/playlistScripts/setupPlaylistPage.tsx ***!
   \**************************************************************/
@@ -35023,8 +35047,6 @@ for (const [current] of Object.entries(footerImgInfo)) {
     });
 }
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-})();
 
 /******/ })()
 ;
